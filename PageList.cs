@@ -34,15 +34,15 @@ namespace DGOLibrary
 
 
 
-  /*
+
   internal bool ContainsURL( string URL )
     {
     return PageDictionary.ContainsKey( URL );
     }
-    */
 
 
-  internal void UpdatePageFromTempFile( string URL, string FileName )
+
+  internal void UpdatePageFromTempFile( string URL, string FileName, string Title )
     {
     Page UsePage;
     if( PageDictionary.ContainsKey( URL ))
@@ -63,7 +63,7 @@ namespace DGOLibrary
     // the old contents are not saved.  So for example
     // the main index page at www.durangoherald.com
     // is updated but the old one is not saved.
-    UsePage.UpdateFromTempFile( URL, FileName );
+    UsePage.UpdateFromTempFile( URL, FileName, Title );
     }
 
 
