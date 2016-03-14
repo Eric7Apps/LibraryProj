@@ -17,10 +17,10 @@ namespace DGOLibrary
   {
   private MainForm MForm;
   private string URL = "";
+  private string Title = ""; // The title given in the link tag.
   private ECTime ContentsUpdated;
   private string FileName = "";
   private string FileContents = "";
-  private string[] Links;
   internal int IndexNumber = 0;
 
 
@@ -44,13 +44,15 @@ namespace DGOLibrary
     }
 
 
-  internal bool UpdateFromTempFile( string UseURL, string TempFileName )
+  internal bool UpdateFromTempFile( string UseURL, string TempFileName, string UseTitle )
     {
     if( MForm.PageList1 == null )
       return false;
 
+    Title = UseTitle;
     URL = UseURL;
     MForm.ShowStatus( "Updating: " + URL );
+    MForm.ShowStatus( "Title: " + Title );
 
     if( !ReadFromTextFile( TempFileName ))
       return false;
@@ -60,6 +62,9 @@ namespace DGOLibrary
       FileName = MakeNewFileName();
 
     WriteToTextFile();
+    ParseLinks();
+    ParseWords();
+
     return true;
     }
 
@@ -67,17 +72,174 @@ namespace DGOLibrary
 
   private void ParseLinks()
     {
+    if( FileContents.Length < 1 )
+      return;
+
+    if( !FileContents.Contains( "<" ))
+      return;
+
+
     // Split it at the beginning of each tag.
     string[] Lines = FileContents.Split( new Char[] { '<' } );
+    StringBuilder SBuilder = new StringBuilder();
+    bool AppendingLink = false;
     for( int Count = 0; Count < Lines.Length; Count++ )
       {
-      MForm.ShowStatus( Lines[Count] );
+      string Line = Lines[Count];
+      if( Line.ToLower().StartsWith( "a href=" ))
+        AppendingLink = true;
 
+      // a target="_blank" href="
+
+      // a class="weather-condition" href="
+
+      if( AppendingLink )
+        SBuilder.Append( Line );
+
+      if( Line.ToLower().Contains( "/a>" ))
+        {
+        AppendingLink = false;
+        AddOneLink( SBuilder.ToString());
+        SBuilder.Clear();
+        }
       }
-
-    // Links = new string[];
     }
 
+
+
+  private void AddOneLink( string InString )
+    {
+    if( MForm.GetIsClosing())
+      return;
+
+    MForm.ShowStatus( " " );
+    // MForm.ShowStatus( "AddOneLink: " + InString );
+    string[] Parts = InString.Split( new Char[] { '>' } );
+    if( Parts.Length < 2 )
+      return;
+
+    /*
+    if( Parts.Length > 2 )
+      {
+      // Handle something like this?
+      // a href="http://thecloudscout.com/?referrer=durango-herald">
+      // img alt="" src="/img/weather_icons/sct.png" height="47" />
+      // a class="weather-condition" href="http://thecloudscout.com/?referrer=durango-herald">Partly Cloudy
+      // /a>
+
+      return;
+      }
+      */
+
+    string LinkURL = Parts[0].Trim();
+    string LinkTitle = Parts[1].Trim();
+
+    LinkURL = LinkURL.Replace( "a href=", "" );
+    LinkURL = LinkURL.Replace( "\"", "" );
+
+    LinkTitle = LinkTitle.Replace( "/a", "" );
+
+    // a href="/section/News01/">Local &amp; Regional
+    if( !LinkURL.StartsWith( "http://" ))
+      LinkURL = "http://www.durangoherald.com" + LinkURL;
+
+    MForm.ShowStatus( "LinkURL: " + LinkURL );
+    MForm.ShowStatus( "LinkTitle: " + LinkTitle );
+
+    if( !MForm.PageList1.ContainsURL( LinkURL ))
+      {
+      // Get this new page:
+      if( MForm.GetURLMgrForm != null )
+        MForm.GetURLMgrForm.AddURLForm( LinkTitle, LinkURL );
+
+      }
+    }
+
+
+
+  private void ParseWords()
+    {
+    if( FileContents.Length < 1 )
+      return;
+
+    if( !FileContents.Contains( "<" ))
+      return;
+
+    String AllLines = FileContents;
+    AllLines = AllLines.Replace( "<", " " );
+    AllLines = AllLines.Replace( ">", " " );
+    AllLines = AllLines.Replace( "/", " " );
+    AllLines = AllLines.Replace( "=", " " );
+    AllLines = AllLines.Replace( ".", " " );
+    AllLines = AllLines.Replace( ",", " " );
+    AllLines = AllLines.Replace( ";", " " );
+    AllLines = AllLines.Replace( ":", " " );
+    AllLines = AllLines.Replace( "\r", " " );
+    AllLines = AllLines.Replace( "\n", " " );
+    AllLines = AllLines.Replace( "\\", " " );
+    AllLines = AllLines.Replace( "-", " " );
+    AllLines = AllLines.Replace( "_", " " );
+    AllLines = AllLines.Replace( "'", " " );
+    AllLines = AllLines.Replace( "!", " " );
+    AllLines = AllLines.Replace( "(", " " );
+    AllLines = AllLines.Replace( ")", " " );
+    AllLines = AllLines.Replace( "{", " " );
+    AllLines = AllLines.Replace( "}", " " );
+    AllLines = AllLines.Replace( "[", " " );
+    AllLines = AllLines.Replace( "]", " " );
+
+    // Distinguish a word like 'script' from the
+    // script tag.  Somebody could search for a 
+    // script for play.
+    // Also, type, text, media, window, replace
+
+    // Split on spaces.
+    string[] WordsArray = AllLines.Split( new Char[] { ' ' } );
+    for( int Count = 0; Count < WordsArray.Length; Count++ )
+      {
+      string Word = WordsArray[Count].ToLower().Trim();
+      if( Word.Length < 2 )
+        continue;
+
+      // Word = Word.Replace( "\"", "" );
+
+      if( !WordIsIndexed( Word ))
+        continue;
+
+      MForm.ShowStatus( "Word: " + Word );
+
+      }
+    }
+
+
+
+  private bool WordIsIndexed( string Word )
+    {
+    // This is hard-coded for now, but it could be from
+    // a configuration file and dictionary.
+    if( Word == "&amp;" )
+      return false;
+
+    if( Word == "the" )
+      return false;
+
+    if( Word == "html" )
+      return false;
+
+    if( Word == "com" )
+      return false;
+
+    if( Word == "org" )
+      return false;
+
+    if( Word == "rel" )
+      return false;
+
+    if( Word == "href" )
+      return false;
+
+    return true;
+    }
 
 
   private string MakeNewFileName()
@@ -110,6 +272,9 @@ namespace DGOLibrary
     ulong Ticks = ECTime.GetRandomishTickCount() & 0xFF;
     FileS += "T" + Ticks.ToString();
 
+    // Using .txt instead of .htm because it's only
+    // used as text data here, and relative links won't
+    // work.  And also because of Javascript.
     FileS += ".txt";
     return Path + FileS;
     }
@@ -180,11 +345,11 @@ namespace DGOLibrary
     if( FileContents.Length < 1 )
       return false;
 
-    MForm.ShowStatus( "Saving to file: \r\n" + FileName );
+    // MForm.ShowStatus( "Saving to file: \r\n" + FileName );
 
     string[] Lines = FileContents.Split( new Char[] { '\r' } );
 
-    using( StreamWriter SWriter = new StreamWriter( FileName  )) 
+    using ( StreamWriter SWriter = new StreamWriter( FileName  )) 
       {
       for( int Count = 0; Count < Lines.Length; Count++ )
         {
