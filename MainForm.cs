@@ -1,4 +1,4 @@
-﻿// Programming by Eric Chauvin.
+// Programming by Eric Chauvin.
 // Notes on this source code are at:
 // ericlibproj.blogspot.com
 
@@ -21,12 +21,12 @@ namespace DGOLibrary
 {
   public partial class MainForm : Form
   {
-  internal const string VersionDate = "3/11/2016";
+  internal const string VersionDate = "3/14/2016";
   internal const int VersionNumber = 09; // 0.9
-  internal const string MessageBoxTitle = "Durango Library Project";
+  internal const string MessageBoxTitle = "Library Project";
   private System.Threading.Mutex SingleInstanceMutex = null;
   private bool IsSingleInstance = false;
-  private GetURLManagerForm GetURLMgrForm;
+  internal GetURLManagerForm GetURLMgrForm;
   private string TempFileDirectory = "";
   private string PagesDirectory = "";
   private string DataDirectory = "";
@@ -75,6 +75,9 @@ namespace DGOLibrary
 
   private void testToolStripMenuItem_Click(object sender, EventArgs e)
     {
+    string URL = "http://www.durangoherald.com";
+    string FileName = GetPagesDirectory() + "TestFile.txt";
+    PageList1.UpdatePageFromTempFile( URL, FileName, "Main Page" );
 
     }
 
