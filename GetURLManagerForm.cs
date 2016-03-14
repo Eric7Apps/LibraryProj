@@ -43,8 +43,13 @@ namespace DGOLibrary
 
     AddInitialLinks();
 
-    QueueTimer.Interval = 1000;
-    QueueTimer.Start();
+    // The queue timer is being started from the Test
+    // menu for now.
+    // QueueTimer.Interval = 1000;
+    // QueueTimer.Start();
+
+    NewLinksTimer.Interval = 60 * 60 * 1000;
+    NewLinksTimer.Start();
     }
 
 
@@ -53,8 +58,71 @@ namespace DGOLibrary
     {
     // This is hard-coded for now, but it could be from a
     // list in a configuration file.
-    AddURLForm( "http://www.durangoherald.com" );
-    AddURLForm( "http://www.durangoherald.com/section/News01/" );
+
+    AddURLForm( "Main Page", "http://www.durangoherald.com" );
+    AddURLForm( "Local / Regional", "http://www.durangoherald.com/section/News01/" );
+    AddURLForm( "National / World", "http://www.durangoherald.com/section/News03/" );
+    AddURLForm( "Business", "http://www.durangoherald.com/section/News04/" );
+    AddURLForm( "Columnists", "http://www.durangoherald.com//section/Columnists/" );
+    AddURLForm( "Education", "http://www.durangoherald.com/section/News05/" );
+    AddURLForm( "Good Earth", "http://www.durangoherald.com/section/News06/" );
+    AddURLForm( "Obituaries", "http://obituaries.durangoherald.com/obituaries/durangoherald/" );
+    AddURLForm( "Real Estate", "http://www.durangoherald.com/section/realestate/" );
+    AddURLForm( "Sports", "http://www.durangoherald.com/section/Sports/" );
+    AddURLForm( "Professtional Sports", "http://www.durangoherald.com/section/Sports01/" );
+    AddURLForm( "College Sports", "http://www.durangoherald.com/section/Sports02/" );
+    AddURLForm( "High School Sports", "http://www.durangoherald.com/section/Sports03/" );
+    AddURLForm( "Youth Sports", "http://www.durangoherald.com/section/Sports04/" );
+    AddURLForm( "Outdoors Sports", "http://www.durangoherald.com/section/Sports05/" );
+    AddURLForm( "Arts and Entertainment", "http://www.durangoherald.com/section/Arts/" );
+    AddURLForm( "Performing Arts", "http://www.durangoherald.com/section/Arts01/" );
+    AddURLForm( "Visual Arts", "http://www.durangoherald.com/section/Arts02/" );
+    AddURLForm( "Music", "http://www.durangoherald.com/section/Arts03/" );
+    AddURLForm( "Film and TV", "http://www.durangoherald.com/section/Arts04/" );
+    AddURLForm( "Books", "http://www.durangoherald.com/section/Arts05/" );
+    AddURLForm( "Lifestyle", "http://www.durangoherald.com/section/Lifestyle/" );
+    AddURLForm( "Southwest Life", "http://www.durangoherald.com/section/Lifestyle01/" );
+    AddURLForm( "Food", "http://www.durangoherald.com/section/Lifestyle02/" );
+    AddURLForm( "Travel", "http://www.durangoherald.com/section/Lifestyle03/" );
+    AddURLForm( "Health", "http://www.durangoherald.com/section/Lifestyle04/" );
+    AddURLForm( "Family", "http://www.durangoherald.com/section/Lifestyle05/" );
+    AddURLForm( "Religion", "http://www.durangoherald.com/section/Lifestyle06/" );
+    AddURLForm( "Opinion", "http://www.durangoherald.com/section/Opinion/" );
+    AddURLForm( "Editorial", "http://www.durangoherald.com/section/Opinion01/" );
+    AddURLForm( "Op Ed", "http://www.durangoherald.com/section/Opinion02/" );
+    AddURLForm( "Letters to the Editor", "http://www.durangoherald.com/section/Opinion03/" );
+    AddURLForm( "Newsstand", "http://www.durangoherald.com/section/newsstand/" );
+    AddURLForm( "Events", "http://swscene.com/" );
+    AddURLForm( "Classifieds", "http://marketplace.durangoherald.com/searchresults.aspx?p=8727\" target=\"_blank\">" );
+    AddURLForm( "Gold King Mine spill", "http://marketplace.durangoherald.com/section/goldking" );
+    AddURLForm( "Staff Listing", "http://www.durangoherald.com/section/contact/" );
+
+    // /section/snowdown
+    // /section/video
+    // Weather:
+    // "http://thecloudscout.com/?referrer=durango-herald">
+
+    // Shop:
+    // href="http://shop.fourcornersmarketplace.com/durango-co" target="_blank">
+
+    // Webcams:
+    // http://thecloudscout.com
+
+    // Highway web cams:
+    // http://i.cotrip.org
+
+    // 4 Corners TV:
+    // http://4cornerstv.com
+
+    // http://www.pinerivertimes.com
+
+    // http://www.the-journal.com
+
+    // http://www.dgomag.com
+
+    // /section/contact/">Staff Listing
+
+    // /section/focusonbusiness/
     }
 
 
@@ -78,11 +146,11 @@ namespace DGOLibrary
 
 
 
-  internal bool AddURLForm( string URL )
+  internal bool AddURLForm( string Title, string URL )
     {
     string FileName = GetNextTempFileName();
 
-    GetFromURLForm GetForm = new GetFromURLForm( MForm, URL, FileName );
+    GetFromURLForm GetForm = new GetFromURLForm( MForm, URL, FileName, Title );
     GetURLArray[GetURLArrayLast] = GetForm;
     GetURLArrayLast++;
 
@@ -119,7 +187,8 @@ namespace DGOLibrary
 
   private void testToolStripMenuItem_Click(object sender, EventArgs e)
     {
-
+    QueueTimer.Interval = 1000;
+    QueueTimer.Start();
     }
 
 
@@ -155,11 +224,14 @@ namespace DGOLibrary
       {
       if( !GetURLArray[Count].GetHasStarted())
         continue;
- 
+
+      /* ===========
+      Leave it showing for testing.
+
       if( GetURLArray[Count].GetFileIsDone() ||
         GetURLArray[Count].GetHadErrorOrCancel())
         {
-        ShowStatus( "Closing finished form." );
+        // ShowStatus( "Closing finished form." );
         if( !GetURLArray[Count].IsDisposed )
           {
           GetURLArray[Count].Hide();
@@ -170,8 +242,10 @@ namespace DGOLibrary
         GetURLArray[Count] = null;
         continue;
         }
+      */
 
-      if( GetURLArray[Count].GetStartTimeSecondsToNow() > (60 * 2))
+      int OldTime = 60 * 3;
+      if( GetURLArray[Count].GetStartTimeSecondsToNow() > OldTime )
         {
         // It's hung up or something and it shouldn't
         // take this long.
@@ -183,6 +257,8 @@ namespace DGOLibrary
           GetURLArray[Count].Dispose();
           }
 
+        // Things like this should only run
+        // in the main thread.
         GetURLArray[Count] = null;
         continue;
         }
@@ -205,7 +281,18 @@ namespace DGOLibrary
       }
 
     GetURLArrayLast = MoveTo;
-    ShowStatus( "After freeing old ones last is: " + GetURLArrayLast.ToString());
+    // ShowStatus( "After freeing old ones last is: " + GetURLArrayLast.ToString());
+
+    // if( GetURLArrayLast == 0 )
+      // {
+      // Check for new links again this way instead of
+      // using the new links timer?
+      // AddInitialLinks();
+
+      // Or just keep checking for breaking stories
+      // only here?
+      // AddURLForm( "Main Page", "http://www.durangoherald.com" );
+      // }
     }
     catch( Exception Except )
       {
@@ -226,10 +313,9 @@ namespace DGOLibrary
         continue;
 
       // Start up the first one that hasn't already been started.
-      ShowStatus( "Starting next in queue." );
-
+      // ShowStatus( "Starting next in queue." );
       GetURLArray[Count].StartHttp( true );
-      return;
+      return; // Only start one.
       }
 
     }
@@ -254,7 +340,7 @@ namespace DGOLibrary
     // Play nice and don't send requests too often.
     if( QueueTime.GetSecondsToNow() > 3.0 )
       {
-      ShowStatus( "Timer for next in queue." );
+      // ShowStatus( "Timer for next in queue." );
       StartNextInQueue();
       QueueTime.SetToNow();
       }
@@ -267,6 +353,13 @@ namespace DGOLibrary
       }
     }
 
+
+
+  private void NewLinksTimer_Tick(object sender, EventArgs e)
+    {
+    // Check for new links again once every so often.
+    AddInitialLinks();
+    }
 
 
   }
