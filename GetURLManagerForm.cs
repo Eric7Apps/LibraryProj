@@ -92,10 +92,15 @@ namespace DGOLibrary
     AddURLForm( "Op Ed", "http://www.durangoherald.com/section/Opinion02/" );
     AddURLForm( "Letters to the Editor", "http://www.durangoherald.com/section/Opinion03/" );
     AddURLForm( "Newsstand", "http://www.durangoherald.com/section/newsstand/" );
-    AddURLForm( "Events", "http://swscene.com/" );
-    AddURLForm( "Classifieds", "http://marketplace.durangoherald.com/searchresults.aspx?p=8727\" target=\"_blank\">" );
-    AddURLForm( "Gold King Mine spill", "http://marketplace.durangoherald.com/section/goldking" );
+    AddURLForm( "Gold King Mine Spill", "http://www.durangoherald.com/section/goldking" );
     AddURLForm( "Staff Listing", "http://www.durangoherald.com/section/contact/" );
+
+    // See what is excluded in Page.cs
+    // LinkURLIsGood().
+
+    // AddURLForm( "Events", "http://swscene.com/" );
+    // marketplace.durangoherald.com
+    // AddURLForm( "Classifieds", "http://marketplace.durangoherald.com/searchresults.aspx?p=8727\" target=\"_blank\">" );
 
     // /section/snowdown
     // /section/video
@@ -119,8 +124,6 @@ namespace DGOLibrary
     // http://www.the-journal.com
 
     // http://www.dgomag.com
-
-    // /section/contact/">Staff Listing
 
     // /section/focusonbusiness/
     }
@@ -166,7 +169,10 @@ namespace DGOLibrary
         }
       }
 
-    ShowStatus( "Added to queue: " + URL );
+    ShowStatus( " " );
+    ShowStatus( "In Queue:" );
+    ShowStatus( Title );
+    ShowStatus( URL );
     return true;
     }
 
@@ -187,7 +193,7 @@ namespace DGOLibrary
 
   private void testToolStripMenuItem_Click(object sender, EventArgs e)
     {
-    QueueTimer.Interval = 1000;
+    QueueTimer.Interval = 5000;
     QueueTimer.Start();
     }
 
@@ -225,9 +231,6 @@ namespace DGOLibrary
       if( !GetURLArray[Count].GetHasStarted())
         continue;
 
-      /* ===========
-      Leave it showing for testing.
-
       if( GetURLArray[Count].GetFileIsDone() ||
         GetURLArray[Count].GetHadErrorOrCancel())
         {
@@ -242,9 +245,8 @@ namespace DGOLibrary
         GetURLArray[Count] = null;
         continue;
         }
-      */
 
-      int OldTime = 60 * 3;
+      int OldTime = 60 * 2;
       if( GetURLArray[Count].GetStartTimeSecondsToNow() > OldTime )
         {
         // It's hung up or something and it shouldn't
