@@ -34,10 +34,19 @@ namespace DGOLibrary
 
 
 
-
   internal bool ContainsURL( string URL )
     {
     return PageDictionary.ContainsKey( URL );
+    }
+
+
+
+  internal int GetIndex( string URL )
+    {
+    if( !PageDictionary.ContainsKey( URL ))
+      return -1;
+
+    return PageDictionary[URL].GetIndex();
     }
 
 
@@ -55,7 +64,7 @@ namespace DGOLibrary
       PageDictionary[URL] = UsePage;
       // Don't delete things from this dictionary unless
       // you reindex the whole thing.
-      PageDictionary[URL].IndexNumber = PageDictionary.Count;
+      PageDictionary[URL].SetIndex( PageDictionary.Count );
       }
 
     // Notice that if the URL aleady exists then
@@ -63,6 +72,11 @@ namespace DGOLibrary
     // the old contents are not saved.  So for example
     // the main index page at www.durangoherald.com
     // is updated but the old one is not saved.
+
+    // When this page gets parsed it will refer back
+    // to this PageList to get the index for the URL
+    // by using GetIndex(), which looks in the
+    // PageDictionary.
     UsePage.UpdateFromTempFile( URL, FileName, Title );
     }
 
