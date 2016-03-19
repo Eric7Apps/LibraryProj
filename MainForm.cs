@@ -21,7 +21,7 @@ namespace DGOLibrary
 {
   public partial class MainForm : Form
   {
-  internal const string VersionDate = "3/14/2016";
+  internal const string VersionDate = "3/19/2016";
   internal const int VersionNumber = 09; // 0.9
   internal const string MessageBoxTitle = "Library Project";
   private System.Threading.Mutex SingleInstanceMutex = null;
@@ -34,6 +34,8 @@ namespace DGOLibrary
   private bool Cancelled = false;
   internal GlobalProperties GlobalProps;
   internal PageList PageList1;
+  internal Words AllWords;
+  internal WordsDictionary WordsDictionary1;
 
 
 
@@ -47,7 +49,9 @@ namespace DGOLibrary
     GlobalProps = new GlobalProperties( this );
     ///////////////////////
 
+    WordsDictionary1 = new WordsDictionary( this );
     PageList1 = new PageList( this );
+    AllWords = new Words( this );
 
     if( !CheckSingleInstance())
       return;
@@ -65,8 +69,10 @@ namespace DGOLibrary
     if( IsClosing )
       return;
 
-    if( MainTextBox.Text.Length > (80 * 5000))
-      MainTextBox.Text = "";
+    // Commented out for testing but it would be
+    // needed on a running server.
+    // if( MainTextBox.Text.Length > (80 * 5000))
+      // MainTextBox.Text = "";
 
     MainTextBox.AppendText( Status + "\r\n" ); 
     }
@@ -77,8 +83,7 @@ namespace DGOLibrary
     {
     string URL = "http://www.durangoherald.com";
     string FileName = GetPagesDirectory() + "TestFile.txt";
-    PageList1.UpdatePageFromTempFile( URL, FileName, "Main Page" );
-
+    PageList1.UpdatePageFromTempFile( "Main Page", URL, FileName );
     }
 
 
@@ -96,7 +101,8 @@ namespace DGOLibrary
     try
     {
     TempFileDirectory = Application.StartupPath + "\\TempFiles\\";
-    PagesDirectory = Application.StartupPath + "\\Pages\\";
+    // PagesDirectory = Application.StartupPath + "\\Pages\\";
+    PagesDirectory = "c:\\DGOLibProject\\Pages\\";
     DataDirectory = Application.StartupPath + "\\Data\\";
 
     if( !Directory.Exists( TempFileDirectory ))
@@ -138,6 +144,12 @@ namespace DGOLibrary
   internal bool GetIsClosing()
     {
     return IsClosing;
+    }
+
+
+  internal bool GetCancelled()
+    {
+    return Cancelled;
     }
 
 
@@ -252,6 +264,8 @@ namespace DGOLibrary
       }
 
     PageList1.WriteToTextFile();
+    AllWords.WriteToTextFile();
+    WordsDictionary1.WriteToTextFile();
     }
 
 
@@ -302,11 +316,26 @@ namespace DGOLibrary
     {
     StartupTimer.Stop();
 
-    ShowStatus( "Reading data..." );
+    ShowStatus( "Reading words dictionary data..." );
+    WordsDictionary1.ReadFromTextFile();
+    // Rewrite it so it's sorted and unique.
+    WordsDictionary1.WriteToTextFile();
+    ShowStatus( "Finished reading words dictionary file." );
+
+
+    ShowStatus( "Reading pages data..." );
     PageList1.ReadFromTextFile();
     ShowStatus( "Finished reading pages file." );
 
+    ShowStatus( "Reading words data..." );
+    AllWords.ReadFromTextFile();
+    ShowStatus( "Finished reading words file." );
+
+
+
     GetURLMgrForm = new GetURLManagerForm( this );
+
+    // AllWords.ShowAllWords();
 
     // Every five minutes.
     CheckTimer.Interval = 5 * 60 * 1000;
@@ -317,7 +346,23 @@ namespace DGOLibrary
 
   private void CheckTimer_Tick(object sender, EventArgs e)
     {
+    ShowStatus( "Saving data files." );
     PageList1.WriteToTextFile();
+    WordsDictionary1.WriteToTextFile();
+    AllWords.WriteToTextFile();
+    ShowStatus( "Finished saving data files." );
+    }
+
+
+
+  private void MainForm_KeyDown(object sender, KeyEventArgs e)
+    {
+    if( e.KeyCode == Keys.Escape ) //  && (e.Alt || e.Control || e.Shift))
+      {
+      ShowStatus( "Cancelled." );
+      Cancelled = true;
+      // FreeEverything(); // Stop background process.
+      }
     }
 
 
