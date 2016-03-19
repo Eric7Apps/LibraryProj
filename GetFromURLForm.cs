@@ -30,6 +30,7 @@ namespace DGOLibrary
   private string Title = "";
 
 
+
   public struct HttpWorkerInfo
     {
     public string URLToGet;
@@ -79,6 +80,19 @@ namespace DGOLibrary
   internal double GetStartTimeSecondsToNow()
     {
     return StartTime.GetSecondsToNow();
+    }
+
+
+
+  internal string GetURL()
+    {
+    return URLToGet;
+    }
+
+
+  internal string GetTitle()
+    {
+    return Title;
     }
 
 
@@ -180,10 +194,10 @@ namespace DGOLibrary
       return;
       }
 
-    Worker.ReportProgress( 0, " " );
-    Worker.ReportProgress( 0, "Headers are:" );
-    for( int Count = 0; Count < Response.Headers.Count; Count++ )
-      Worker.ReportProgress( 0, Response.Headers.Keys[Count] + ", " + Response.Headers[Count] );
+    // Worker.ReportProgress( 0, " " );
+    // Worker.ReportProgress( 0, "Headers are:" );
+    // for( int Count = 0; Count < Response.Headers.Count; Count++ )
+      // Worker.ReportProgress( 0, Response.Headers.Keys[Count] + ", " + Response.Headers[Count] );
 
     using( FileStream FStream = new FileStream( WInfo.FileName,
                                                 FileMode.Create, // Not OpenOrCreate.
@@ -296,7 +310,7 @@ namespace DGOLibrary
       }
 
     if( MForm.PageList1 != null )
-      MForm.PageList1.UpdatePageFromTempFile( URLToGet, FileName, Title );
+      MForm.PageList1.UpdatePageFromTempFile( Title, URLToGet, FileName );
 
     FileIsDone = true;
 
