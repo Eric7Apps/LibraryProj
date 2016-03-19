@@ -9,6 +9,15 @@ using System.Threading.Tasks;
 using System.IO;
 
 
+/*
+		130571434983424		8
+Main Page	http://www.durangoherald.com	138553911491207	C:\Users\Eric\AEric\Eric\MyStuff\DGOLibrary\bin\Release\Pages\Y2016\M3\D18\H18M42S2T45.txt	1
+		130571434983424		5
+		130571434983424		16
+		130571434983424		17
+		130571434983424		18
+*/
+
 
 namespace DGOLibrary
 {
@@ -17,7 +26,7 @@ namespace DGOLibrary
   private MainForm MForm;
   private SortedDictionary<string, Page> PageDictionary;
   private string FileName = "";
-
+  private int NextIndex = 1;
 
   private PageList()
     {
@@ -51,8 +60,36 @@ namespace DGOLibrary
 
 
 
-  internal void UpdatePageFromTempFile( string URL, string FileName, string Title )
+  internal void UpdatePageFromTempFile( string Title, string URL, string FileName )
     {
+    if( !MForm.CheckEvents())
+      return;
+
+    if( URL == null )
+      {
+      MForm.ShowStatus( "URL is null in UpdatePageFromTempFile()." );
+      return;
+      }
+
+    if( Title == null )
+      {
+      MForm.ShowStatus( "Title is null in UpdatePageFromTempFile()." );
+      return;
+      }
+
+    if( URL.Length < 10 )
+      {
+      MForm.ShowStatus( "URL is too short in UpdatePageFromTempFile()." );
+      return;
+      }
+
+    // "Main Page"
+    if( Title.Length < 5 )
+      {
+      MForm.ShowStatus( "Title is too short in UpdatePageFromTempFile()." );
+      return;
+      }
+
     Page UsePage;
     if( PageDictionary.ContainsKey( URL ))
       {
@@ -62,9 +99,8 @@ namespace DGOLibrary
       {
       UsePage = new Page( MForm );
       PageDictionary[URL] = UsePage;
-      // Don't delete things from this dictionary unless
-      // you reindex the whole thing.
-      PageDictionary[URL].SetIndex( PageDictionary.Count );
+      PageDictionary[URL].SetIndex( NextIndex );
+      NextIndex++;
       }
 
     // Notice that if the URL aleady exists then
@@ -77,7 +113,21 @@ namespace DGOLibrary
     // to this PageList to get the index for the URL
     // by using GetIndex(), which looks in the
     // PageDictionary.
-    UsePage.UpdateFromTempFile( URL, FileName, Title );
+    UsePage.UpdateFromTempFile( Title, URL, FileName );
+    }
+
+
+
+  internal void AddEmptyPage( string Title, string URL )
+    {
+    if( PageDictionary.ContainsKey( URL ))
+      return;
+
+    Page UsePage = new Page( MForm );
+    UsePage.SetNewTitleAndURL( Title, URL );
+    PageDictionary[URL] = UsePage;
+    PageDictionary[URL].SetIndex( NextIndex );
+    NextIndex++;
     }
 
 
@@ -104,6 +154,10 @@ namespace DGOLibrary
         Page Page1 = new Page( MForm );
         if( !Page1.StringToObject( Line ))
           continue;
+
+        int PageIndex = Page1.GetIndex();
+        if( PageIndex >= NextIndex )
+          NextIndex = PageIndex + 1;
 
         PageDictionary[Page1.GetURL()] = Page1;
         }
