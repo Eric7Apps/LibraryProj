@@ -5,342 +5,163 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
-using System.Diagnostics; // For start program process.
 using System.IO;
-using System.Threading;
-
 
 
 namespace DGOLibrary
 {
-  public partial class MainForm : Form
+  class Words
   {
-  internal const string VersionDate = "3/15/2016";
-  internal const int VersionNumber = 09; // 0.9
-  internal const string MessageBoxTitle = "Library Project";
-  private System.Threading.Mutex SingleInstanceMutex = null;
-  private bool IsSingleInstance = false;
-  internal GetURLManagerForm GetURLMgrForm;
-  private string TempFileDirectory = "";
-  private string PagesDirectory = "";
-  private string DataDirectory = "";
-  private bool IsClosing = false;
-  private bool Cancelled = false;
-  internal GlobalProperties GlobalProps;
-  internal PageList PageList1;
-  internal Words AllWords;
+  private MainForm MForm;
+  private SortedDictionary<string, OneWord> WordsDictionary;
+  private string FileName = "";
 
-
-
-  public MainForm()
+  private Words()
     {
-    InitializeComponent();
+    }
 
-    ///////////////////////
-    // Keep this at the top:
-    SetupDirectories();
-    GlobalProps = new GlobalProperties( this );
-    ///////////////////////
 
-    PageList1 = new PageList( this );
-    AllWords = new Words( this );
 
-    if( !CheckSingleInstance())
+  internal Words( MainForm UseForm )
+    {
+    MForm = UseForm;
+
+    WordsDictionary = new SortedDictionary<string, OneWord>();
+    FileName = MForm.GetDataDirectory() + "Words.txt";
+    }
+
+
+
+  internal void UpdateWord( string InWord, string URL )
+    {
+    if( InWord == null )
       return;
 
-    IsSingleInstance = true;
-
-    StartupTimer.Interval = 200;
-    StartupTimer.Start();
-    }
-
-
-
-  internal void ShowStatus( string Status )
-    {
-    if( IsClosing )
+    string FixedWord = MForm.WordsDictionary1.GetValidWordForm( InWord );
+    if( FixedWord.Length == 0 )
       return;
 
-    // Commented out for testing but it would be
-    // needed on a running server.
-    // if( MainTextBox.Text.Length > (80 * 5000))
-      // MainTextBox.Text = "";
+    // This only counts for one word per file.  Not
+    // all of the same words per file.
+    MForm.WordsDictionary1.IncrementWordCount( FixedWord );
 
-    MainTextBox.AppendText( Status + "\r\n" ); 
-    }
-
-
-
-  private void testToolStripMenuItem_Click(object sender, EventArgs e)
-    {
-    string URL = "http://www.durangoherald.com";
-    string FileName = GetPagesDirectory() + "TestFile.txt";
-    PageList1.UpdatePageFromTempFile( URL, FileName, "Main Page" );
-
-    }
-
-
-
-  private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
-    {
-    string ShowS = "Programming by Eric Chauvin. Version date: " + VersionDate;
-    MessageBox.Show( ShowS, MessageBoxTitle, MessageBoxButtons.OK );
-    }
-
-
-
-  private void SetupDirectories()
-    {
-    try
-    {
-    TempFileDirectory = Application.StartupPath + "\\TempFiles\\";
-    PagesDirectory = Application.StartupPath + "\\Pages\\";
-    DataDirectory = Application.StartupPath + "\\Data\\";
-
-    if( !Directory.Exists( TempFileDirectory ))
-      Directory.CreateDirectory( TempFileDirectory );
-
-    if( !Directory.Exists( PagesDirectory ))
-      Directory.CreateDirectory( PagesDirectory );
-
-    if( !Directory.Exists( DataDirectory ))
-      Directory.CreateDirectory( DataDirectory );
-
-    }
-    catch( Exception )
+    OneWord Word1;
+    if( !WordsDictionary.ContainsKey( FixedWord ))
       {
-      MessageBox.Show( "Error: The directory could not be created.", MessageBoxTitle, MessageBoxButtons.OK );
-      return;
+      Word1 = new OneWord( MForm );
+      Word1.SetWord( FixedWord );
+      WordsDictionary[FixedWord] = Word1;
+      // MForm.ShowStatus( "New valid word: " + FixedWord );
       }
-    }
-
-
-  internal string GetTempFileDirectory()
-    {
-    return TempFileDirectory;
-    }
-
-
-  internal string GetPagesDirectory()
-    {
-    return PagesDirectory;
-    }
-
-
-  internal string GetDataDirectory()
-    {
-    return DataDirectory;
-    }
-
-
-  internal bool GetIsClosing()
-    {
-    return IsClosing;
-    }
-
-
-  internal bool CheckEvents()
-    {
-    if( IsClosing )
-      return false;
-
-    Application.DoEvents();
-    if( Cancelled )
-      return false;
-
-    return true;
-    }
-
-
-
-  // This has to be added in the Program.cs file.
-  internal static void UIThreadException( object sender, ThreadExceptionEventArgs t )
-    {
-    string ErrorString = t.Exception.Message;
-
-    try
+    else
       {
-      string ShowString = "There was an unexpected error:\r\n\r\n" +
-             "The program will close now.\r\n\r\n" +
-             ErrorString;
-
-      MessageBox.Show( ShowString, "Program Error", MessageBoxButtons.OK, MessageBoxIcon.Stop );
-      }
-    finally
-      {
-      Application.Exit();
-      }
-    }
-
-
-
-  private bool CheckSingleInstance()
-    {
-    bool InitialOwner = false; // Owner for single instance check.
-
-    string ShowS = "Another instance of the Durango Library Project Server is already running." +
-      " This instance will close.";
-
-    try
-    {
-    SingleInstanceMutex = new System.Threading.Mutex( true, "Durango Library Project Single Instance", out InitialOwner );
-    }
-    catch
-      {
-      MessageBox.Show( ShowS, MessageBoxTitle, MessageBoxButtons.OK, MessageBoxIcon.Stop );
-      // mutex.Close();
-      // mutex = null;
-
-      // Can't do this here:
-      // Application.Exit();
-      SingleInstanceTimer.Interval = 50;
-      SingleInstanceTimer.Start();
-      return false;
+      Word1 = WordsDictionary[FixedWord];
       }
 
-    if( !InitialOwner )
-      {
-      MessageBox.Show( ShowS, MessageBoxTitle, MessageBoxButtons.OK, MessageBoxIcon.Stop );
-      // Application.Exit();
-      SingleInstanceTimer.Interval = 50;
-      SingleInstanceTimer.Start();
-      return false;
-      }
-
-    return true;
+    Word1.UpdateURL( URL );
     }
 
 
 
-  private void SingleInstanceTimer_Tick(object sender, EventArgs e)
+
+  internal bool ContainsWord( string Word )
     {
-    SingleInstanceTimer.Stop();
-    Application.Exit();
+    return WordsDictionary.ContainsKey( Word );
     }
 
 
 
-  private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+  internal bool ReadFromTextFile()
     {
-    if( IsSingleInstance )
-      {
-      if( DialogResult.Yes != MessageBox.Show( "Close the program?", MessageBoxTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Question ))
-        {
-        e.Cancel = true;
-        return;
-        }
-      }
-
-    IsClosing = true;
-    // CheckTimer.Stop();
-
-    // NetStats.SaveToFile();
-
-    if( GetURLMgrForm != null )
-      {
-      if( !GetURLMgrForm.IsDisposed )
-        {
-        GetURLMgrForm.Hide();
-
-        GetURLMgrForm.FreeEverything();
-        GetURLMgrForm.Dispose();
-        }
-
-      GetURLMgrForm = null;
-      }
-
-    PageList1.WriteToTextFile();
-    AllWords.WriteToTextFile();
-    }
-
-
-
-  // Be careful about what you execute from the server.
-  internal bool StartProgramOrFile( string FileName )
-    {
+    WordsDictionary.Clear();
     if( !File.Exists( FileName ))
       return false;
-
-    Process ProgProcess = new Process();
-
+      
     try
     {
-    ProgProcess.StartInfo.FileName = FileName;
-    ProgProcess.StartInfo.Verb = ""; // "Print";
-    ProgProcess.StartInfo.CreateNoWindow = false;
-    ProgProcess.StartInfo.ErrorDialog = false;
-    ProgProcess.Start();
+    using( StreamReader SReader = new StreamReader( FileName  )) 
+      {
+      while( SReader.Peek() >= 0 ) 
+        {
+        string Line = SReader.ReadLine();
+        if( Line == null )
+          continue;
+
+        if( !Line.Contains( "\t" ))
+          continue;
+
+        OneWord Word1 = new OneWord( MForm );
+        if( !Word1.StringToObject( Line ))
+          continue;
+
+        WordsDictionary[Word1.GetWord()] = Word1;
+        }
+      }
+
+    return true;
     }
     catch( Exception Except )
       {
-      MessageBox.Show( "Could not start the file: \r\n" + FileName + "\r\n\r\nThe error was:\r\n" + Except.Message, MessageBoxTitle, MessageBoxButtons.OK, MessageBoxIcon.Stop );
+      MForm.ShowStatus( "Could not read the words file." );
+      MForm.ShowStatus( Except.Message );
       return false;
+      }
+    }
+
+
+
+  internal bool WriteToTextFile()
+    {
+    try
+    {
+    using( StreamWriter SWriter = new StreamWriter( FileName  )) 
+      {
+      foreach( KeyValuePair<string, OneWord> Kvp in WordsDictionary )
+        {
+        string Line = Kvp.Value.ObjectToString();
+        SWriter.WriteLine( Line );
+        }
       }
 
     return true;
     }
-
-
-
-  private void showGetURLManagerToolStripMenuItem_Click(object sender, EventArgs e)
-    {
-    if( GetURLMgrForm == null )
-      return;
-
-    if( GetURLMgrForm.IsDisposed )
-      return;
-
-    GetURLMgrForm.Show();
-    GetURLMgrForm.WindowState = FormWindowState.Normal;
-    GetURLMgrForm.BringToFront();
-    }
-
-
-
-  private void StartupTimer_Tick(object sender, EventArgs e)
-    {
-    StartupTimer.Stop();
-
-    ShowStatus( "Reading pages data..." );
-    PageList1.ReadFromTextFile();
-    ShowStatus( "Finished reading pages file." );
-
-    ShowStatus( "Reading words data..." );
-    PageList1.ReadFromTextFile();
-    ShowStatus( "Finished reading words file." );
-
-    GetURLMgrForm = new GetURLManagerForm( this );
-
-    // Every five minutes.
-    CheckTimer.Interval = 5 * 60 * 1000;
-    CheckTimer.Start();
-    }
-
-
-
-  private void CheckTimer_Tick(object sender, EventArgs e)
-    {
-    PageList1.WriteToTextFile();
-    }
-
-
-
-  private void MainForm_KeyDown(object sender, KeyEventArgs e)
-    {
-    if( e.KeyCode == Keys.Escape ) //  && (e.Alt || e.Control || e.Shift))
+    catch( Exception Except )
       {
-      ShowStatus( "Cancelled." );
-      Cancelled = true;
-      // FreeEverything(); // Stop background process.
+      MForm.ShowStatus( "Could not write the words data to the file." );
+      MForm.ShowStatus( Except.Message );
+      return false;
       }
     }
 
+
+
+  /*
+  internal void ShowAllWords()
+    {
+    try
+    {
+    MForm.ShowStatus( " " );
+    MForm.ShowStatus( " " );
+    MForm.ShowStatus( "All Words:" );
+
+    foreach( KeyValuePair<string, OneWord> Kvp in WordsDictionary )
+      {
+      // string Line = Kvp.Value.ObjectToString();
+      string Word = Kvp.Key;
+      // if( Word.Length == 2 )
+        MForm.ShowStatus( Word );
+
+      }
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Exception in ShowAllWords()." );
+      MForm.ShowStatus( Except.Message );
+      }
+    }
+    */
 
 
   }
