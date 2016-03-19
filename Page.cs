@@ -57,15 +57,66 @@ namespace DGOLibrary
 
 
 
-  internal bool UpdateFromTempFile( string UseURL, string TempFileName, string UseTitle )
+  internal void SetNewTitleAndURL( string UseTitle, string UseURL )
+    {
+    // Make sure this isn't being used from somewhere it
+    // shouldn't be used.
+    if( Title.Length > 0 )
+      {
+      MForm.ShowStatus( "This already has a title: " + Title );
+      return;
+      }
+
+    if( URL.Length > 0 )
+      {
+      MForm.ShowStatus( "This already has a URL: " + URL );
+      return;
+      }
+
+    Title = UseTitle;
+    URL = UseURL;
+    }
+
+
+
+  internal bool UpdateFromTempFile( string UseTitle, string UseURL, string TempFileName )
     {
     if( MForm.PageList1 == null )
       return false;
 
-    Title = UseTitle;
+    if( URL.Length > 0 )
+      {
+      if( URL != UseURL )
+        {
+        MForm.ShowStatus( " " );
+        MForm.ShowStatus( "Title: " + Title );
+        MForm.ShowStatus( "UseTitle: " + UseTitle );
+        MForm.ShowStatus( "The URL being updated is different from the original one: " + URL );
+        return false;
+        }
+      }
+
     URL = UseURL;
-    MForm.ShowStatus( "Updating: " + URL );
+
+    if( Title.Length > 0 )
+      {
+      if( Title != UseTitle )
+        {
+        MForm.ShowStatus( " " );
+        MForm.ShowStatus( "The title is not being changed." );
+        MForm.ShowStatus( "UseTitle: " + UseTitle );
+        MForm.ShowStatus( "Title: " + Title );
+        MForm.ShowStatus( "URL: " + URL );
+        }
+      }
+    else
+      {
+      Title = UseTitle;
+      }
+
+    MForm.ShowStatus( " " );
     MForm.ShowStatus( "Title: " + Title );
+    MForm.ShowStatus( "Updating: " + URL );
 
     if( !ReadFromTextFile( TempFileName ))
       return false;
@@ -88,12 +139,15 @@ namespace DGOLibrary
     // Javascript in every page.
     
     // GetCleanUnicodeString() was done in ReadFromTextFile().
-    FileContents = RemoveFromStartToEnd( "<!--", "-->", FileContents );
-    FileContents = RemoveFromStartToEnd( "<script", "/script>", FileContents );
+    FileContents = Utility.RemoveFromStartToEnd( "<!--", "-->", FileContents );
+    FileContents = Utility.RemoveFromStartToEnd( "<script", "/script>", FileContents );
+    FileContents = Utility.RemoveFromStartToEnd( "<link", ">", FileContents );
+    FileContents = Utility.RemoveFromStartToEnd( "<meta", ">", FileContents );
+    // FileContents = Utility.RemoveFromStartToEnd( "<form", "/form>", FileContents );
 
     // <div> tags are nested in all kinds of weird ways
     // and they're not helpful.
-    FileContents = RemoveFromStartToEnd( "<div", ">", FileContents );
+    FileContents = Utility.RemoveFromStartToEnd( "<div", ">", FileContents );
     FileContents = FileContents.Replace( "</div>", " " );
 
     ContentsUpdated.SetToNow();
@@ -113,245 +167,10 @@ namespace DGOLibrary
     MForm.ShowStatus( " " );
     MForm.ShowStatus( " " );
 
-
-    ParseLinks();
-
     ParseWords();
 
     return true;
     }
-
-
-
-  private void ParseLinks()
-    {
-    if( FileContents.Length < 1 )
-      return;
-
-    if( !FileContents.Contains( "<" ))
-      return;
-
-    if( !FileContents.Contains( ">" ))
-      return;
-
-    string AllLines = FileContents;
-
-    // a class="weather-condition" href="
-
-    // a target="_blank" href="
-    // AllLines = AllLines.Replace( " target=\"_blank\"", "" );
-
-    // Split it at the beginning of each tag.
-    string[] Lines = AllLines.Split( new Char[] { '<' } );
-
-    StringBuilder SBuilder = new StringBuilder();
-    bool AppendingLink = false;
-    for( int Count = 0; Count < Lines.Length; Count++ )
-      {
-      string Line = Lines[Count];
-      if( Line.ToLower().StartsWith( "a href=" ))
-        AppendingLink = true;
-
-      if( AppendingLink )
-        SBuilder.Append( Line );
-
-      if( Line.ToLower().Contains( "/a>" ))
-        {
-        AppendingLink = false;
-        AddOneLink( SBuilder.ToString());
-        SBuilder.Clear();
-        }
-      }
-
-    MForm.ShowStatus( " " );
-    MForm.ShowStatus( "Finished parsing links." );
-    MForm.ShowStatus( " " );
-    }
-
-
-
-  private void AddOneLink( string InString )
-    {
-    if( MForm.GetIsClosing())
-      return;
-
-    string[] Parts = InString.Split( new Char[] { '>' } );
-    if( Parts.Length < 2 )
-      return;
-
-    string LinkURL = Utility.GetCleanUnicodeString( Parts[0], 2000 );
-    string LinkTitle = Utility.GetCleanUnicodeString( Parts[1], 1000 );
-
-    LinkURL = LinkURL.Replace( "a href=", "" );
-    LinkURL = LinkURL.Replace( "\"", "" );
-    LinkURL = LinkURL.Replace( " class=read-more", "" );
-
-    // If it was https:// it would start with that.
-    if( !( LinkURL.StartsWith( "http://" ) ||
-           LinkURL.StartsWith( "https://" )))
-      LinkURL = "http://www.durangoherald.com" + LinkURL;
-
-    if( !LinkURLIsGood( LinkURL ))
-      return;
-
-    if( LinkTitle.StartsWith( "img src=" ))
-      {
-      // Ignoring image links for now.
-      // ParseMoreComplexLink( Parts );
-      return;
-      }
-
-    if( LinkTitle.StartsWith( "img alt=" ))
-      {
-      // Ignoring image links for now.
-      // ParseMoreComplexLink( Parts );
-      return;
-      }
-
-    if( !LinkTitle.EndsWith( "/a" ))
-      {
-      ParseMoreComplexLink( Parts );
-      return;
-      }
-
-    LinkTitle = LinkTitle.Replace( "/a", "" );
-
-    // a href="/section/News01/"
-    if( !LinkURL.StartsWith( "http://" ))
-      LinkURL = "http://www.durangoherald.com" + LinkURL;
-
-    // CleanUnicodeString() trims it.
-    // LinkURL = LinkURL.Trim();
-    // LinkTitle = LinkTitle.Trim();
-
-    MForm.ShowStatus( " " );
-    MForm.ShowStatus( "LinkURL: " + LinkURL );
-    MForm.ShowStatus( "LinkTitle: " + LinkTitle );
-
-    if( !MForm.PageList1.ContainsURL( LinkURL ))
-      {
-      // Get this new page:
-      if( MForm.GetURLMgrForm != null )
-        MForm.GetURLMgrForm.AddURLForm( LinkTitle, LinkURL );
-
-      }
-    }
-
-
-
-  private void ParseMoreComplexLink( string[] Parts )
-    {
-    MForm.ShowStatus( " " );
-    MForm.ShowStatus( "More complex link parts:" );
-
-    for( int Count = 0; Count < Parts.Length; Count++ )
-      MForm.ShowStatus( Count.ToString() + ") " + Parts[Count].Trim() );
-
-/*
-Link Parts:
-0) a href="/section/goldking/" style=""
-1) h1 style="text-align: center;margin: 10px 0 20px 0; font-size: 46px;"
-2) Gold King Mine spill: Six months later/h1
-3) /a
-4) 
-*/
-    }
-
-
-
-  private bool LinkURLIsGood( string LinkURL )
-    {
-    // This is hard-coded for now but it might 
-    // come from a configuration file and
-    // dictionary.
-
-    LinkURL = LinkURL.ToLower();
-
-    // Limit the scope of this project to this for now:
-    if( !LinkURL.StartsWith( "http://www.durangoherald.com/" ))
-      return false;
-
-    if( LinkURL.Contains( "fb_comment_link" ))
-      return false;
-
-    if( LinkURL.Contains( "fb:comments-count" ))
-      return false;
-
-    if( LinkURL.Contains( "class=popups" ))
-      return false;
-
-    if( LinkURL.Contains( "apps/pbcs.dll" ))
-      return false;
-
-    /*
-    if( LinkURL.Contains( "ch.tbe.taleo.net" ))
-      return false;
-
-    if( LinkURL.Contains( "mycapture.com" ))
-      return false;
-
-    if( LinkURL.Contains( "secondstreetapp.com" ))
-      return false;
-
-    if( LinkURL.Contains( "issuu.com" ))
-      return false;
-
-    if( LinkURL.Contains( "marketplace.durangoherald.com" ))
-      return false;
-
-    if( LinkURL.Contains( "fourcornersmarketplace.com" ))
-      return false;
-
-    if( LinkURL.Contains( "fourcornersexpos.com" ))
-      return false;
-
-    if( LinkURL.Contains( "thecloudscout.com" ))
-      return false;
-
-    if( LinkURL.Contains( "facebook.com" ))
-      return false;
-
-    if( LinkURL.Contains( "twitter.com" ))
-      return false;
-
-    if( LinkURL.Contains( "fourcornersschoolpubs.com" ))
-      return false;
-
-    if( LinkURL.Contains( "thedurangoheraldsmallpress.com" ))
-      return false;
-
-    if( LinkURL.Contains( "directoryplus.com" ))
-      return false;
-
-    if( LinkURL.Contains( "bcimedia.com" ))
-      return false;
-
-    if( LinkURL.Contains( "doradomagazine.com" ))
-      return false;
-
-    if( LinkURL.Contains( "adventurepro.us" ))
-      return false;
-
-    if( LinkURL.Contains( "swscene.com" ))
-      return false;
-
-    if( LinkURL.Contains( "4flagtv.com" ))
-      return false;
-
-    if( LinkURL.Contains( "4cornerstv.com" ))
-      return false;
-
-    if( LinkURL.Contains( "pinerivertimes.com" ))
-      return false;
-
-    if( LinkURL.Contains( "the-journal.com" ))
-      return false;
-
-    */
-
-    return true;
-    }
-
 
 
 
@@ -371,9 +190,9 @@ Link Parts:
 
     //    AllLines = RemoveFromStartToEnd( "<!--", "-->", AllLines );
     //    AllLines = RemoveFromStartToEnd( "<script", "/script>", AllLines );
-    AllLines = RemoveFromStartToEnd( "<!doctype", "\">", AllLines );
-    AllLines = RemoveFromStartToEnd( "<link rel=\"stylesheet\"", "/>", AllLines );
-    AllLines = RemoveFromStartToEnd( "<meta http-equiv=", "/>", AllLines );
+    AllLines = Utility.RemoveFromStartToEnd( "<!doctype", "\">", AllLines );
+    // AllLines = Utility.RemoveFromStartToEnd( "<link rel=\"stylesheet\"", "/>", AllLines );
+    // AllLines = Utility.RemoveFromStartToEnd( "<meta", "/>", AllLines );
 
     AllLines = AllLines.Replace( "\r", " " );
     AllLines = AllLines.Replace( "\n", " " );
@@ -394,11 +213,10 @@ Link Parts:
     AllLines = AllLines.Replace( "[", " " );
     AllLines = AllLines.Replace( "]", " " );
     AllLines = AllLines.Replace( "&", " " );
-
-    // AllLines = AllLines.Replace( "/", " " );
-    // AllLines = AllLines.Replace( "=", " " );
-    // AllLines = AllLines.Replace( "\\", " " );
-    // AllLines = AllLines.Replace( ";", " " );
+    AllLines = AllLines.Replace( "/", " " );
+    AllLines = AllLines.Replace( "=", " " );
+    AllLines = AllLines.Replace( "\\", " " );
+    AllLines = AllLines.Replace( ";", " " );
 
     SortedDictionary<string, int> WordsDictionary = new SortedDictionary<string, int>();
 
@@ -419,7 +237,7 @@ Link Parts:
     foreach( KeyValuePair<string, int> Kvp in WordsDictionary )
       MForm.AllWords.UpdateWord( Kvp.Key, URL );
 
-    MForm.AllWords.ShowAllWords();
+    // MForm.AllWords.ShowAllWords();
     }
 
 
@@ -447,90 +265,6 @@ Link Parts:
     return false;
     }
 
-
-
-  private string RemoveFromStartToEnd( string Start, string End, string InString )
-    {
-    // Regular expressions?
-
-    if( Start.Length > 100 )
-      return "Start length can't be more than 100.";
-
-    if( End.Length > 100 )
-      return "End length can't be more than 100.";
-
-    char[] StartBuf = new char[100];
-    char[] EndBuf = new char[100];
-
-    int StartIndex = 0;
-    int EndIndex = 0;
-    StringBuilder SBuilder = new StringBuilder();
-    bool IsInside = false;
-    for( int Count = 0; Count < InString.Length; Count++ )
-      {
-      if( !IsInside )
-        SBuilder.Append( InString[Count] );
-
-      if( !IsInside )
-        {
-        // ToLower() so it matches something like <ScRipT
-        StartBuf[StartIndex] = Char.ToLower( InString[Count] );
-        if( StartBuf[StartIndex] == Start[StartIndex] )
-          {
-          StartIndex++;
-          }
-        else
-          {
-          // No match, so start at zero again.
-          StartIndex = 0;
-          StartBuf[StartIndex] = Char.ToLower( InString[Count] );
-          // Is it already at the beginning of a match here?
-          // pppppattern
-          if( StartBuf[StartIndex] == Start[StartIndex] )
-            StartIndex++;
-
-          }
-
-        if( StartIndex == Start.Length )
-          {
-          // Remove the start pattern.
-          int TruncateToLength = SBuilder.Length - Start.Length;
-          // if( TruncateToLength >= 0 )
-          SBuilder.Length = TruncateToLength;
-
-          IsInside = true;
-          EndIndex = 0;
-          }
-        }
-
-      // This is not the "else" from above because
-      // it might have changed above.
-      if( IsInside )
-        {
-        EndBuf[EndIndex] = Char.ToLower( InString[Count] );
-        if( EndBuf[EndIndex] == End[EndIndex] )
-          {
-          EndIndex++;
-          }
-        else
-          {
-          EndIndex = 0;
-          EndBuf[EndIndex] = Char.ToLower( InString[Count] );
-          if( EndBuf[EndIndex] == End[EndIndex] )
-            EndIndex++;
-
-          }
-
-        if( EndIndex == End.Length )
-          {
-          IsInside = false;
-          StartIndex = 0;
-          }
-        }
-      }
-
-    return SBuilder.ToString();
-    }
 
 
 
@@ -646,7 +380,9 @@ Link Parts:
       for( int Count = 0; Count < Lines.Length; Count++ )
         {
         string Line = Lines[Count];
-        SWriter.WriteLine( Line );
+        if( Line.Trim().Length > 0 )
+          SWriter.WriteLine( Line );
+
         }
       }
 
