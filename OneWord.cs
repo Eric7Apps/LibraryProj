@@ -42,6 +42,7 @@ namespace DGOLibrary
     }
 
 
+
   internal string ObjectToString()
     {
     string Result = Word + "\t"; // +
