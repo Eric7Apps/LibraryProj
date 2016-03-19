@@ -49,8 +49,6 @@ namespace DGOLibrary
     if( InString.Length > HowLong )
       InString = InString.Remove( HowLong );
 
-    InString = InString.Trim();
-
     StringBuilder SBuilder = new StringBuilder();
     for( int Count = 0; Count < InString.Length; Count++ )
       {
@@ -66,7 +64,7 @@ namespace DGOLibrary
       SBuilder.Append( Char.ToString( ToCheck ));
       }
 
-    return SBuilder.ToString();
+    return SBuilder.ToString().Trim();
     }
 
 
@@ -172,6 +170,100 @@ namespace DGOLibrary
       }
     }
 
+
+
+  internal static string RemoveFromStartToEnd( string Start, string End, string InString )
+    {
+    try
+    {
+    // Regular expressions?
+
+    if( Start.Length > 100 )
+      return "Start length can't be more than 100.";
+
+    if( End.Length > 100 )
+      return "End length can't be more than 100.";
+
+    char[] StartBuf = new char[100];
+    char[] EndBuf = new char[100];
+
+    int StartIndex = 0;
+    int EndIndex = 0;
+    StringBuilder SBuilder = new StringBuilder();
+    bool IsInside = false;
+    for( int Count = 0; Count < InString.Length; Count++ )
+      {
+      if( !IsInside )
+        SBuilder.Append( InString[Count] );
+
+      if( !IsInside )
+        {
+        // ToLower() so it matches something like <ScRipT
+        StartBuf[StartIndex] = Char.ToLower( InString[Count] );
+        if( StartBuf[StartIndex] == Start[StartIndex] )
+          {
+          StartIndex++;
+          }
+        else
+          {
+          // No match, so start at zero again.
+          StartIndex = 0;
+          StartBuf[StartIndex] = Char.ToLower( InString[Count] );
+          // Is it already at the beginning of a match here?
+          // pppppattern
+          if( StartBuf[StartIndex] == Start[StartIndex] )
+            StartIndex++;
+
+          }
+
+        if( StartIndex == Start.Length )
+          {
+          // Remove the start pattern.
+          int TruncateToLength = SBuilder.Length - Start.Length;
+          // if( TruncateToLength >= 0 )
+          SBuilder.Length = TruncateToLength;
+
+          IsInside = true;
+          EndIndex = 0;
+          }
+        }
+
+      // This is not the "else" from above because
+      // it might have changed above.
+      if( IsInside )
+        {
+        EndBuf[EndIndex] = Char.ToLower( InString[Count] );
+        if( EndBuf[EndIndex] == End[EndIndex] )
+          {
+          EndIndex++;
+          }
+        else
+          {
+          EndIndex = 0;
+          EndBuf[EndIndex] = Char.ToLower( InString[Count] );
+          if( EndBuf[EndIndex] == End[EndIndex] )
+            EndIndex++;
+
+          }
+
+        if( EndIndex == End.Length )
+          {
+          IsInside = false;
+          StartIndex = 0;
+          }
+        }
+      }
+
+    return SBuilder.ToString();
+
+    }
+    catch( Exception Except )
+      {
+      return "Exception in Utilit.RemoveFromStartToEnd().\r\n" +
+        Except.Message;
+
+      }
+    }
 
 
 
