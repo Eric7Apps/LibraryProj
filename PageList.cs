@@ -9,14 +9,6 @@ using System.Threading.Tasks;
 using System.IO;
 
 
-/*
-		130571434983424		8
-Main Page	http://www.durangoherald.com	138553911491207	C:\Users\Eric\AEric\Eric\MyStuff\DGOLibrary\bin\Release\Pages\Y2016\M3\D18\H18M42S2T45.txt	1
-		130571434983424		5
-		130571434983424		16
-		130571434983424		17
-		130571434983424		18
-*/
 
 
 namespace DGOLibrary
@@ -60,7 +52,7 @@ namespace DGOLibrary
 
 
 
-  internal void UpdatePageFromTempFile( string Title, string URL, string FileName )
+  internal void UpdatePageFromFile( string Title, string URL, string FileName, bool SetTime )
     {
     if( !MForm.CheckEvents())
       return;
@@ -113,7 +105,7 @@ namespace DGOLibrary
     // to this PageList to get the index for the URL
     // by using GetIndex(), which looks in the
     // PageDictionary.
-    UsePage.UpdateFromTempFile( Title, URL, FileName );
+    UsePage.UpdateFromFile( Title, URL, FileName, SetTime );
     }
 
 
@@ -163,6 +155,8 @@ namespace DGOLibrary
         }
       }
 
+    MForm.ShowStatus( "Number of pages: " + PageDictionary.Count.ToString( "N0" ));
+
     return true;
     }
     catch( Exception Except )
@@ -188,7 +182,8 @@ namespace DGOLibrary
         }
       }
 
-    return true;
+     MForm.ShowStatus( "PageList wrote " + PageDictionary.Count.ToString( "N0" ) + " page objects to the file." );
+     return true;
     }
     catch( Exception Except )
       {
@@ -196,6 +191,66 @@ namespace DGOLibrary
       MForm.ShowStatus( Except.Message );
       return false;
       }
+    }
+
+
+
+  internal void ShowTitles()
+    {
+    SortedDictionary<string, int> TitlesDictionary = new SortedDictionary<string, int>();
+
+    foreach( KeyValuePair<string, Page> Kvp in PageDictionary )
+      {
+      string Line = Kvp.Value.GetTitle() + " >  " + Kvp.Key;
+      TitlesDictionary[Line] = 1;
+      }
+
+    foreach( KeyValuePair<string, int> Kvp in TitlesDictionary )
+      {
+      if( !MForm.CheckEvents())
+        return;
+
+      MForm.ShowStatus( Kvp.Key );
+      }
+    }
+
+
+
+  internal void IndexAll()
+    {
+    MForm.AllWords.ClearAll();
+
+    foreach( KeyValuePair<string, Page> Kvp in PageDictionary )
+      {
+      if( !MForm.CheckEvents())
+        return;
+
+      Page Page1 = Kvp.Value;
+      Page1.UpdateFromFile( Page1.GetTitle(), Page1.GetURL(), Page1.GetFileName(), false );
+      }
+
+    MForm.AllWords.WriteToTextFile();
+    }
+
+
+
+  internal void ReadAllFilesToContentStrings()
+    {
+    MForm.ShowStatus( "Start of ReadAllFiles()." );
+    foreach( KeyValuePair<string, Page> Kvp in PageDictionary )
+      {
+      if( !MForm.CheckEvents())
+        return;
+
+      Page Page1 = Kvp.Value;
+      string ReadFileName = Page1.GetFileName();
+      if( ReadFileName.Length < 1 )
+        continue;
+
+      Page1.ReadFromTextFile( ReadFileName );
+      }
+
+    MForm.ShowStatus( "Finished ReadAllFiles()." );
     }
 
 
