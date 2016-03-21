@@ -267,6 +267,25 @@ namespace DGOLibrary
 
 
 
+  internal static string  SimplifyAndCleanCharacters( string InString )
+    {
+    string Result = InString;
+    Result = Result.Replace( "&#x2018;", "'" );
+    Result = Result.Replace( "&#x2019;", "'" );
+    // Result = Result.Replace( "&amp;", "&" );
+    Result = Result.Replace( "&#x2013", " " ); // A weird symbol.
+
+    // This was done in ReadFromTextFile().
+    //  Don't go higher than D800 (Surrogates).
+    //  if( ToCheck >= 0xD800 )
+ 
+    return Result;
+    }
+
+
+
+
+
   }
 }
 
