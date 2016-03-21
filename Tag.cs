@@ -16,8 +16,8 @@ namespace DGOLibrary
   // private string BeginTag = "";
   // private string EndTag = "";
   private string MainText = "";
-  private Tag[] ContainedTags;
-  private int ContainedTagsLast = 0;
+  // private Tag[] ContainedTags;
+  // private int ContainedTagsLast = 0;
   private Page CallingPage;
 
 
@@ -51,6 +51,7 @@ namespace DGOLibrary
     }
 
 
+
   private string GetTagName( int StartAt )
     {
     string Result = "";
@@ -71,6 +72,9 @@ namespace DGOLibrary
 
   private int GetSingleTagEnd( int StartAt )
     {
+    // This could have another full-tag or simple-tag
+    // nested within this simple-tag.
+    // ======== int NestLevel = 0;
     for( int Count = StartAt; Count < MainText.Length; Count++ )
       {
       if( MainText[Count] == '>' )
@@ -183,9 +187,6 @@ namespace DGOLibrary
     Tag TagToAdd;
     while( true )
       {
-      if( MForm.GetIsClosing())
-        return;
-
       int Index = GetFirstTagIndex( StartAt );
       if( Index < 0 )
         {
@@ -194,7 +195,7 @@ namespace DGOLibrary
         }
 
       StartAt = Index + 1;
-      StartName = GetTagName( StartAt );
+      StartName = GetTagName( StartAt ).ToLower();
       if( StartName.Length < 1 )
         {
         MForm.ShowStatus( "There was no tag name." );
@@ -202,12 +203,6 @@ namespace DGOLibrary
         }
 
       StartAt += StartName.Length;
-
-      // <li><a href="/section/News04/">Business</a></li>
-      // <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
-      // <body id="home">
-      // <div id="fb-root"></div>
-      // <div class="container_16">
 
       string NewTagS = "";
       int TestEnd = GetSingleTagEnd( StartAt );
@@ -217,116 +212,88 @@ namespace DGOLibrary
         TestEnd = GetFullTagEnd( StartAt, StartName );
         if( TestEnd < 0 )
           {
-          // Apparently this is fairly common with certain
-          // tags like for bold or h3 or something like that.
-          // The bold might start nested within one tag
-          // but then the end tag is nested somewhere else.
-          // If you are editing HTML visually then you can't
-          // see that your bold tag is nexted outside of
-          // the original tag.
-
+          // Show all tags it misses. ============
           if( StartName == "a" )
             {
             MForm.ShowStatus( " " );
             MForm.ShowStatus( StartName + ": Didn't find the full tag end." );
-            MForm.ShowStatus( MainText );
+            // It can't find the end of the tag within
+            // this outer tag.
+            // MForm.ShowStatus( Utility.TruncateString( "Outer tag: " + MainText, 200 ));
+            MForm.ShowStatus( "Starting at: " + GetTruncatedErrorText( StartAt, 200 ));
             }
 
           continue;
           }
+        }
 
-        int SubLength = TestEnd - StartAt;
-        NewTagS = MainText.Substring( StartAt, SubLength );
+      int SubLength = TestEnd - StartAt;
+      NewTagS = MainText.Substring( StartAt, SubLength );
+      NewTagS = NewTagS.Trim();
 
-        /*
-        Lede?
-        StartName: p
-        NewTagS:  class=lede>If there were ever a 
-
-        There is no class name on this one:
-        StartName: p
-        NewTagS: >Omigod Durango, grab your finest \pink tops and glitter-studded accessories and head over to Durango High School at 7 tonight (and the next two weekends) for an...</p
-        N
-
-        By <a href="/apps/pbcs.dll/personalia?ID=jlivingston">John Livingston</a>
-
-        <title>The Durango Herald
-        03/16/2016 |
-        Fort Lewis women&#x2019;s lacrosse opens home schedule in style against Oklahoma Baptist
-        </title>
-
-        <title>The Durango Herald
-        03/16/2016 |
-        Los Angeles Dodger Yasiel Puig homers against Colorado Rockies after finding out he won&#x2019;t be suspended
-        </title>
-
-        <p class="articleText">
-
-
-        <body onload="doLoadEvent()">
-
-        <td>
-        <button type="button" onclick="zoomInButtonClick()">Zoom In</button>
-        </td>
-
-        <form>
+      // By <a href="/apps/pbcs.dll/personalia?ID=jlivingston">John Livingston</a>
+      // <p class="articleText">
+      /*
+      if( !((StartName == "html" ) ||
+            (StartName == "head" ) ||
+            (StartName == "a" ) ||
+            (StartName == "body" ))) 
+            ////////
+      if( StartName == "p" )
+        {
+        MForm.ShowStatus( " " );
+        MForm.ShowStatus( " " );
+        MForm.ShowStatus( " " );
+        MForm.ShowStatus( " " );
+        MForm.ShowStatus( " " );
+        MForm.ShowStatus( "StartName: " + StartName );
+        MForm.ShowStatus( "NewTagS: " + NewTagS );
+        }
         */
 
-        /*
-        if( !((StartName == "html" ) ||
-              (StartName == "head" ) ||
-              (StartName == "a" ) ||
-             (StartName == "body" )))
-          {
-          MForm.ShowStatus( " " );
-          MForm.ShowStatus( " " );
-          MForm.ShowStatus( " " );
-          MForm.ShowStatus( " " );
-          MForm.ShowStatus( " " );
-          MForm.ShowStatus( "StartName: " + StartName );
-          MForm.ShowStatus( "NewTagS: " + NewTagS );
-          }
-          */
-
-        if( StartName == "a" )
-          {
-          ParseLink( NewTagS );
-          }
-
-        // Let it process image tags in links.
-        // if( !(StartName == "a" ))
-          {
-          TagToAdd = new Tag( MForm, CallingPage, NewTagS );
-          AddContainedTag( TagToAdd );
-          TagToAdd.MakeContainedTags();
-          }
-
-        StartAt = TestEnd + 1;
-        }
-      else
+      if( (StartName == "title") ||
+          (StartName == "p" ))
         {
-        // This is a single-tag.
-        int SubLength = TestEnd - StartAt;
-        NewTagS = MainText.Substring( StartAt, SubLength );
+        string FixTitle = NewTagS.Replace( "durango", "" );
+        FixTitle = FixTitle.Replace( "herald", "" );
+        FixTitle = FixTitle.Replace( "realestate", "real estate" );
+        FixTitle = FixTitle.Trim();
 
-        /*
-        if( StartName == "some tag" )
-          {
-          MForm.ShowStatus( " " );
-          MForm.ShowStatus( " " );
-          MForm.ShowStatus( " " );
-          MForm.ShowStatus( " " );
-          MForm.ShowStatus( " " );
-          MForm.ShowStatus( "Single-tag StartName: " + StartName );
-          MForm.ShowStatus( "NewTagS: " + NewTagS );
-          }
-          */
-
-        TagToAdd = new Tag( MForm, CallingPage, NewTagS );
-        AddContainedTag( TagToAdd );
-        TagToAdd.MakeContainedTags();
-        StartAt = TestEnd + 1;
+        ParseWords( StartName, FixTitle );
         }
+
+      if( StartName == "a" )
+        {
+        ParseLink( NewTagS );
+        }
+
+      bool ParseSubTags = true;
+      // Let it process image tags in links.
+      if( StartName == "title" )
+        ParseSubTags = false;
+
+      if( StartName == "style" )
+        ParseSubTags = false;
+
+      if( StartName == "ul" )
+        {
+        if( NewTagS.StartsWith( "class=\"gallery-list" ))
+          ParseSubTags = false;
+        
+        }
+
+      // Parse main-nav in case they add something new.
+      // <ul class=\"main-nav"
+      // <ul class=\"secondary-nav"
+
+      if( ParseSubTags )
+        {
+        TagToAdd = new Tag( MForm, CallingPage, NewTagS );
+        // AddContainedTag( TagToAdd );
+        TagToAdd.MakeContainedTags();
+        }
+
+      StartAt = TestEnd + 1;
       }
     }
     catch( Exception Except )
@@ -335,6 +302,114 @@ namespace DGOLibrary
       MForm.ShowStatus( Except.Message );
       }
     }
+
+
+
+  private string GetTruncatedErrorText( int StartAt, int HowLong )
+    {
+    StringBuilder SBuilder = new StringBuilder();
+
+    for( int Count = StartAt; Count < MainText.Length; Count++ )
+      {
+      // MForm.ShowStatus( Char.ToString( MainText[Count] ));
+      SBuilder.Append( MainText[Count] );
+      if( SBuilder.Length >= HowLong )
+        break;
+
+      }
+
+    return SBuilder.ToString();
+    }
+
+
+
+  private void ParseWords( string TagName, string InString )
+    {
+    if( MForm.GetIsClosing())
+      return;
+
+    InString = InString.ToLower();
+
+    if( TagName == "title" )
+      {
+      InString = InString.Replace( "</title", "" );
+      InString = InString.Replace( ">", "" );
+      MForm.ShowStatus( " " );
+      MForm.ShowStatus( "Title: " + InString );
+      }
+
+    if( TagName == "p" )
+      {
+      if( InString.Contains( "class=\"flip-nav" ))
+        return;
+
+      if( InString.Contains( "href=\"javascript:" ))
+        return;
+
+      if( InString.Contains( "class=\"timestamp" ))
+        return;
+
+      InString = InString.Replace( "</p", "" );
+      // How does class=lede affect priority of words?
+      // lede: "The introductory section of a news story
+      // that is intended to entice the reader to read the
+      // full story." ~ Google
+      InString = InString.Replace( "class=lede>", "" );
+      }
+
+    InString = InString.Replace( "<br/>", " " );
+
+    InString = InString.Replace( "\r", " " );
+    InString = InString.Replace( ":", " " );
+    InString = InString.Replace( ";", " " );
+    InString = InString.Replace( ".", " " );
+    InString = InString.Replace( ",", " " );
+    InString = InString.Replace( "-", " " );
+    InString = InString.Replace( "_", " " );
+    InString = InString.Replace( "!", " " );
+    InString = InString.Replace( "(", " " );
+    InString = InString.Replace( ")", " " );
+    InString = InString.Replace( "'", " " );
+    InString = InString.Replace( "<", " " );
+    InString = InString.Replace( ">", " " );
+    InString = InString.Replace( "|", " " );
+
+    // InString = InString.Replace( ">", " " );
+
+    SortedDictionary<string, int> WordsDictionary = new SortedDictionary<string, int>();
+
+    string[] WordsArray = InString.Split( new Char[] { ' ' } );
+    for( int Count = 0; Count < WordsArray.Length; Count++ )
+      {
+      string Word = WordsArray[Count].Trim();
+      if( Word.Length < 3 )
+        continue;
+
+      if( Word == "the" )
+        continue;
+
+      if( Word == "and" )
+        continue;
+
+      if( Word == "not" )
+        continue;
+
+      WordsDictionary[Word] = 1;
+      }
+
+    // MForm.ShowStatus( " " );
+    // MForm.ShowStatus( "Parse words:" );
+
+    string URL = CallingPage.GetURL();
+    foreach( KeyValuePair<string, int> Kvp in WordsDictionary )
+      {
+      MForm.AllWords.UpdateWord( Kvp.Key, URL );
+      // MForm.ShowStatus( Kvp.Key );
+      }
+
+    // MForm.ShowStatus( " " );
+    }
+
 
 
 
@@ -356,12 +431,50 @@ namespace DGOLibrary
     if( InString.Length < 10 )
       return;
 
-    InString = Utility.GetCleanUnicodeString( InString, 5000 );
+    if( InString.Contains( "<span" ))
+      {
+      // MForm.ShowStatus( "This has a span tag:" );
+      // MForm.ShowStatus( InString );
+      // MForm.ShowStatus( " " );
+      return;
+      }
 
-    bool HasImageTag = false;
+    if( InString.Contains( "class=\"jFlowPrev" ))
+      return;
+
+    if( InString.Contains( "class=\"jFlowNext" ))
+      return;
+
+    if( InString.Contains( "class=\"other-editions" ))
+      return;
+
+    if( InString.Contains( "onclick=\"" ))
+      return;
+
+    if( InString.Contains( "/pbcs.dll/" ))
+      return;
+
+    if( InString.Contains( "ctl00_ContentPlaceHolder" ))
+      return;
+
+    if( InString.Contains( "fb:comments-count" ))
+      return;
+
+    // Obituaries for a particular person:
+    // if( InString.Contains( ".aspx?" ))
+      // return;
+
+    if( InString.Contains( "/storyimage/" ))
+      return;
+
+    if( InString.Contains( "/section/Opinion02/" ))
+      InString = InString.Replace( "/section/Opinion02/", "/section/opinion02/" );
+
+
+    // bool HasImageTag = false;
     if( InString.Contains( "<img" ))
       {
-      HasImageTag = true;
+      // HasImageTag = true;
       InString = Utility.RemoveFromStartToEnd( "<img", "/>", InString );
       InString = InString.Trim();
       // MForm.ShowStatus( "The img tag was removed: " + InString );
@@ -380,8 +493,8 @@ namespace DGOLibrary
     if( Title.Length < 3 )
       {
       // Title could be: RSS.
-      if( !HasImageTag )
-        MForm.ShowStatus( "No link title in: " + InString );
+      // if( !HasImageTag )
+        // MForm.ShowStatus( "No link title in: " + InString );
 
       return;
       }
@@ -438,11 +551,9 @@ namespace DGOLibrary
       {
       // Get this new page:
       if( MForm.GetURLMgrForm != null )
-        MForm.GetURLMgrForm.AddURLForm( Title, LinkURL, false );
+        MForm.GetURLMgrForm.AddURLForm( Title, LinkURL, false, true );
 
       }
-
-
     }
     catch( Exception Except )
       {
@@ -450,6 +561,8 @@ namespace DGOLibrary
       MForm.ShowStatus( Except.Message );
       }
     }
+
+
 
 
    private bool LinkIsGood( string LinkURL )
@@ -467,7 +580,7 @@ namespace DGOLibrary
      }
 
 
-
+  /*
   private void AddContainedTag( Tag ToAdd )
     {
     try
@@ -488,7 +601,7 @@ namespace DGOLibrary
       MForm.ShowStatus( Except.Message );
       }
     }
-
+    */
 
 
   }
