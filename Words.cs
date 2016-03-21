@@ -18,6 +18,7 @@ namespace DGOLibrary
   private SortedDictionary<string, OneWord> WordsDictionary;
   private string FileName = "";
 
+
   private Words()
     {
     }
@@ -69,6 +70,13 @@ namespace DGOLibrary
   internal bool ContainsWord( string Word )
     {
     return WordsDictionary.ContainsKey( Word );
+    }
+
+
+
+  internal void ClearAll()
+    {
+    WordsDictionary.Clear();
     }
 
 
