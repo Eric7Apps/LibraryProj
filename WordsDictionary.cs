@@ -16,7 +16,6 @@ namespace DGOLibrary
   {
   private MainForm MForm;
   private SortedDictionary<string, int> MainWordsDictionary;
-  private SortedDictionary<string, int> ExcludedWordsDictionary;
   private SortedDictionary<string, string> ReplaceWordsDictionary;
   private string FileName = "";
 
@@ -35,10 +34,8 @@ namespace DGOLibrary
     FileName = MForm.GetDataDirectory() + "WordsDictionary.txt";
 
     MainWordsDictionary = new SortedDictionary<string, int>();
-    ExcludedWordsDictionary = new SortedDictionary<string, int>();
     ReplaceWordsDictionary = new SortedDictionary<string, string>();
 
-    AddExcludedWords();
     AddCommonReplacements();
     }
 
@@ -71,6 +68,7 @@ namespace DGOLibrary
       return "";
 
     InWord = InWord.ToLower();
+
     if( WordIsExcluded( InWord ))
       return "";
 
@@ -151,8 +149,15 @@ namespace DGOLibrary
         if( MainWordsDictionary.ContainsKey( TestWord ))
           return TestWord;
 
+        // favorably
+        // favorable
+        string ETest = TestWord = "e";
+        if( MainWordsDictionary.ContainsKey( ETest ))
+          return ETest;
+
         }
       }
+
 
     Test = 2;
     ///////////////
@@ -355,8 +360,6 @@ namespace DGOLibrary
           }
         }
 
-
-
       if( (InWord[InWord.Length - 3] == 'i' ) &&
           (InWord[InWord.Length - 2] == 'e' ) &&
           (InWord[InWord.Length - 1] == 'd' ))
@@ -389,6 +392,28 @@ namespace DGOLibrary
           return ETest;
           }
         }
+
+      if( (InWord[InWord.Length - 3] == 'o' ) &&
+          (InWord[InWord.Length - 2] == 'u' ) &&
+          (InWord[InWord.Length - 1] == 's' ))
+        {
+        TestWord = Utility.TruncateString( InWord, InWord.Length - 3 );
+        if( MainWordsDictionary.ContainsKey( TestWord ))
+          {
+          // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+          return TestWord;
+          }
+
+        // polygomy
+        // polygomous
+        string YTest = TestWord + "y";
+        if( MainWordsDictionary.ContainsKey( YTest ))
+          {
+          // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + YTest );
+          return YTest;
+          }
+        }
+
 
       if( (InWord[InWord.Length - 3] == 'i' ) &&
           (InWord[InWord.Length - 2] == 'a' ) &&
@@ -492,6 +517,28 @@ namespace DGOLibrary
           }
         }
 
+      // enlargement
+      if( (InWord[InWord.Length - 4] == 'm' ) &&
+          (InWord[InWord.Length - 3] == 'e' ) &&
+          (InWord[InWord.Length - 2] == 'n' ) &&
+          (InWord[InWord.Length - 1] == 't' ))
+        {
+        TestWord = Utility.TruncateString( InWord, InWord.Length - 4 );
+        if( MainWordsDictionary.ContainsKey( TestWord ))
+          {
+          MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+          return TestWord;
+          }
+
+        /*
+        string ETest = TestWord + "e";
+        if( MainWordsDictionary.ContainsKey( ETest ))
+          {
+          // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
+          return ETest;
+          }
+          */
+        }
       }
 
 
@@ -508,228 +555,256 @@ namespace DGOLibrary
 
 
 
-  private bool WordIsExcluded( string InWord )
+  internal bool WordIsExcluded( string Word )
     {
-    // The WordsDictionary.txt file is a white-list of
-    // words that will be indexed.  This black-list of
-    // words that will not be indexed is only needed for
-    // efficiency (to quickly get rid of words like
-    // 'the'), and also because when you're looking for
-    // new words that should be added to the dictionary
-    // file it helps when it's not showing so much garbage.
-    // But there are two reasons for garbage being there.
-    // One is a crude form of parsing and the other is
-    // mal-formed HTML.  Even with very good parsing you
-    // can't depend on well-formed HTML.  I mean you never
-    // know what new form of parsing you'll have to come
-    // up with to deal with a new problem.
-    if( InWord == "the" )
+    // This is mainly needed to help find new words
+    // that aren't yet in the dictionary.  These words
+    // aren't in the dictionary and I don't want it to
+    // keep telling me that they aren't.
+
+    // If this gets bigger it will have to be
+    // done in a different way.  I sometimes start out
+    // with a few things hard-coded and then if it gets
+    // out of hand I write something else,
+    // like the main dictionary.
+
+    if( Word == null ) // If it ever got a null.
       return true;
 
-    if( InWord == "and" )
+    if( Word.Length < 3 )
       return true;
 
-    if( InWord == "not" )
-      return true;
-
-    if( ExcludedWordsDictionary.ContainsKey( InWord ))
-      return true;
-
-    for( int Count = 1; Count < InWord.Length; Count++ )
+    ///////
+    if( Word[0] == 'a' )
       {
-      if( !Char.IsLetter( InWord[Count] ))
+      if( Word == "about" )
+        return true;
+
+      if( Word == "and" )
+        return true;
+
+      if( Word == "animascitytheatre" )
+        return true;
+
+      if( Word == "are" )
+        return true;
+
+      }
+
+
+    if( Word == "been" )
+      return true;
+
+    if( Word == "but" )
+      return true;
+
+    if( Word == "com" )
+      return true;
+
+    ///////
+    if( Word[0] == 'd' )
+      {
+      if( Word == "did" )
+        return true;
+
+      if( Word == "didn" ) // didn't
+        return true;
+
+      if( Word == "does" )
+        return true;
+
+      if( Word == "doesn" ) // doesn't
+        return true;
+
+      if( Word == "durango" ) // It's the Durango Herald.
+        return true;
+
+      }
+
+    ///////
+    if( Word[0] == 'f' )
+      {
+      if( Word == "for" )
+        return true;
+
+      if( Word == "from" )
+        return true;
+
+      if( Word == "frontpage" )
+        return true;
+
+      }
+
+    //////
+    if( Word[0] == 'g' )
+      {
+      if( Word == "get" )
+        return true;
+
+      if( Word == "gets" )
+        return true;
+
+      if( Word == "getting" )
+        return true;
+
+      if( Word == "goes" )
+        return true;
+
+      if( Word == "going" )
+        return true;
+
+      }
+
+    //////
+    if( Word[0] == 'h' )
+      {
+      if( Word == "has" )
+        return true;
+
+      if( Word == "hasn" ) // hasn't
+        return true;
+
+      if( Word == "have" )
+        return true;
+
+      if( Word == "having" )
+        return true;
+
+      if( Word == "henrystratertheatre" )
+        return true;
+
+      if( Word == "herald" ) // It's the Durango Herald.
+        return true;
+
+      if( Word == "homepage" )
+        return true;
+
+      }
+
+    //////
+    if( Word[0] == 'i' )
+      {
+      if( Word == "img" )
+        return true;
+
+      if( Word == "isn" ) // isn't
+        return true;
+
+      if( Word == "its" )
+        return true;
+
+      }
+
+    ////////
+    if( Word[0] == 'n' )
+      {
+      if( Word == "newsmemory" )
+        return true;
+
+      if( Word == "non" )
+        return true;
+
+      if( Word == "nor" )
+        return true;
+
+      if( Word == "not" )
+        return true;
+
+      }
+
+
+    if( Word == "ops" )
+      return true;
+
+
+    if( Word == "png" )
+      return true;
+
+    if( Word == "pvt" )
+      return true;
+
+    //////
+    if( Word[0] == 't' )
+      {
+      if( Word == "that" )
+        return true;
+
+      if( Word == "the" )
+        return true;
+
+      if( Word == "their" )
+        return true;
+
+      if( Word == "theirs" )
+        return true;
+
+      if( Word == "them" )
+        return true;
+
+      if( Word == "then" )
+        return true;
+
+      if( Word == "there" )
+        return true;
+
+      if( Word == "these" )
+        return true;
+
+      if( Word == "they" )
+        return true;
+
+      if( Word == "this" )
+        return true;
+
+      if( Word == "those" )
+        return true;
+
+      if( Word == "thus" )
+        return true;
+
+      if( Word == "too" )
+        return true;
+
+      }
+
+
+    if( Word == "using" )
+      return true;
+
+    ///////
+    if( Word[0] == 'w' )
+      {
+      if( Word == "was" )
+        return true;
+
+      if( Word == "wasn" ) // Wasn't
+        return true;
+
+      if( Word == "went" )
+        return true;
+
+      if( Word == "were" )
+        return true;
+
+      if( Word == "what" )
+        return true;
+
+      if( Word == "with" )
+        return true;
+
+      if( Word == "www" )
+        return true;
+
+      }
+
+    for( int Count = 0; Count < Word.Length; Count++ )
+      {
+      if( !Char.IsLetter( Word[Count] ))
         return true;
 
       }
 
     return false;
-    }
-
-
-
-  private void AddExcludedWords()
-    {
-    // This needs to go in a file.
-
-    ExcludedWordsDictionary["aboutus"] = 0;
-    ExcludedWordsDictionary["ads"] = 0;
-    ExcludedWordsDictionary["alt"] = 0;
-    ExcludedWordsDictionary["amp"] = 0;
-    ExcludedWordsDictionary["animasriverminewaste"] = 0;
-    ExcludedWordsDictionary["anti"] = 0;
-    ExcludedWordsDictionary["api"] = 0; // For now.
-    ExcludedWordsDictionary["apw"] = 0;
-    ExcludedWordsDictionary["are"] = 0;
-    ExcludedWordsDictionary["artno"] = 0;
-    ExcludedWordsDictionary["aspx"] = 0;
-    ExcludedWordsDictionary["ats"] = 0;
-    ExcludedWordsDictionary["authenticateusersubscription"] = 0;
-
-    ExcludedWordsDictionary["ballantinecommunications"] = 0;
-    ExcludedWordsDictionary["bci"] = 0;
-    ExcludedWordsDictionary["bcimedia"] = 0;
-    ExcludedWordsDictionary["bdmedia"] = 0;
-
-    ExcludedWordsDictionary["beforeafter"] = 0;
-
-    ExcludedWordsDictionary["chsaa"] = 0;
-    ExcludedWordsDictionary["clickshare"] = 0;
-    ExcludedWordsDictionary["col"] = 0;
-    ExcludedWordsDictionary["coloradosbdc"] = 0;
-    ExcludedWordsDictionary["com"] = 0;
-    ExcludedWordsDictionary["cotrip"] = 0;
-    ExcludedWordsDictionary["csloginonly"] = 0;
-    ExcludedWordsDictionary["cstargeturl"] = 0;
-    ExcludedWordsDictionary["cws"] = 0;
-
-    ExcludedWordsDictionary["del"] = 0;
-    ExcludedWordsDictionary["dema"] = 0;
-    ExcludedWordsDictionary["dgo"] = 0;
-    ExcludedWordsDictionary["dgomag"] = 0;
-    ExcludedWordsDictionary["dhcams"] = 0;
-    ExcludedWordsDictionary["dimages"] = 0;
-    ExcludedWordsDictionary["directoryplus"] = 0;
-    ExcludedWordsDictionary["did"] = 0;
-    ExcludedWordsDictionary["didn"] = 0;      // 't
-    ExcludedWordsDictionary["dll"] = 0;
-    ExcludedWordsDictionary["docs"] = 0;
-    ExcludedWordsDictionary["doradomagazine"] = 0;
-    ExcludedWordsDictionary["durangoherald"] = 0;
-
-    ExcludedWordsDictionary["eco"] = 0;
-    ExcludedWordsDictionary["eherald"] = 0;
-    ExcludedWordsDictionary["emplo"] = 0;
-    ExcludedWordsDictionary["exacth"] = 0;
-    ExcludedWordsDictionary["exactw"] = 0;
-
-    ExcludedWordsDictionary["firstmmedia"] = 0;
-    ExcludedWordsDictionary["footer"] = 0; // For now.
-    ExcludedWordsDictionary["fourcornersexpos"] = 0;
-    ExcludedWordsDictionary["fourcornersmarketplace"] = 0;
-    ExcludedWordsDictionary["fourcornersschoolpubs"] = 0;
-    ExcludedWordsDictionary["frameborder"] = 0;
-    ExcludedWordsDictionary["frontpage"] = 0;
-
-    ExcludedWordsDictionary["gdr"] = 0;
-    ExcludedWordsDictionary["getting"] = 0;
-    ExcludedWordsDictionary["gif"] = 0;
-    ExcludedWordsDictionary["goes"] = 0;
-    ExcludedWordsDictionary["going"] = 0;
-    ExcludedWordsDictionary["gooddirtradio"] = 0;
-    ExcludedWordsDictionary["gov"] = 0;
-
-    ExcludedWordsDictionary["header"] = 0;
-    ExcludedWordsDictionary["headuserlogin"] = 0;
-    ExcludedWordsDictionary["href"] = 0;
-    ExcludedWordsDictionary["html"] = 0;
-    ExcludedWordsDictionary["http"] = 0;
-    ExcludedWordsDictionary["https"] = 0;
-
-    ExcludedWordsDictionary["iframe"] = 0;
-    ExcludedWordsDictionary["imageversion"] = 0;
-    ExcludedWordsDictionary["img"] = 0;
-    ExcludedWordsDictionary["inc"] = 0;
-    ExcludedWordsDictionary["issuu"] = 0;
-    ExcludedWordsDictionary["its"] = 0;
-
-    ExcludedWordsDictionary["jobsearch"] = 0;
-    ExcludedWordsDictionary["jpg"] = 0;
-
-    ExcludedWordsDictionary["lede"] = 0;
-    ExcludedWordsDictionary["letterstotheeditordh"] = 0;
-    ExcludedWordsDictionary["linktarget"] = 0;
-    ExcludedWordsDictionary["login"] = 0;     // For now.
-    ExcludedWordsDictionary["los"] = 0;
-
-    ExcludedWordsDictionary["macro"] = 0;
-    ExcludedWordsDictionary["marginheight"] = 0;
-    ExcludedWordsDictionary["marginwidth"] = 0;
-    ExcludedWordsDictionary["maxh"] = 0;
-    ExcludedWordsDictionary["mdash"] = 0;
-    ExcludedWordsDictionary["mejia"] = 0; // media?
-
-    ExcludedWordsDictionary["nav"] = 0;
-    ExcludedWordsDictionary["navbar"] = 0;
-    ExcludedWordsDictionary["nbsp"] = 0;
-    ExcludedWordsDictionary["newsstand"] = 0;
-    ExcludedWordsDictionary["newstip"] = 0;
-    ExcludedWordsDictionary["newtbl"] = 0;
-    ExcludedWordsDictionary["nofollow"] = 0;
-    ExcludedWordsDictionary["nskc"] = 0;
-
-    ExcludedWordsDictionary["ogp"] = 0;
-    ExcludedWordsDictionary["opengraphprotocol"] = 0;
-    ExcludedWordsDictionary["org"] = 0;
-
-    ExcludedWordsDictionary["pbcs"] = 0;
-    ExcludedWordsDictionary["pbcsi"] = 0;
-    ExcludedWordsDictionary["php"] = 0;
-    ExcludedWordsDictionary["pinerivertimes"] = 0;
-    ExcludedWordsDictionary["png"] = 0;
-    ExcludedWordsDictionary["popups"] = 0;
-    ExcludedWordsDictionary["premiumpopup"] = 0;
-    ExcludedWordsDictionary["preview1"] = 0;
-    ExcludedWordsDictionary["preview2"] = 0;
-    ExcludedWordsDictionary["privacypolicy"] = 0;
-
-    ExcludedWordsDictionary["realestate"] = 0;
-    ExcludedWordsDictionary["ref"] = 0;
-    ExcludedWordsDictionary["reg"] = 0;
-    ExcludedWordsDictionary["rel"] = 0;
-    ExcludedWordsDictionary["rss"] = 0;
-
-    ExcludedWordsDictionary["san"] = 0;
-    ExcludedWordsDictionary["schema"] = 0;
-    ExcludedWordsDictionary["secondstreetapp"] = 0;
-    ExcludedWordsDictionary["sct"] = 0;
-    ExcludedWordsDictionary["searchresults"] = 0;
-    ExcludedWordsDictionary["sen"] = 0;
-    ExcludedWordsDictionary["src"] = 0;
-    ExcludedWordsDictionary["sta"] = 0;
-    ExcludedWordsDictionary["storyimage"] = 0;
-    ExcludedWordsDictionary["swscene"] = 0;
-    ExcludedWordsDictionary["subscriptioncenter"] = 0;
-    ExcludedWordsDictionary["subsection"] = 0;
-    ExcludedWordsDictionary["sug"] = 0;
-
-    ExcludedWordsDictionary["tabmmedia"] = 0;
-    ExcludedWordsDictionary["taleo"] = 0;
-    ExcludedWordsDictionary["tbe"] = 0;
-    ExcludedWordsDictionary["temp"] = 0;
-    ExcludedWordsDictionary["termsofuse"] = 0;
-    ExcludedWordsDictionary["that"] = 0;
-    ExcludedWordsDictionary["thecloudscout"] = 0;
-    ExcludedWordsDictionary["thedurangoherald"] = 0;
-    ExcludedWordsDictionary["thedurangoheraldsmallpress"] = 0;
-    ExcludedWordsDictionary["their"] = 0;
-    ExcludedWordsDictionary["them"] = 0;
-    ExcludedWordsDictionary["then"] = 0;
-    ExcludedWordsDictionary["there"] = 0;
-    ExcludedWordsDictionary["these"] = 0;
-    ExcludedWordsDictionary["they"] = 0;
-    ExcludedWordsDictionary["this"] = 0;
-    ExcludedWordsDictionary["those"] = 0;
-    ExcludedWordsDictionary["thus"] = 0;
-    ExcludedWordsDictionary["timestamp"] = 0;
-    ExcludedWordsDictionary["too"] = 0;
-    ExcludedWordsDictionary["tosa"] = 0;
-    ExcludedWordsDictionary["tvs"] = 0;
-
-    ExcludedWordsDictionary["using"] = 0;
-
-    ExcludedWordsDictionary["was"] = 0;
-    ExcludedWordsDictionary["weekender"] = 0;
-    ExcludedWordsDictionary["went"] = 0;
-    ExcludedWordsDictionary["were"] = 0;
-    ExcludedWordsDictionary["what"] = 0;
-    ExcludedWordsDictionary["widget"] = 0;
-    ExcludedWordsDictionary["with"] = 0;
-    ExcludedWordsDictionary["wrapper"] = 0;
-    ExcludedWordsDictionary["www"] = 0;
-
-    ExcludedWordsDictionary["xcel"] = 0;
-    ExcludedWordsDictionary["xhtml"] = 0;
-    ExcludedWordsDictionary["xmlns"] = 0;
     }
 
 
@@ -747,21 +822,28 @@ namespace DGOLibrary
   private void AddCommonReplacements()
     {
     ReplaceWordsDictionary["ariz"] = "arizona";
+    ReplaceWordsDictionary["broomfiled"] = "broomfield";
+    ReplaceWordsDictionary["calif"] = "california";
     ReplaceWordsDictionary["colo"] = "colorado";
+    ReplaceWordsDictionary["conn"] = "connecticut";
+    ReplaceWordsDictionary["downton"] = "downtown";
+    ReplaceWordsDictionary["fla"] = "florida";
     ReplaceWordsDictionary["intro"] = "introduction";
+    ReplaceWordsDictionary["sen"] = "senator";
+    ReplaceWordsDictionary["thinkin"] = "think";
 
-
+                              
     // ReplaceWordsDictionary["jan"] = "january";
-    // ReplaceWordsDictionary["feb"] = "february";
+    ReplaceWordsDictionary["feb"] = "february";
     // ReplaceWordsDictionary["mar"] = "march";
     // ReplaceWordsDictionary["apr"] = "april";
     // ReplaceWordsDictionary["may"] = "may";
     // ReplaceWordsDictionary["jun"] = "june";
     // ReplaceWordsDictionary["jul"] = "july";
-    // ReplaceWordsDictionary["aug"] = "august";
+    ReplaceWordsDictionary["aug"] = "august";
     ReplaceWordsDictionary["sept"] = "september";
     ReplaceWordsDictionary["oct"] = "october";
-    // ReplaceWordsDictionary["nov"] = "november";
+    ReplaceWordsDictionary["nov"] = "november";
     // ReplaceWordsDictionary["dec"] = "december";
     }
 
@@ -824,9 +906,17 @@ namespace DGOLibrary
         if( WordIsExcluded( KeyWord ))
           continue;
 
+        // For test:
+        // CountValue = 0;
         MainWordsDictionary[KeyWord] = CountValue;
         }
       }
+
+    ShowMostFrequentWords();
+
+    MForm.ShowStatus( " " );
+    MForm.ShowStatus( "Words Count: " + MainWordsDictionary.Count.ToString( "N0" ));
+    MForm.ShowStatus( " " );
 
     return true;
 
@@ -866,6 +956,41 @@ namespace DGOLibrary
       }
     }
 
+
+
+  internal void ShowMostFrequentWords()
+    {
+    try
+    {
+    MForm.ShowStatus( " " );
+    MForm.ShowStatus( "Most frequent words:" );
+
+    // Higher numbered counts are usually unique, so 
+    // this works as a way to find words like 'the' that
+    // should not be indexed.  (As opposed to sorting
+    // them all uniquely.)
+    SortedDictionary<int, string> FrequentDictionary = new SortedDictionary<int, string>();
+
+    foreach( KeyValuePair<string, int> Kvp in MainWordsDictionary )
+      {
+      if( Kvp.Value < 100 )
+        continue;
+
+      // If it's not unique this gets the last one.
+      FrequentDictionary[Kvp.Value] = Kvp.Key;
+      }
+
+    foreach( KeyValuePair<int, string> KvpCount in FrequentDictionary )
+      {
+      MForm.ShowStatus( KvpCount.Key.ToString() + ") " + KvpCount.Value );
+      }
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Exception in ShowMostFrequentWords()." );
+      MForm.ShowStatus( Except.Message );
+      }
+    }
 
 
 
