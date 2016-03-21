@@ -11,6 +11,7 @@ using System.Drawing;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
 
 
 
@@ -60,42 +61,44 @@ namespace DGOLibrary
     // This is hard-coded for now, but it could be from a
     // list in a configuration file.
 
-    // Add the Page to the PageList if it's not already there.
-    AddURLForm( "Main Page", "http://www.durangoherald.com", true );
-    AddURLForm( "Local / Regional", "http://www.durangoherald.com/section/News01/", true );
-    AddURLForm( "National / World", "http://www.durangoherald.com/section/News03/", true );
-    AddURLForm( "Business", "http://www.durangoherald.com/section/News04/", true );
-    AddURLForm( "Columnists", "http://www.durangoherald.com//section/Columnists/", true );
-    AddURLForm( "Education", "http://www.durangoherald.com/section/News05/", true );
-    AddURLForm( "Good Earth", "http://www.durangoherald.com/section/News06/", true );
-    AddURLForm( "Obituaries", "http://obituaries.durangoherald.com/obituaries/durangoherald/", true );
-    AddURLForm( "Real Estate", "http://www.durangoherald.com/section/realestate/", true );
-    AddURLForm( "Sports", "http://www.durangoherald.com/section/Sports/", true );
-    AddURLForm( "Professtional Sports", "http://www.durangoherald.com/section/Sports01/", true );
-    AddURLForm( "College Sports", "http://www.durangoherald.com/section/Sports02/", true );
-    AddURLForm( "High School Sports", "http://www.durangoherald.com/section/Sports03/", true );
-    AddURLForm( "Youth Sports", "http://www.durangoherald.com/section/Sports04/", true );
-    AddURLForm( "Outdoors Sports", "http://www.durangoherald.com/section/Sports05/", true );
-    AddURLForm( "Arts and Entertainment", "http://www.durangoherald.com/section/Arts/", true );
-    AddURLForm( "Performing Arts", "http://www.durangoherald.com/section/Arts01/", true );
-    AddURLForm( "Visual Arts", "http://www.durangoherald.com/section/Arts02/", true );
-    AddURLForm( "Music", "http://www.durangoherald.com/section/Arts03/", true );
-    AddURLForm( "Film and TV", "http://www.durangoherald.com/section/Arts04/", true );
-    AddURLForm( "Books", "http://www.durangoherald.com/section/Arts05/", true );
-    AddURLForm( "Lifestyle", "http://www.durangoherald.com/section/Lifestyle/", true );
-    AddURLForm( "Southwest Life", "http://www.durangoherald.com/section/Lifestyle01/", true );
-    AddURLForm( "Food", "http://www.durangoherald.com/section/Lifestyle02/", true );
-    AddURLForm( "Travel", "http://www.durangoherald.com/section/Lifestyle03/", true );
-    AddURLForm( "Health", "http://www.durangoherald.com/section/Lifestyle04/", true );
-    AddURLForm( "Family", "http://www.durangoherald.com/section/Lifestyle05/", true );
-    AddURLForm( "Religion", "http://www.durangoherald.com/section/Lifestyle06/", true );
-    AddURLForm( "Opinion", "http://www.durangoherald.com/section/Opinion/", true );
-    AddURLForm( "Editorial", "http://www.durangoherald.com/section/Opinion01/", true );
-    AddURLForm( "Op Ed", "http://www.durangoherald.com/section/Opinion02/", true );
-    AddURLForm( "Letters to the Editor", "http://www.durangoherald.com/section/Opinion03/", true );
-    AddURLForm( "Newsstand", "http://www.durangoherald.com/section/newsstand/", true );
-    AddURLForm( "Gold King Mine Spill", "http://www.durangoherald.com/section/goldking", true );
-    AddURLForm( "Staff Listing", "http://www.durangoherald.com/section/contact/", true );
+    AddURLForm( "Durango Gov Main Page", "http://www.durangogov.org", true, false );
+    // AddURLForm( "Yahoo News Main Page", "http://news.yahoo.com", true, false );
+
+    AddURLForm( "Durango Herald Main Page", "http://www.durangoherald.com", true, false );
+    AddURLForm( "Local / Regional", "http://www.durangoherald.com/section/News01/", true, false );
+    AddURLForm( "National / World", "http://www.durangoherald.com/section/News03/", true, false );
+    AddURLForm( "Business", "http://www.durangoherald.com/section/News04/", true, false );
+    AddURLForm( "Columnists", "http://www.durangoherald.com//section/Columnists/", true, false );
+    AddURLForm( "Obituaries", "http://obituaries.durangoherald.com/obituaries/durangoherald/", true, false );
+    AddURLForm( "Education", "http://www.durangoherald.com/section/News05/", true, false );
+    AddURLForm( "Good Earth", "http://www.durangoherald.com/section/News06/", true, false );
+    AddURLForm( "Real Estate", "http://www.durangoherald.com/section/realestate/", true, false );
+    AddURLForm( "Sports", "http://www.durangoherald.com/section/Sports/", true, false );
+    AddURLForm( "Professtional Sports", "http://www.durangoherald.com/section/Sports01/", true, false );
+    AddURLForm( "College Sports", "http://www.durangoherald.com/section/Sports02/", true, false );
+    AddURLForm( "High School Sports", "http://www.durangoherald.com/section/Sports03/", true, false );
+    AddURLForm( "Youth Sports", "http://www.durangoherald.com/section/Sports04/", true, false );
+    AddURLForm( "Outdoors Sports", "http://www.durangoherald.com/section/Sports05/", true, false );
+    AddURLForm( "Arts and Entertainment", "http://www.durangoherald.com/section/Arts/", true, false );
+    AddURLForm( "Performing Arts", "http://www.durangoherald.com/section/Arts01/", true, false );
+    AddURLForm( "Visual Arts", "http://www.durangoherald.com/section/Arts02/", true, false );
+    AddURLForm( "Music", "http://www.durangoherald.com/section/Arts03/", true, false );
+    AddURLForm( "Film and TV", "http://www.durangoherald.com/section/Arts04/", true, false );
+    AddURLForm( "Books", "http://www.durangoherald.com/section/Arts05/", true, false );
+    AddURLForm( "Lifestyle", "http://www.durangoherald.com/section/Lifestyle/", true, false );
+    AddURLForm( "Southwest Life", "http://www.durangoherald.com/section/Lifestyle01/", true, false );
+    AddURLForm( "Food", "http://www.durangoherald.com/section/Lifestyle02/", true, false );
+    AddURLForm( "Travel", "http://www.durangoherald.com/section/Lifestyle03/", true, false );
+    AddURLForm( "Health", "http://www.durangoherald.com/section/Lifestyle04/", true, false );
+    AddURLForm( "Family", "http://www.durangoherald.com/section/Lifestyle05/", true, false );
+    AddURLForm( "Religion", "http://www.durangoherald.com/section/Lifestyle06/", true, false );
+    AddURLForm( "Opinion", "http://www.durangoherald.com/section/Opinion/", true, false );
+    AddURLForm( "Editorial", "http://www.durangoherald.com/section/Opinion01/", true, false );
+    AddURLForm( "Op Ed", "http://www.durangoherald.com/section/Opinion02/", true, false );
+    AddURLForm( "Letters to the Editor", "http://www.durangoherald.com/section/Opinion03/", true, false );
+    AddURLForm( "Newsstand", "http://www.durangoherald.com/section/newsstand/", true, false );
+    AddURLForm( "Gold King Mine Spill", "http://www.durangoherald.com/section/goldking", true, false );
+    AddURLForm( "Staff Listing", "http://www.durangoherald.com/section/contact/", true, false );
 
     // Ones that are in every page. Don't keep reading these:
     MForm.PageList1.AddEmptyPage( "Mobile", "http://www.durangoherald.com/section/mobile" );
@@ -164,14 +167,15 @@ namespace DGOLibrary
 
 
 
-  internal bool AddURLForm( string Title, string URL, bool AddToPageList )
+  internal void AddURLForm( string Title, string URL, bool AddToPageList, bool ShowTitle )
     {
+    // For when I start out with no pages in the page list.
     if( AddToPageList )
       MForm.PageList1.AddEmptyPage( Title, URL );
 
     if( IsInQueue( URL ))
-      return false;
-  
+      return;
+
     string FileName = GetNextTempFileName();
 
     GetFromURLForm GetForm = new GetFromURLForm( MForm, URL, FileName, Title );
@@ -186,15 +190,17 @@ namespace DGOLibrary
       }
       catch
         {
-        return false;
+        return;
         }
       }
 
-    ShowStatus( " " );
-    ShowStatus( "In Queue:" );
-    ShowStatus( Title );
-    ShowStatus( URL );
-    return true;
+    if( ShowTitle )
+      {
+      ShowStatus( " " );
+      ShowStatus( "In Queue:" );
+      ShowStatus( Title );
+      ShowStatus( URL );
+      }
     }
 
 
@@ -218,8 +224,9 @@ namespace DGOLibrary
     if( IsDisposed )
       return;
 
-    if( MainTextBox.Text.Length > 10000 )
-      MainTextBox.Text = "";
+    // Commented out for testing.
+    // if( MainTextBox.Text.Length > 10000 )
+      // MainTextBox.Text = "";
 
     MainTextBox.AppendText( Status + "\r\n" ); 
     }
@@ -254,6 +261,35 @@ namespace DGOLibrary
       }
 
     GetURLArrayLast = 0;
+    SaveStatusToFile();
+    }
+
+
+
+  internal void SaveStatusToFile()
+    {
+    try
+    {
+    string FileName = MForm.GetDataDirectory() + "GetURLMgrStatus.txt";
+
+    using( StreamWriter SWriter = new StreamWriter( FileName  )) 
+      {
+      foreach( string Line in MainTextBox.Lines )
+        {
+        SWriter.WriteLine( Line );
+        }
+      }
+
+    // MForm.StartProgramOrFile( FileName );
+
+    }
+    catch( Exception Except )
+      {
+      ShowStatus( "Error: Could not write the status to the file." );
+      // ShowStatus( FileName );
+      ShowStatus( Except.Message );
+      return;
+      }
     }
 
 
@@ -269,8 +305,8 @@ namespace DGOLibrary
       if( !GetURLArray[Count].GetHasStarted())
         continue;
 
-      if( GetURLArray[Count].GetFileIsDone() ||
-        GetURLArray[Count].GetHadErrorOrCancel())
+      if( GetURLArray[Count].GetFileIsDone()) // ||
+        // GetURLArray[Count].GetHadErrorOrCancel())
         {
         // ShowStatus( "Closing finished form." );
         if( !GetURLArray[Count].IsDisposed )
@@ -284,7 +320,7 @@ namespace DGOLibrary
         continue;
         }
 
-      int OldTime = 60 * 5;
+      int OldTime = 60 * 3;
       if( GetURLArray[Count].GetStartTimeSecondsToNow() > OldTime )
         {
         // It's hung up or something and it shouldn't
@@ -326,8 +362,8 @@ namespace DGOLibrary
     GetURLArrayLast = MoveTo;
     // ShowStatus( "After freeing old ones last is: " + GetURLArrayLast.ToString());
 
-    // if( GetURLArrayLast == 0 )
-      // {
+    if( GetURLArrayLast == 0 )
+      {
       // Check for new links again this way instead of
       // using the new links timer?
       // AddInitialLinks();
@@ -335,7 +371,16 @@ namespace DGOLibrary
       // Or just keep checking for breaking stories
       // only here?
       // AddURLForm( "Main Page", "http://www.durangoherald.com" );
-      // }
+
+      QueueTimer.Stop(); // For testing.
+
+      ShowStatus( " " );
+      ShowStatus( " " );
+      ShowStatus( " " );
+      ShowStatus( " " );
+      ShowStatus( " " );
+      ShowStatus( "The queue for getting new pages is empty." );
+      }
     }
     catch( Exception Except )
       {
@@ -360,7 +405,6 @@ namespace DGOLibrary
       GetURLArray[Count].StartHttp( true );
       return; // Only start one.
       }
-
     }
     catch( Exception Except )
       {
@@ -384,7 +428,7 @@ namespace DGOLibrary
       return;
 
     // Play nice and don't send requests too often.
-    if( QueueTime.GetSecondsToNow() > 10.0 )
+    if( QueueTime.GetSecondsToNow() > 5.0 )
       {
       // ShowStatus( "Timer for next in queue." );
       StartNextInQueue();
@@ -408,6 +452,14 @@ namespace DGOLibrary
 
     // Check for new links again once every so often.
     AddInitialLinks();
+    }
+
+
+
+  private void GetURLManagerForm_FormClosing(object sender, FormClosingEventArgs e)
+    {
+    e.Cancel = true;
+    Hide();
     }
 
 
