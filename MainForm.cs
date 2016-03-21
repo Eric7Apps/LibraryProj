@@ -21,7 +21,7 @@ namespace DGOLibrary
 {
   public partial class MainForm : Form
   {
-  internal const string VersionDate = "3/19/2016";
+  internal const string VersionDate = "3/21/2016";
   internal const int VersionNumber = 09; // 0.9
   internal const string MessageBoxTitle = "Library Project";
   private System.Threading.Mutex SingleInstanceMutex = null;
@@ -83,7 +83,7 @@ namespace DGOLibrary
     {
     string URL = "http://www.durangoherald.com";
     string FileName = GetPagesDirectory() + "TestFile.txt";
-    PageList1.UpdatePageFromTempFile( "Main Page", URL, FileName );
+    PageList1.UpdatePageFromFile( "Main Page", URL, FileName, true );
     }
 
 
@@ -100,7 +100,7 @@ namespace DGOLibrary
     {
     try
     {
-    TempFileDirectory = Application.StartupPath + "\\TempFiles\\";
+    TempFileDirectory ="c:\\DGOLibProject\\TempFiles\\";
     // PagesDirectory = Application.StartupPath + "\\Pages\\";
     PagesDirectory = "c:\\DGOLibProject\\Pages\\";
     DataDirectory = Application.StartupPath + "\\Data\\";
@@ -266,6 +266,36 @@ namespace DGOLibrary
     PageList1.WriteToTextFile();
     AllWords.WriteToTextFile();
     WordsDictionary1.WriteToTextFile();
+
+    // After getting what those others show.
+    SaveStatusToFile();
+    }
+
+
+
+  internal void SaveStatusToFile()
+    {
+    try
+    {
+    string FileName = GetDataDirectory() + "MainStatus.txt";
+
+    using( StreamWriter SWriter = new StreamWriter( FileName  )) 
+      {
+      foreach( string Line in MainTextBox.Lines )
+        {
+        SWriter.WriteLine( Line );
+        }
+      }
+
+    // MForm.StartProgramOrFile( FileName );
+
+    }
+    catch( Exception Except )
+      {
+      ShowStatus( "Error: Could not write the status to the file." );
+      ShowStatus( Except.Message );
+      return;
+      }
     }
 
 
@@ -316,26 +346,21 @@ namespace DGOLibrary
     {
     StartupTimer.Stop();
 
-    ShowStatus( "Reading words dictionary data..." );
+    ShowStatus( "Reading data..." );
+    PageList1.ReadFromTextFile();
+
+    AllWords.ReadFromTextFile();
+
     WordsDictionary1.ReadFromTextFile();
     // Rewrite it so it's sorted and unique.
     WordsDictionary1.WriteToTextFile();
-    ShowStatus( "Finished reading words dictionary file." );
-
-
-    ShowStatus( "Reading pages data..." );
-    PageList1.ReadFromTextFile();
-    ShowStatus( "Finished reading pages file." );
-
-    ShowStatus( "Reading words data..." );
-    AllWords.ReadFromTextFile();
-    ShowStatus( "Finished reading words file." );
-
-
 
     GetURLMgrForm = new GetURLManagerForm( this );
 
-    // AllWords.ShowAllWords();
+    /////////////////
+    // Make this last.
+    // This calls CheckEvents().
+    PageList1.ReadAllFilesToContentStrings();
 
     // Every five minutes.
     CheckTimer.Interval = 5 * 60 * 1000;
@@ -346,11 +371,13 @@ namespace DGOLibrary
 
   private void CheckTimer_Tick(object sender, EventArgs e)
     {
+    /*
     ShowStatus( "Saving data files." );
     PageList1.WriteToTextFile();
     WordsDictionary1.WriteToTextFile();
     AllWords.WriteToTextFile();
     ShowStatus( "Finished saving data files." );
+    */
     }
 
 
@@ -365,6 +392,47 @@ namespace DGOLibrary
       }
     }
 
+
+
+  private void MakeNonAsciiCharacters()
+    {
+    StringBuilder SBuilder = new StringBuilder();
+    for( int Count = 2013; Count < 2014; Count++ )
+      SBuilder.Append( (char)Count );
+
+    ShowStatus( SBuilder.ToString());
+
+    int HexVal = 2013;
+    ShowStatus( HexVal.ToString( "X4" ));
+    ShowStatus( Char.ToString( (char)2013 ));
+    }
+
+
+
+  private void showUnicodeToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+    MakeNonAsciiCharacters();
+    }
+
+
+
+  private void pageTitlesToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+    }
+
+
+
+  private void showTitlesToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+    PageList1.ShowTitles();
+    }
+
+
+
+  private void indexAllToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+    PageList1.IndexAll();
+    }
 
 
   }
