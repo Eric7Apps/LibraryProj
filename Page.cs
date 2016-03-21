@@ -30,6 +30,7 @@ namespace DGOLibrary
     }
 
 
+
   internal Page( MainForm UseForm )
     {
     MForm = UseForm;
@@ -41,6 +42,18 @@ namespace DGOLibrary
   internal string GetURL()
     {
     return URL;
+    }
+
+
+  internal string GetTitle()
+    {
+    return Title;
+    }
+
+
+  internal string GetFileName()
+    {
+    return FileName;
     }
 
 
@@ -79,10 +92,18 @@ namespace DGOLibrary
 
 
 
-  internal bool UpdateFromTempFile( string UseTitle, string UseURL, string TempFileName )
+  internal bool UpdateFromFile( string UseTitle, string UseURL, string InFileName, bool SetTime )
     {
     if( MForm.PageList1 == null )
       return false;
+
+
+    if( InFileName.Length < 3 )
+      {
+      MForm.ShowStatus( " " );
+      MForm.ShowStatus( "No file name specified for: " + Title );
+      return false;
+      }
 
     if( URL.Length > 0 )
       {
@@ -102,11 +123,7 @@ namespace DGOLibrary
       {
       if( Title != UseTitle )
         {
-        MForm.ShowStatus( " " );
-        MForm.ShowStatus( "The title is not being changed." );
-        MForm.ShowStatus( "UseTitle: " + UseTitle );
-        MForm.ShowStatus( "Title: " + Title );
-        MForm.ShowStatus( "URL: " + URL );
+        // MForm.ShowStatus( "The title is not being changed." );
         }
       }
     else
@@ -114,12 +131,17 @@ namespace DGOLibrary
       Title = UseTitle;
       }
 
+    if( !ReadFromTextFile( InFileName ))
+      return false;
+
+    if( FileName.Length < 1 )
+      FileName = MakeNewFileName();
+
+    MForm.ShowStatus( " " );
     MForm.ShowStatus( " " );
     MForm.ShowStatus( "Title: " + Title );
     MForm.ShowStatus( "Updating: " + URL );
-
-    if( !ReadFromTextFile( TempFileName ))
-      return false;
+    MForm.ShowStatus( "File name: " + FileName );
 
     // This is meant to keep a historical index of articles
     // so the advertising and other things in Javascript
@@ -137,134 +159,36 @@ namespace DGOLibrary
     // It also makes the files smaller because there's
     // a lot of Javascript and comments about the
     // Javascript in every page.
-    
-    // GetCleanUnicodeString() was done in ReadFromTextFile().
-    FileContents = Utility.RemoveFromStartToEnd( "<!--", "-->", FileContents );
-    FileContents = Utility.RemoveFromStartToEnd( "<script", "/script>", FileContents );
-    FileContents = Utility.RemoveFromStartToEnd( "<link", ">", FileContents );
-    FileContents = Utility.RemoveFromStartToEnd( "<meta", ">", FileContents );
+
+    // GetCleanUnicodeString() was done in
+    // ReadFromTextFile() for each line.
+    FileContents = Utility.SimplifyAndCleanCharacters( FileContents );
+
+    // RemoveFromStartToEnd doesn't account for nested 
+    // tags, but it should work for commented areas.
+    // FileContents = Utility.RemoveFromStartToEnd( "<!--", "-->", FileContents );
+
+    // FileContents = Utility.RemoveFromStartToEnd( "<script", "/script>", FileContents );
+    // FileContents = Utility.RemoveFromStartToEnd( "<link", ">", FileContents );
+    // FileContents = Utility.RemoveFromStartToEnd( "<meta", ">", FileContents );
+    // FileContents = Utility.RemoveFromStartToEnd( "<style", "/style>", FileContents );
     // FileContents = Utility.RemoveFromStartToEnd( "<form", "/form>", FileContents );
 
     // <div> tags are nested in all kinds of weird ways
     // and they're not helpful.
-    FileContents = Utility.RemoveFromStartToEnd( "<div", ">", FileContents );
-    FileContents = FileContents.Replace( "</div>", " " );
+    // FileContents = Utility.RemoveFromStartToEnd( "<div", ">", FileContents );
+    // FileContents = FileContents.Replace( "</div>", " " );
 
-    ContentsUpdated.SetToNow();
-    if( FileName.Length < 1 )
-      FileName = MakeNewFileName();
+    if( SetTime )
+      ContentsUpdated.SetToNow();
 
     WriteToTextFile();
 
+    // Parse what's in the tags recursively.
     Tag OuterTag = new Tag( MForm, this, FileContents );
     OuterTag.MakeContainedTags();
-
-    MForm.ShowStatus( " " );
-    MForm.ShowStatus( " " );
-    MForm.ShowStatus( " " );
-    MForm.ShowStatus( "End of OuterTag parsing." );
-    MForm.ShowStatus( " " );
-    MForm.ShowStatus( " " );
-    MForm.ShowStatus( " " );
-
-    ParseWords();
-
     return true;
     }
-
-
-
-  private void ParseWords()
-    {
-    if( FileContents.Length < 1 )
-      return;
-
-    if( MForm.GetIsClosing())
-      return;
-
-    String AllLines = FileContents.ToLower();
-    if( !AllLines.Contains( "<html" ))
-      return;
-
-    // This will be a much more complex form of parsing.
-
-    //    AllLines = RemoveFromStartToEnd( "<!--", "-->", AllLines );
-    //    AllLines = RemoveFromStartToEnd( "<script", "/script>", AllLines );
-    AllLines = Utility.RemoveFromStartToEnd( "<!doctype", "\">", AllLines );
-    // AllLines = Utility.RemoveFromStartToEnd( "<link rel=\"stylesheet\"", "/>", AllLines );
-    // AllLines = Utility.RemoveFromStartToEnd( "<meta", "/>", AllLines );
-
-    AllLines = AllLines.Replace( "\r", " " );
-    AllLines = AllLines.Replace( "\n", " " );
-    AllLines = AllLines.Replace( "<", " " );
-    AllLines = AllLines.Replace( ">", " " );
-    AllLines = AllLines.Replace( ".", " " );
-    AllLines = AllLines.Replace( ",", " " );
-    AllLines = AllLines.Replace( ":", " " );
-    AllLines = AllLines.Replace( "\"", " " );
-    AllLines = AllLines.Replace( "-", " " );
-    AllLines = AllLines.Replace( "_", " " );
-    AllLines = AllLines.Replace( "'", " " );
-    AllLines = AllLines.Replace( "!", " " );
-    AllLines = AllLines.Replace( "(", " " );
-    AllLines = AllLines.Replace( ")", " " );
-    AllLines = AllLines.Replace( "{", " " );
-    AllLines = AllLines.Replace( "}", " " );
-    AllLines = AllLines.Replace( "[", " " );
-    AllLines = AllLines.Replace( "]", " " );
-    AllLines = AllLines.Replace( "&", " " );
-    AllLines = AllLines.Replace( "/", " " );
-    AllLines = AllLines.Replace( "=", " " );
-    AllLines = AllLines.Replace( "\\", " " );
-    AllLines = AllLines.Replace( ";", " " );
-
-    SortedDictionary<string, int> WordsDictionary = new SortedDictionary<string, int>();
-
-    // Split on spaces.
-    string[] WordsArray = AllLines.Split( new Char[] { ' ' } );
-    for( int Count = 0; Count < WordsArray.Length; Count++ )
-      {
-      string Word = WordsArray[Count].ToLower().Trim();
-      if( Word.Length < 2 )
-        continue;
-
-      if( CrudeWayOfDealingWithTags( Word ))
-        continue;
-
-      WordsDictionary[Word] = 1;
-      }
-
-    foreach( KeyValuePair<string, int> Kvp in WordsDictionary )
-      MForm.AllWords.UpdateWord( Kvp.Key, URL );
-
-    // MForm.AllWords.ShowAllWords();
-    }
-
-
-  // This is way too crude.
-  private bool CrudeWayOfDealingWithTags( string Word )
-    {
-    if( Word.StartsWith( "href=" ))
-      return true; // Yes it's part of a tag.
-
-    if( Word.StartsWith( "\\com" ))
-      return true;
-
-    if( Word.StartsWith( "style=" ))
-      return true;
-
-    if( Word.StartsWith( "width=" ))
-      return true;
-
-    if( Word.StartsWith( "height=" ))
-      return true;
-
-    if( Word.StartsWith( "class=" ))
-      return true;
-
-    return false;
-    }
-
 
 
 
@@ -330,11 +254,19 @@ namespace DGOLibrary
 
   internal bool ReadFromTextFile( string ReadFileName )
     {
-    if( !File.Exists( ReadFileName ))
-      return false;
-
     try
     {
+    if( !File.Exists( ReadFileName ))
+      {
+      MForm.ShowStatus( " " );
+      MForm.ShowStatus( "The file does not exist for:" );
+      MForm.ShowStatus( Title );
+      MForm.ShowStatus( ReadFileName );
+      MForm.ShowStatus( URL );
+      MForm.ShowStatus( " " );
+      return false;
+      }
+
     StringBuilder SBuilder = new StringBuilder();
     string Line;
     
@@ -347,7 +279,9 @@ namespace DGOLibrary
           break;
 
         Line = Utility.GetCleanUnicodeString( Line, 100000 );
-        SBuilder.Append( Line + "\r" );
+        if( Line.Length > 0 )
+          SBuilder.Append( Line + "\r" );
+
         }
       }
 
