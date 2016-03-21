@@ -310,7 +310,7 @@ namespace DGOLibrary
       }
 
     if( MForm.PageList1 != null )
-      MForm.PageList1.UpdatePageFromTempFile( Title, URLToGet, FileName );
+      MForm.PageList1.UpdatePageFromFile( Title, URLToGet, FileName, true );
 
     FileIsDone = true;
 
