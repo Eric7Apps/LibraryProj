@@ -61,7 +61,7 @@ namespace DGOLibrary
     // This is hard-coded for now, but it could be from a
     // list in a configuration file.
 
-    AddURLForm( "Durango Gov Main Page", "http://www.durangogov.org", true, false );
+    // AddURLForm( "Durango Gov Main Page", "http://www.durangogov.org", true, false );
     // AddURLForm( "Yahoo News Main Page", "http://news.yahoo.com", true, false );
 
     AddURLForm( "Durango Herald Main Page", "http://www.durangoherald.com", true, false );
@@ -98,7 +98,6 @@ namespace DGOLibrary
     AddURLForm( "Letters to the Editor", "http://www.durangoherald.com/section/Opinion03/", true, false );
     AddURLForm( "Newsstand", "http://www.durangoherald.com/section/newsstand/", true, false );
     AddURLForm( "Gold King Mine Spill", "http://www.durangoherald.com/section/goldking", true, false );
-    AddURLForm( "Staff Listing", "http://www.durangoherald.com/section/contact/", true, false );
 
     // Ones that are in every page. Don't keep reading these:
     MForm.PageList1.AddEmptyPage( "Mobile", "http://www.durangoherald.com/section/mobile" );
@@ -115,6 +114,7 @@ namespace DGOLibrary
     MForm.PageList1.AddEmptyPage( "Address", "http://www.durangoherald.com/section/directions/" );
     MForm.PageList1.AddEmptyPage( "News Tip", "http://www.durangoherald.com/section/newstip/" );
     MForm.PageList1.AddEmptyPage( "RSS", "http://www.durangoherald.com/section/rss/" );
+    MForm.PageList1.AddEmptyPage( "Staff Listing", "http://www.durangoherald.com/section/contact/" );
 
     //  "Events", "http://swscene.com/" );
     // marketplace.durangoherald.com
