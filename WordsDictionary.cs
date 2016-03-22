@@ -17,7 +17,9 @@ namespace DGOLibrary
   private MainForm MForm;
   private SortedDictionary<string, int> MainWordsDictionary;
   private SortedDictionary<string, string> ReplaceWordsDictionary;
+  private SortedDictionary<string, int> ExcludedWordsDictionary;
   private string FileName = "";
+  private string ExcludedFileName = "";
 
 
 
@@ -32,9 +34,11 @@ namespace DGOLibrary
     MForm = UseForm;
 
     FileName = MForm.GetDataDirectory() + "WordsDictionary.txt";
+    ExcludedFileName = MForm.GetDataDirectory() + "ExcludedWordsDictionary.txt";
 
     MainWordsDictionary = new SortedDictionary<string, int>();
     ReplaceWordsDictionary = new SortedDictionary<string, string>();
+    ExcludedWordsDictionary = new SortedDictionary<string, int>();
 
     AddCommonReplacements();
     }
@@ -87,7 +91,7 @@ namespace DGOLibrary
       return FixedWord;
       }
 
-    MForm.ShowStatus( "Not a valid word form: " + InWord );
+    MForm.ShowStatus( "Word? " + InWord );
     return "";
 
     }
@@ -324,7 +328,7 @@ namespace DGOLibrary
             TestWord = Utility.TruncateString( TestWord, TestWord.Length - 1 );
             if( MainWordsDictionary.ContainsKey( TestWord ))
               {
-              MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+              // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
               return TestWord;
               }
             }
@@ -526,7 +530,7 @@ namespace DGOLibrary
         TestWord = Utility.TruncateString( InWord, InWord.Length - 4 );
         if( MainWordsDictionary.ContainsKey( TestWord ))
           {
-          MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+          // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
           return TestWord;
           }
 
@@ -540,7 +544,6 @@ namespace DGOLibrary
           */
         }
       }
-
 
     return "";
     }
@@ -557,16 +560,9 @@ namespace DGOLibrary
 
   internal bool WordIsExcluded( string Word )
     {
-    // This is mainly needed to help find new words
-    // that aren't yet in the dictionary.  These words
-    // aren't in the dictionary and I don't want it to
-    // keep telling me that they aren't.
 
-    // If this gets bigger it will have to be
-    // done in a different way.  I sometimes start out
-    // with a few things hard-coded and then if it gets
-    // out of hand I write something else,
-    // like the main dictionary.
+    // This is mainly needed to help find new words
+    // that aren't yet in any dictionary.
 
     if( Word == null ) // If it ever got a null.
       return true;
@@ -574,228 +570,8 @@ namespace DGOLibrary
     if( Word.Length < 3 )
       return true;
 
-    ///////
-    if( Word[0] == 'a' )
-      {
-      if( Word == "about" )
-        return true;
-
-      if( Word == "and" )
-        return true;
-
-      if( Word == "animascitytheatre" )
-        return true;
-
-      if( Word == "are" )
-        return true;
-
-      }
-
-
-    if( Word == "been" )
+    if( ExcludedWordsDictionary.ContainsKey( Word ))
       return true;
-
-    if( Word == "but" )
-      return true;
-
-    if( Word == "com" )
-      return true;
-
-    ///////
-    if( Word[0] == 'd' )
-      {
-      if( Word == "did" )
-        return true;
-
-      if( Word == "didn" ) // didn't
-        return true;
-
-      if( Word == "does" )
-        return true;
-
-      if( Word == "doesn" ) // doesn't
-        return true;
-
-      if( Word == "durango" ) // It's the Durango Herald.
-        return true;
-
-      }
-
-    ///////
-    if( Word[0] == 'f' )
-      {
-      if( Word == "for" )
-        return true;
-
-      if( Word == "from" )
-        return true;
-
-      if( Word == "frontpage" )
-        return true;
-
-      }
-
-    //////
-    if( Word[0] == 'g' )
-      {
-      if( Word == "get" )
-        return true;
-
-      if( Word == "gets" )
-        return true;
-
-      if( Word == "getting" )
-        return true;
-
-      if( Word == "goes" )
-        return true;
-
-      if( Word == "going" )
-        return true;
-
-      }
-
-    //////
-    if( Word[0] == 'h' )
-      {
-      if( Word == "has" )
-        return true;
-
-      if( Word == "hasn" ) // hasn't
-        return true;
-
-      if( Word == "have" )
-        return true;
-
-      if( Word == "having" )
-        return true;
-
-      if( Word == "henrystratertheatre" )
-        return true;
-
-      if( Word == "herald" ) // It's the Durango Herald.
-        return true;
-
-      if( Word == "homepage" )
-        return true;
-
-      }
-
-    //////
-    if( Word[0] == 'i' )
-      {
-      if( Word == "img" )
-        return true;
-
-      if( Word == "isn" ) // isn't
-        return true;
-
-      if( Word == "its" )
-        return true;
-
-      }
-
-    ////////
-    if( Word[0] == 'n' )
-      {
-      if( Word == "newsmemory" )
-        return true;
-
-      if( Word == "non" )
-        return true;
-
-      if( Word == "nor" )
-        return true;
-
-      if( Word == "not" )
-        return true;
-
-      }
-
-
-    if( Word == "ops" )
-      return true;
-
-
-    if( Word == "png" )
-      return true;
-
-    if( Word == "pvt" )
-      return true;
-
-    //////
-    if( Word[0] == 't' )
-      {
-      if( Word == "that" )
-        return true;
-
-      if( Word == "the" )
-        return true;
-
-      if( Word == "their" )
-        return true;
-
-      if( Word == "theirs" )
-        return true;
-
-      if( Word == "them" )
-        return true;
-
-      if( Word == "then" )
-        return true;
-
-      if( Word == "there" )
-        return true;
-
-      if( Word == "these" )
-        return true;
-
-      if( Word == "they" )
-        return true;
-
-      if( Word == "this" )
-        return true;
-
-      if( Word == "those" )
-        return true;
-
-      if( Word == "thus" )
-        return true;
-
-      if( Word == "too" )
-        return true;
-
-      }
-
-
-    if( Word == "using" )
-      return true;
-
-    ///////
-    if( Word[0] == 'w' )
-      {
-      if( Word == "was" )
-        return true;
-
-      if( Word == "wasn" ) // Wasn't
-        return true;
-
-      if( Word == "went" )
-        return true;
-
-      if( Word == "were" )
-        return true;
-
-      if( Word == "what" )
-        return true;
-
-      if( Word == "with" )
-        return true;
-
-      if( Word == "www" )
-        return true;
-
-      }
 
     for( int Count = 0; Count < Word.Length; Count++ )
       {
@@ -822,17 +598,19 @@ namespace DGOLibrary
   private void AddCommonReplacements()
     {
     ReplaceWordsDictionary["ariz"] = "arizona";
+    ReplaceWordsDictionary["beyonc"] = "beyonce";
+    ReplaceWordsDictionary["bookstore"] = "book store";
     ReplaceWordsDictionary["broomfiled"] = "broomfield";
     ReplaceWordsDictionary["calif"] = "california";
+    ReplaceWordsDictionary["cinderela"] = "cinderella";
     ReplaceWordsDictionary["colo"] = "colorado";
     ReplaceWordsDictionary["conn"] = "connecticut";
     ReplaceWordsDictionary["downton"] = "downtown";
     ReplaceWordsDictionary["fla"] = "florida";
     ReplaceWordsDictionary["intro"] = "introduction";
-    ReplaceWordsDictionary["sen"] = "senator";
     ReplaceWordsDictionary["thinkin"] = "think";
 
-                              
+
     // ReplaceWordsDictionary["jan"] = "january";
     ReplaceWordsDictionary["feb"] = "february";
     // ReplaceWordsDictionary["mar"] = "march";
@@ -858,6 +636,12 @@ namespace DGOLibrary
 
     try
     {
+    // It has to read this first.
+    ReadExcludedFromTextFile();
+
+    // Write them back sorted and unique.
+    WriteToExcludedWordsTextFile();
+
     string Line;
     string KeyWord = "";
     int CountValue = 0;
@@ -907,12 +691,12 @@ namespace DGOLibrary
           continue;
 
         // For test:
-        // CountValue = 0;
+        CountValue = 0;
         MainWordsDictionary[KeyWord] = CountValue;
         }
       }
 
-    ShowMostFrequentWords();
+    // ShowMostFrequentWords();
 
     MForm.ShowStatus( " " );
     MForm.ShowStatus( "Words Count: " + MainWordsDictionary.Count.ToString( "N0" ));
@@ -955,6 +739,114 @@ namespace DGOLibrary
       return false;
       }
     }
+
+
+
+
+  private bool ReadExcludedFromTextFile()
+    {
+    ExcludedWordsDictionary.Clear();
+
+    if( !File.Exists( ExcludedFileName ))
+      return false;
+
+    try
+    {
+    string Line;
+    string KeyWord = "";
+    int CountValue = 0;
+
+    using( StreamReader SReader = new StreamReader( ExcludedFileName )) 
+      {
+      while( SReader.Peek() >= 0 ) 
+        {
+        Line = SReader.ReadLine();
+        if( Line == null )
+          continue;
+
+        Line = Line.Trim();
+        if( Line == "" )
+          continue;
+
+        string[] SplitS = Line.Split( new Char[] { '\t' } );
+        if( SplitS.Length < 1 )
+          continue;
+
+        if( SplitS.Length < 2 )
+          {
+          CountValue = 0;
+          KeyWord = SplitS[0].Trim();
+          }
+        else
+          {
+          KeyWord = SplitS[0].Trim();
+          int Test = 0;
+          string ValS = SplitS[1].Trim();
+          if( ValS.Length > 0 )
+            {
+            try
+            {
+            Test = Int32.Parse( ValS );
+            }
+            catch( Exception )
+              {
+              Test = 0;
+              }
+            }
+
+          CountValue = Test;
+          }
+
+        // For test:
+        CountValue = 0;
+        ExcludedWordsDictionary[KeyWord] = CountValue;
+        }
+      }
+
+    // ShowMostFrequentWords();
+
+    MForm.ShowStatus( " " );
+    MForm.ShowStatus( "Excluded words Count: " + ExcludedWordsDictionary.Count.ToString( "N0" ));
+    MForm.ShowStatus( " " );
+
+    return true;
+
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Could not read the file: \r\n" + FileName );
+      MForm.ShowStatus( Except.Message );
+      return false;
+      }
+    }
+
+
+
+  internal bool WriteToExcludedWordsTextFile()
+    {
+    try
+    {
+    using( StreamWriter SWriter = new StreamWriter( ExcludedFileName  )) 
+      {
+      foreach( KeyValuePair<string, int> Kvp in ExcludedWordsDictionary )
+        {
+        string Line = Kvp.Key + "\t" + Kvp.Value.ToString();
+        SWriter.WriteLine( Line );
+        }
+
+      SWriter.WriteLine( " " );
+      }
+
+    return true;
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Could not write the excluded words dictionary data to the file." );
+      MForm.ShowStatus( Except.Message );
+      return false;
+      }
+    }
+
 
 
 
