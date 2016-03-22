@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
+// using System.Windows.Forms;
 
 
 /*
@@ -36,13 +36,6 @@ namespace DGOLibrary
 
     if( InString.Length == 0 )
       return null;
-
-    // UTF-16 is "either one or two 16-bit code _units_ per code point.
-    // One Char in a Windows string is a code unit.
-
-    // But "All code points in the BMP are accessed as a single code unit
-    // in UTF-16 encoding and can be encoded in one, two or three bytes in
-    // UTF-8". 
 
     // Bits
     //  7 	U+007F 	0xxxxxxx
@@ -76,22 +69,7 @@ namespace DGOLibrary
         }
 
       if( Character >= 0xD800 ) // High Surrogates
-        {
-        // Result[Where] = (byte)'#'; // Ignore anything above high surrogates. 
-        Where++;
-        continue;
-        }
-
-      // "the first byte unambiguously indicates the length of the
-      // sequence in bytes."
-      // "All continuation bytes (byte nos. 2–6 in the table above) have
-      // 10 as their two most-significant bits."
-
-     // character "¢" = code point U+00A2
-     // = 00000000 10100010
-     // → 11000010 10100010
-     // → hexadecimal C2 A2
-     // = 00000000 10 100010
+        break; // This should have been cleaned out already.
 
       //  7 	U+007F 	0xxxxxxx
       // 11 	U+07FF 	110xxxxx 	10xxxxxx
@@ -137,8 +115,6 @@ namespace DGOLibrary
 
 
 
-
-
   internal static string BytesToString( byte[] InBytes, int MaxLen )
     {
     // int Test = 1;
@@ -156,9 +132,7 @@ namespace DGOLibrary
     if( MaxLen > InBytes.Length )
       MaxLen = InBytes.Length;
 
-    // The constructor has a "suggested capacity" value to start with.
     StringBuilder SBuilder = new StringBuilder( MaxLen );
-    // for( int Count = 0; Count < InBytes.Length; Count++ )
     for( int Count = 0; Count < MaxLen; Count++ )
       {
       if( InBytes[Count] == 0 )
@@ -235,6 +209,7 @@ namespace DGOLibrary
       // return "";
       }
     }
+
 
 
 
