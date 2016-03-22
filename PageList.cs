@@ -212,12 +212,28 @@ namespace DGOLibrary
 
       MForm.ShowStatus( Kvp.Key );
       }
+
+    // ===========
+    // Validate duplicate links to see if they're all
+    // still there later.
+    // Appaloosa Trading Co. property up for sale >  http://www.durangoherald.com/article/20160319/NEWS04/160319501/0/News01/Appaloosa-Trading-Co-property-up-for-sale
+    // Appaloosa Trading Co. property up for sale >  http://www.durangoherald.com/article/20160319/NEWS04/160319501/0/News03/Appaloosa-Trading-Co-property-up-for-sale
+    // Appaloosa Trading Co. property up for sale >  http://www.durangoherald.com/article/20160319/NEWS04/160319501/0/News04/Appaloosa-Trading-Co-property-up-for-sale
+    // Appaloosa Trading Co. property up for sale >  http://www.durangoherald.com/article/20160319/NEWS04/160319501/0/News05/Appaloosa-Trading-Co-property-up-for-sale
+    // Appaloosa Trading Co. property up for sale >  http://www.durangoherald.com/article/20160319/NEWS04/160319501/0/News06/Appaloosa-Trading-Co-property-up-for-sale
+    // Appaloosa Trading Co. property up for sale >  http://www.durangoherald.com/article/20160319/NEWS04/160319501/-1/News04/Appaloosa-Trading-Co-property-up-for-sale
+
+
+
     }
 
 
 
   internal void IndexAll()
     {
+    ECTime StartTime = new ECTime();
+    StartTime.SetToNow();
+
     MForm.AllWords.ClearAll();
 
     foreach( KeyValuePair<string, Page> Kvp in PageDictionary )
@@ -230,11 +246,13 @@ namespace DGOLibrary
       }
 
     MForm.AllWords.WriteToTextFile();
+    MForm.ShowStatus( " " );
+    MForm.ShowStatus( "Finished indexing in: " + StartTime.GetSecondsToNow().ToString( "N0" ));
     }
 
 
 
-  internal void ReadAllFilesToContentStrings()
+  internal void ReadAllFilesToContent()
     {
     MForm.ShowStatus( "Start of ReadAllFiles()." );
     foreach( KeyValuePair<string, Page> Kvp in PageDictionary )
@@ -247,7 +265,8 @@ namespace DGOLibrary
       if( ReadFileName.Length < 1 )
         continue;
 
-      Page1.ReadFromTextFile( ReadFileName );
+      string FileContents = Page1.ReadFromTextFile( ReadFileName );
+      Page1.MoveContentsToUTF8( FileContents );
       }
 
     MForm.ShowStatus( "Finished ReadAllFiles()." );
