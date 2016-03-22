@@ -20,9 +20,8 @@ namespace DGOLibrary
   private string Title = ""; // The title given in the link tag.
   private ECTime ContentsUpdated;
   private string FileName = "";
-  private string FileContents = "";
   private int Index = 0;
-
+  private byte[] UTF8Contents;
 
 
   private Page()
@@ -131,7 +130,8 @@ namespace DGOLibrary
       Title = UseTitle;
       }
 
-    if( !ReadFromTextFile( InFileName ))
+    string FileContents = ReadFromTextFile( InFileName );
+    if( FileContents == "" )
       return false;
 
     if( FileName.Length < 1 )
@@ -166,9 +166,11 @@ namespace DGOLibrary
 
     // RemoveFromStartToEnd doesn't account for nested 
     // tags, but it should work for commented areas.
-    // FileContents = Utility.RemoveFromStartToEnd( "<!--", "-->", FileContents );
+    // The same comments and script are pretty much
+    // used in every file.
+    FileContents = Utility.RemoveFromStartToEnd( "<!--", "-->", FileContents );
+    FileContents = Utility.RemoveFromStartToEnd( "<script", "/script>", FileContents );
 
-    // FileContents = Utility.RemoveFromStartToEnd( "<script", "/script>", FileContents );
     // FileContents = Utility.RemoveFromStartToEnd( "<link", ">", FileContents );
     // FileContents = Utility.RemoveFromStartToEnd( "<meta", ">", FileContents );
     // FileContents = Utility.RemoveFromStartToEnd( "<style", "/style>", FileContents );
@@ -182,10 +184,32 @@ namespace DGOLibrary
     if( SetTime )
       ContentsUpdated.SetToNow();
 
-    WriteToTextFile();
+    WriteToTextFile( FileContents );
+    MoveContentsToUTF8( FileContents );
+
+    string CleanContents = FileContents;
+    FileContents = "";
+
+    // Until I come up with something better:
+    CleanContents = CleanContents.Replace( "<h1 style=\"text-align: center;margin: 10px 0 20px 0; font-size: 46px;\" >", "" );
+
+    CleanContents = CleanContents.Replace( "<br/>", "" );
+    CleanContents = CleanContents.Replace( "<br>", "" );
+    CleanContents = CleanContents.Replace( "<strong>", "" );
+    CleanContents = CleanContents.Replace( "</strong>", "" );
+    CleanContents = CleanContents.Replace( "<h1>", "" );
+    CleanContents = CleanContents.Replace( "<h2>", "" );
+    CleanContents = CleanContents.Replace( "<h3>", "" );
+    CleanContents = CleanContents.Replace( "</h1>", "" );
+    CleanContents = CleanContents.Replace( "</h2>", "" );
+    CleanContents = CleanContents.Replace( "</h3>", "" );
+    CleanContents = CleanContents.Replace( "<b>", "" );
+    CleanContents = CleanContents.Replace( "<i>", "" );
+    CleanContents = CleanContents.Replace( "</b>", "" );
+    CleanContents = CleanContents.Replace( "</i>", "" );
 
     // Parse what's in the tags recursively.
-    Tag OuterTag = new Tag( MForm, this, FileContents );
+    Tag OuterTag = new Tag( MForm, this, CleanContents );
     OuterTag.MakeContainedTags();
     return true;
     }
@@ -252,7 +276,7 @@ namespace DGOLibrary
 
 
 
-  internal bool ReadFromTextFile( string ReadFileName )
+  internal string ReadFromTextFile( string ReadFileName )
     {
     try
     {
@@ -264,41 +288,38 @@ namespace DGOLibrary
       MForm.ShowStatus( ReadFileName );
       MForm.ShowStatus( URL );
       MForm.ShowStatus( " " );
-      return false;
+      return "";
       }
 
     StringBuilder SBuilder = new StringBuilder();
-    string Line;
-    
     using( StreamReader SReader = new StreamReader( ReadFileName  ))
       {
       while( SReader.Peek() >= 0 )
         {
-        Line = SReader.ReadLine();
+        string Line = SReader.ReadLine();
         if( Line == null )
           break;
 
-        Line = Utility.GetCleanUnicodeString( Line, 100000 );
+        Line = Utility.GetCleanUnicodeString( Line, 1000000 );
         if( Line.Length > 0 )
           SBuilder.Append( Line + "\r" );
 
         }
       }
 
-    FileContents = SBuilder.ToString();
-    return true;
+    return SBuilder.ToString();
     }
     catch( Exception Except )
       {
       MForm.ShowStatus( "Could not read the file: \r\n" + ReadFileName );
       MForm.ShowStatus( Except.Message );
-      return false;
+      return "";
       }
     }
 
 
 
-  internal bool WriteToTextFile()
+  internal bool WriteToTextFile( string FileContents )
     {
     try
     {
@@ -358,6 +379,9 @@ namespace DGOLibrary
     Title = Utility.GetCleanUnicodeString( SplitS[0], 1000 );
     URL = Utility.GetCleanUnicodeString( SplitS[1], 2000 );
 
+    if( URL.Contains( ".aspx?" ))
+      return false;
+
     ulong TimeIndex = (ulong)Int64.Parse( SplitS[2] );
     ContentsUpdated.SetFromIndex( TimeIndex );
     int Year = ContentsUpdated.GetLocalYear();
@@ -379,6 +403,36 @@ namespace DGOLibrary
       MForm.ShowStatus( Except.Message );
       return false;
       }
+    }
+
+
+
+  internal void MoveContentsToUTF8( string FileContents )
+    {
+    if( FileContents == null )
+      {
+      UTF8Contents = null;
+      return;
+      }
+
+    if( FileContents == "" )
+      {
+      UTF8Contents = null;
+      return;
+      }
+
+    UTF8Contents = UTF8Strings.StringToBytes( FileContents );
+    if( UTF8Contents == null )
+      {
+      MForm.ShowStatus( "FileContents couldn't be converted to UTF8 for:" );
+      MForm.ShowStatus( FileName );
+      return;
+      }
+
+    string TestString = UTF8Strings.BytesToString( UTF8Contents, 2000000000 );
+    if( TestString != FileContents )
+      throw( new Exception( "This should never happen in MoveContentsToUTF8()." ));
+
     }
 
 
