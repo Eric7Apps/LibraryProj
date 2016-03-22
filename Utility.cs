@@ -275,13 +275,26 @@ namespace DGOLibrary
     // Result = Result.Replace( "&amp;", "&" );
     Result = Result.Replace( "&#x2013", " " ); // A weird symbol.
 
+    Result = Result.Replace( "&laquo;", "\"" );
+    Result = Result.Replace( "&raquo;", "\"" );
+    Result = Result.Replace( "&lsaquo;", "'" );
+    Result = Result.Replace( "&rsaquo;", "'" );
+    Result = Result.Replace( "&ldquo;", "\"" );
+    Result = Result.Replace( "&rdquo;", "\"" );
+    Result = Result.Replace( "&lsquo;", "'" );
+    Result = Result.Replace( "&rsquo;", "'" );
+    Result = Result.Replace( "&ndash;", "-" );
+    Result = Result.Replace( "&mdash;", "-" );
+
+    // HTML character codes
+    // http://www.w3schools.com/html/html_symbols.asp
+
     // This was done in ReadFromTextFile().
     //  Don't go higher than D800 (Surrogates).
     //  if( ToCheck >= 0xD800 )
  
     return Result;
     }
-
 
 
 
