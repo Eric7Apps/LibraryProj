@@ -357,7 +357,10 @@ namespace DGOLibrary
       InString = InString.Replace( "class=lede>", "" );
       }
 
-    InString = InString.Replace( "<br/>", " " );
+    // "Durango's "
+    InString = InString.Replace( "'s ", " " );
+    InString = InString.Replace( "'", " " );
+
 
     InString = InString.Replace( "\r", " " );
     InString = InString.Replace( ":", " " );
@@ -369,12 +372,9 @@ namespace DGOLibrary
     InString = InString.Replace( "!", " " );
     InString = InString.Replace( "(", " " );
     InString = InString.Replace( ")", " " );
-    InString = InString.Replace( "'", " " );
     InString = InString.Replace( "<", " " );
     InString = InString.Replace( ">", " " );
     InString = InString.Replace( "|", " " );
-
-    // InString = InString.Replace( ">", " " );
 
     SortedDictionary<string, int> WordsDictionary = new SortedDictionary<string, int>();
 
@@ -533,6 +533,7 @@ namespace DGOLibrary
       return;
       }
 
+    // Do this for multiple domains.
     if( !(LinkURL.StartsWith( "http://" ) ||
           LinkURL.StartsWith( "https://" )))
       LinkURL = "http://www.durangoherald.com" + LinkURL;
@@ -602,6 +603,7 @@ namespace DGOLibrary
       }
     }
     */
+
 
 
   }
