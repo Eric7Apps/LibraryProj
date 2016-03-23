@@ -19,6 +19,7 @@ namespace DGOLibrary
   // private Tag[] ContainedTags;
   // private int ContainedTagsLast = 0;
   private Page CallingPage;
+  private string RelativeURLBase = "";
 
 
   private Tag()
@@ -27,11 +28,12 @@ namespace DGOLibrary
 
 
 
-  internal Tag( MainForm UseForm, Page UsePage, string UseText )
+  internal Tag( MainForm UseForm, Page UsePage, string UseText, string RelativeURL )
     {
     MForm = UseForm;
     CallingPage = UsePage;
     MainText = UseText;
+    RelativeURLBase = RelativeURL;
     }
 
 
@@ -92,6 +94,7 @@ namespace DGOLibrary
 
     return -1;
     }
+
 
 
    private int GetFullTagEnd( int StartAt, string TagName )
@@ -212,6 +215,9 @@ namespace DGOLibrary
         TestEnd = GetFullTagEnd( StartAt, StartName );
         if( TestEnd < 0 )
           {
+          // HTML doesn't require an end tag.  Like a 
+          // <p> tag with no ending tag.  It would just
+          // get to the start of a new paragraph.
           // Show all tags it misses. ============
           if( StartName == "a" )
             {
@@ -254,12 +260,21 @@ namespace DGOLibrary
       if( (StartName == "title") ||
           (StartName == "p" ))
         {
-        string FixTitle = NewTagS.Replace( "durango", "" );
-        FixTitle = FixTitle.Replace( "herald", "" );
-        FixTitle = FixTitle.Replace( "realestate", "real estate" );
-        FixTitle = FixTitle.Trim();
+        string FixedS = NewTagS;
 
-        ParseWords( StartName, FixTitle );
+        // <p class="articleText">
+        // <span class="dropcap">W</span>alking into
+        FixedS = FixedS.Replace( "class=\"articleText\"><span class=\"dropcap\">", "" );
+        FixedS = FixedS.Replace( "</span>", "" );
+
+        // You can't search for Durango if Durango Herald
+        // is in every page.
+        FixedS = FixedS.Replace( "durango", " " );
+        FixedS = FixedS.Replace( "herald", " " );
+        FixedS = MForm.WordsDictionary1.ReplaceForSplitWords( FixedS );
+        FixedS = FixedS.Trim();
+
+        ParseWords( StartName, FixedS );
         }
 
       if( StartName == "a" )
@@ -288,7 +303,7 @@ namespace DGOLibrary
 
       if( ParseSubTags )
         {
-        TagToAdd = new Tag( MForm, CallingPage, NewTagS );
+        TagToAdd = new Tag( MForm, CallingPage, NewTagS, RelativeURLBase );
         // AddContainedTag( TagToAdd );
         TagToAdd.MakeContainedTags();
         }
@@ -333,9 +348,9 @@ namespace DGOLibrary
     if( TagName == "title" )
       {
       InString = InString.Replace( "</title", "" );
-      InString = InString.Replace( ">", "" );
-      MForm.ShowStatus( " " );
-      MForm.ShowStatus( "Title: " + InString );
+      InString = InString.Replace( ">", " " );
+      // MForm.ShowStatus( " " );
+      // MForm.ShowStatus( "Title: " + InString );
       }
 
     if( TagName == "p" )
@@ -375,6 +390,8 @@ namespace DGOLibrary
     InString = InString.Replace( "<", " " );
     InString = InString.Replace( ">", " " );
     InString = InString.Replace( "|", " " );
+    InString = InString.Replace( "\\", " " );
+    InString = InString.Replace( "/", " " );
 
     SortedDictionary<string, int> WordsDictionary = new SortedDictionary<string, int>();
 
@@ -386,12 +403,6 @@ namespace DGOLibrary
         continue;
 
       if( Word == "the" )
-        continue;
-
-      if( Word == "and" )
-        continue;
-
-      if( Word == "not" )
         continue;
 
       WordsDictionary[Word] = 1;
@@ -474,9 +485,22 @@ namespace DGOLibrary
     // bool HasImageTag = false;
     if( InString.Contains( "<img" ))
       {
+      // ============= What about this?
+      // Image as link: <img> is a tag within 'a' tag
+      // but it only has attributes and it has no ending
+      // /> tag.  It's like <br> with no end tag.
+      // <a href="http://example.org"><img src="image.gif" alt="descriptive text" width="50" height="50" border="0"></a>.
+
       // HasImageTag = true;
-      InString = Utility.RemoveFromStartToEnd( "<img", "/>", InString );
+
+      // Not this.
+      // InString = Utility.RemoveFromStartToEnd( "<img", "/>", InString );
+
+      InString = Utility.RemoveFromStartToEnd( "<img", ">", InString );
       InString = InString.Trim();
+      if( InString =="href=\"/\"></a" )
+        return;
+
       // MForm.ShowStatus( "The img tag was removed: " + InString );
       }
 
@@ -498,6 +522,9 @@ namespace DGOLibrary
 
       return;
       }
+
+    if( Title.Contains( "Read the next article in" ))
+       return;
 
     if( !Attributes.Contains( "href=" ))
       {
@@ -528,7 +555,7 @@ namespace DGOLibrary
     string LinkURL = AttribParts[0].Trim();
 
     if( LinkURL == "/" )
-      {  
+      {
       // MForm.ShowStatus( "Ignoring the main page for parsing." );
       return;
       }
@@ -536,7 +563,8 @@ namespace DGOLibrary
     // Do this for multiple domains.
     if( !(LinkURL.StartsWith( "http://" ) ||
           LinkURL.StartsWith( "https://" )))
-      LinkURL = "http://www.durangoherald.com" + LinkURL;
+      LinkURL = RelativeURLBase + LinkURL;
+      // LinkURL = "http://www.durangoherald.com" + LinkURL;
 
     if( !LinkIsGood( LinkURL ))
       {
@@ -552,7 +580,7 @@ namespace DGOLibrary
       {
       // Get this new page:
       if( MForm.GetURLMgrForm != null )
-        MForm.GetURLMgrForm.AddURLForm( Title, LinkURL, false, true );
+        MForm.GetURLMgrForm.AddURLForm( Title, LinkURL, false, true, RelativeURLBase );
 
       }
     }
@@ -568,6 +596,15 @@ namespace DGOLibrary
 
    private bool LinkIsGood( string LinkURL )
      {
+     if( LinkURL.Contains( "/taxonomy/" ))
+       return false;
+
+     if( LinkURL.StartsWith( "http://www.durangoherald.com/section/maps" ))
+       return false;
+
+
+     /////////////////
+     // Do checks for false above this point.
      // Limit the scope of this project to only certain
      // domain names.
 
@@ -577,8 +614,15 @@ namespace DGOLibrary
      if( LinkURL.StartsWith( "http://obituaries.durangoherald.com/" ))
        return true;
 
+     // if( LinkURL.StartsWith( "http://finance.yahoo.com/" ))
+       // return true;
+
+    // if( LinkURL.StartsWith( "http://news.yahoo.com/" ))
+       // return true;
+
      return false;
      }
+
 
 
   /*
