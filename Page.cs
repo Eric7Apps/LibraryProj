@@ -22,7 +22,7 @@ namespace DGOLibrary
   private string FileName = "";
   private int Index = 0;
   private byte[] UTF8Contents;
-
+  private string RelativeURLBase = "";
 
   private Page()
     {
@@ -41,6 +41,13 @@ namespace DGOLibrary
   internal string GetURL()
     {
     return URL;
+    }
+
+
+
+  internal string GetRelativeURLBase()
+    {
+    return RelativeURLBase;
     }
 
 
@@ -69,7 +76,7 @@ namespace DGOLibrary
 
 
 
-  internal void SetNewTitleAndURL( string UseTitle, string UseURL )
+  internal void SetNewTitleAndURL( string UseTitle, string UseURL, string RelativeURL )
     {
     // Make sure this isn't being used from somewhere it
     // shouldn't be used.
@@ -87,11 +94,12 @@ namespace DGOLibrary
 
     Title = UseTitle;
     URL = UseURL;
+    RelativeURLBase = RelativeURL;
     }
 
 
 
-  internal bool UpdateFromFile( string UseTitle, string UseURL, string InFileName, bool SetTime )
+  internal bool UpdateFromFile( string UseTitle, string UseURL, string InFileName, bool SetTime, string RelativeURL )
     {
     if( MForm.PageList1 == null )
       return false;
@@ -117,7 +125,7 @@ namespace DGOLibrary
       }
 
     URL = UseURL;
-
+    RelativeURLBase = RelativeURL;
     if( Title.Length > 0 )
       {
       if( Title != UseTitle )
@@ -137,11 +145,11 @@ namespace DGOLibrary
     if( FileName.Length < 1 )
       FileName = MakeNewFileName();
 
+    // MForm.ShowStatus( " " );
     MForm.ShowStatus( " " );
-    MForm.ShowStatus( " " );
-    MForm.ShowStatus( "Title: " + Title );
-    MForm.ShowStatus( "Updating: " + URL );
-    MForm.ShowStatus( "File name: " + FileName );
+    // MForm.ShowStatus( "Title: " + Title );
+    // MForm.ShowStatus( "Updating: " + URL );
+    // MForm.ShowStatus( "File name: " + FileName );
 
     // This is meant to keep a historical index of articles
     // so the advertising and other things in Javascript
@@ -193,23 +201,38 @@ namespace DGOLibrary
     // Until I come up with something better:
     CleanContents = CleanContents.Replace( "<h1 style=\"text-align: center;margin: 10px 0 20px 0; font-size: 46px;\" >", "" );
 
-    CleanContents = CleanContents.Replace( "<br/>", "" );
-    CleanContents = CleanContents.Replace( "<br>", "" );
-    CleanContents = CleanContents.Replace( "<strong>", "" );
-    CleanContents = CleanContents.Replace( "</strong>", "" );
-    CleanContents = CleanContents.Replace( "<h1>", "" );
-    CleanContents = CleanContents.Replace( "<h2>", "" );
-    CleanContents = CleanContents.Replace( "<h3>", "" );
-    CleanContents = CleanContents.Replace( "</h1>", "" );
-    CleanContents = CleanContents.Replace( "</h2>", "" );
-    CleanContents = CleanContents.Replace( "</h3>", "" );
-    CleanContents = CleanContents.Replace( "<b>", "" );
-    CleanContents = CleanContents.Replace( "<i>", "" );
-    CleanContents = CleanContents.Replace( "</b>", "" );
-    CleanContents = CleanContents.Replace( "</i>", "" );
+    CleanContents = CleanContents.Replace( "<br/>", " " );
+    CleanContents = CleanContents.Replace( "<br>", " " );
+    CleanContents = CleanContents.Replace( "<strong>", " " );
+    CleanContents = CleanContents.Replace( "</strong>", " " );
+    CleanContents = CleanContents.Replace( "<h1>", " " );
+    CleanContents = CleanContents.Replace( "<h2>", " " );
+    CleanContents = CleanContents.Replace( "<h3>", " " );
+    CleanContents = CleanContents.Replace( "<h4>", " " );
+    CleanContents = CleanContents.Replace( "<h5>", " " );
+    CleanContents = CleanContents.Replace( "<h6>", " " );
+    CleanContents = CleanContents.Replace( "</h1>", " " );
+    CleanContents = CleanContents.Replace( "</h2>", " " );
+    CleanContents = CleanContents.Replace( "</h3>", " " );
+    CleanContents = CleanContents.Replace( "</h4>", " " );
+    CleanContents = CleanContents.Replace( "</h5>", " " );
+    CleanContents = CleanContents.Replace( "</h6>", " " );
+    CleanContents = CleanContents.Replace( "<b>", " " );
+    CleanContents = CleanContents.Replace( "<i>", " " );
+    CleanContents = CleanContents.Replace( "</b>", " " );
+    CleanContents = CleanContents.Replace( "</i>", " " );
+    CleanContents = CleanContents.Replace( "<em>", " " );
+    CleanContents = CleanContents.Replace( "</em>", " " );
+    CleanContents = CleanContents.Replace( "&quot;", "\"" );
+    CleanContents = CleanContents.Replace( "&apos;", "'" );
+
+    // &eacute;   As in Resum&eacute;
+
+    // <font>
+    // <center>
 
     // Parse what's in the tags recursively.
-    Tag OuterTag = new Tag( MForm, this, CleanContents );
+    Tag OuterTag = new Tag( MForm, this, CleanContents, RelativeURLBase );
     OuterTag.MakeContainedTags();
     return true;
     }
@@ -360,7 +383,8 @@ namespace DGOLibrary
            URL + "\t" +
            ContentsUpdated.GetIndex().ToString() + "\t" +
            FileName + "\t" +
-           Index.ToString();
+           Index.ToString() + "\t" +
+           RelativeURLBase;
 
     return Result;
     }
@@ -394,6 +418,14 @@ namespace DGOLibrary
     FileName = Utility.GetCleanUnicodeString( SplitS[3], 1000 );
 
     Index = Int32.Parse( SplitS[4] );
+
+    if( SplitS.Length >= 6 )
+      RelativeURLBase = Utility.GetCleanUnicodeString( SplitS[5], 1000 );
+    else
+      RelativeURLBase = "http://www.durangoherald.com/";
+
+    if( RelativeURLBase.Length < 10 )
+      RelativeURLBase = "http://www.durangoherald.com/";
 
     return true;
     }
