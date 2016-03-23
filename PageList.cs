@@ -52,7 +52,7 @@ namespace DGOLibrary
 
 
 
-  internal void UpdatePageFromFile( string Title, string URL, string FileName, bool SetTime )
+  internal void UpdatePageFromFile( string Title, string URL, string FileName, bool SetTime, string RelativeURLBase )
     {
     if( !MForm.CheckEvents())
       return;
@@ -105,18 +105,18 @@ namespace DGOLibrary
     // to this PageList to get the index for the URL
     // by using GetIndex(), which looks in the
     // PageDictionary.
-    UsePage.UpdateFromFile( Title, URL, FileName, SetTime );
+    UsePage.UpdateFromFile( Title, URL, FileName, SetTime, RelativeURLBase );
     }
 
 
 
-  internal void AddEmptyPage( string Title, string URL )
+  internal void AddEmptyPage( string Title, string URL, string RelativeURLBase )
     {
     if( PageDictionary.ContainsKey( URL ))
       return;
 
     Page UsePage = new Page( MForm );
-    UsePage.SetNewTitleAndURL( Title, URL );
+    UsePage.SetNewTitleAndURL( Title, URL, RelativeURLBase );
     PageDictionary[URL] = UsePage;
     PageDictionary[URL].SetIndex( NextIndex );
     NextIndex++;
@@ -222,9 +222,6 @@ namespace DGOLibrary
     // Appaloosa Trading Co. property up for sale >  http://www.durangoherald.com/article/20160319/NEWS04/160319501/0/News05/Appaloosa-Trading-Co-property-up-for-sale
     // Appaloosa Trading Co. property up for sale >  http://www.durangoherald.com/article/20160319/NEWS04/160319501/0/News06/Appaloosa-Trading-Co-property-up-for-sale
     // Appaloosa Trading Co. property up for sale >  http://www.durangoherald.com/article/20160319/NEWS04/160319501/-1/News04/Appaloosa-Trading-Co-property-up-for-sale
-
-
-
     }
 
 
@@ -242,7 +239,7 @@ namespace DGOLibrary
         return;
 
       Page Page1 = Kvp.Value;
-      Page1.UpdateFromFile( Page1.GetTitle(), Page1.GetURL(), Page1.GetFileName(), false );
+      Page1.UpdateFromFile( Page1.GetTitle(), Page1.GetURL(), Page1.GetFileName(), false, Page1.GetRelativeURLBase() );
       }
 
     MForm.AllWords.WriteToTextFile();
