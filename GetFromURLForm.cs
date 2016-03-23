@@ -28,7 +28,7 @@ namespace DGOLibrary
   private string URLToGet = "";
   private string FileName = "";
   private string Title = "";
-
+  private string RelativeURLBase = "";
 
 
   public struct HttpWorkerInfo
@@ -48,7 +48,8 @@ namespace DGOLibrary
   internal GetFromURLForm( MainForm UseForm,
                            string UseURLToGet,
                            string UseFileName,
-                           string UseTitle )
+                           string UseTitle,
+                           string RelativeURL )
     {
     InitializeComponent();
 
@@ -56,6 +57,7 @@ namespace DGOLibrary
     URLToGet = UseURLToGet;
     FileName = UseFileName;
     Title = UseTitle;
+    RelativeURLBase = RelativeURL;
     StartTime = new ECTime();
 
     HttpBackgroundWorker.WorkerReportsProgress = true;
@@ -310,7 +312,7 @@ namespace DGOLibrary
       }
 
     if( MForm.PageList1 != null )
-      MForm.PageList1.UpdatePageFromFile( Title, URLToGet, FileName, true );
+      MForm.PageList1.UpdatePageFromFile( Title, URLToGet, FileName, true, RelativeURLBase );
 
     FileIsDone = true;
 
