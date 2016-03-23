@@ -17,6 +17,7 @@ namespace DGOLibrary
   private MainForm MForm;
   private SortedDictionary<string, int> MainWordsDictionary;
   private SortedDictionary<string, string> ReplaceWordsDictionary;
+  private SortedDictionary<string, string> SplitWordsDictionary;
   private SortedDictionary<string, int> ExcludedWordsDictionary;
   private string FileName = "";
   private string ExcludedFileName = "";
@@ -38,9 +39,11 @@ namespace DGOLibrary
 
     MainWordsDictionary = new SortedDictionary<string, int>();
     ReplaceWordsDictionary = new SortedDictionary<string, string>();
+    SplitWordsDictionary = new SortedDictionary<string, string>();
     ExcludedWordsDictionary = new SortedDictionary<string, int>();
 
     AddCommonReplacements();
+    AddSplitWords();
     }
 
 
@@ -54,6 +57,8 @@ namespace DGOLibrary
 
 
 
+  // This word form thing could get a _lot_ more
+  // complicated.
   internal string GetValidWordForm( string InWord )
     {
     try
@@ -112,444 +117,46 @@ namespace DGOLibrary
     {
     string TestWord = "";
 
-    ///////////////
+    if( InWord.Length < 4 )
+      return InWord;
+
     if( InWord.Length >= 4 )
       {
-      if( InWord[InWord.Length - 1] == 's' )
-        {
-        TestWord = Utility.TruncateString( InWord, InWord.Length - 1 );
-        if( MainWordsDictionary.ContainsKey( TestWord ))
-          return TestWord;
+      TestWord = FixSuffix1( InWord );
+      if( TestWord != "" )
+        return TestWord;
 
-        }
-
-      if( InWord[InWord.Length - 1] == 'r' )
-        {
-        TestWord = Utility.TruncateString( InWord, InWord.Length - 1 );
-        if( MainWordsDictionary.ContainsKey( TestWord ))
-          return TestWord;
-
-        }
-
-      if( InWord[InWord.Length - 1] == 'd' )
-        {
-        TestWord = Utility.TruncateString( InWord, InWord.Length - 1 );
-        if( MainWordsDictionary.ContainsKey( TestWord ))
-          return TestWord;
-
-        }
-
-      if( InWord[InWord.Length - 1] == 'n' )
-        {
-        TestWord = Utility.TruncateString( InWord, InWord.Length - 1 );
-        if( MainWordsDictionary.ContainsKey( TestWord ))
-          return TestWord;
-
-        }
-
-      if( InWord[InWord.Length - 1] == 'y' )
-        {
-        TestWord = Utility.TruncateString( InWord, InWord.Length - 1 );
-        if( MainWordsDictionary.ContainsKey( TestWord ))
-          return TestWord;
-
-        // favorably
-        // favorable
-        string ETest = TestWord = "e";
-        if( MainWordsDictionary.ContainsKey( ETest ))
-          return ETest;
-
-        }
       }
 
-
-    Test = 2;
-    ///////////////
     if( InWord.Length >= 5 )
       {
-      if( (InWord[InWord.Length - 2] == 'e' ) &&
-          (InWord[InWord.Length - 1] == 'd' ))
-        {
-        TestWord = Utility.TruncateString( InWord, InWord.Length - 2 );
-        if( MainWordsDictionary.ContainsKey( TestWord ))
-          {
-          // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
-          return TestWord;
-          }
+      TestWord = FixSuffix2( InWord );
+      if( TestWord != "" )
+        return TestWord;
 
-        if( TestWord.Length >= 4 )
-          {
-          char LastLetter = TestWord[TestWord.Length - 1];
-          if( (TestWord[TestWord.Length - 2] == LastLetter )) // &&
-              // (TestWord[TestWord.Length - 1] == 'n' ))
-            {
-            TestWord = Utility.TruncateString( TestWord, TestWord.Length - 1 );
-            if( MainWordsDictionary.ContainsKey( TestWord ))
-              {
-              // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
-              return TestWord;
-              }
-            }
-          }
-        }
-
-      if( (InWord[InWord.Length - 2] == 'e' ) &&
-          (InWord[InWord.Length - 1] == 'r' ))
-        {
-        TestWord = Utility.TruncateString( InWord, InWord.Length - 2 );
-        if( MainWordsDictionary.ContainsKey( TestWord ))
-          {
-          // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
-          return TestWord;
-          }
-        }
-
-      if( (InWord[InWord.Length - 2] == 'e' ) &&
-          (InWord[InWord.Length - 1] == 's' ))
-        {
-        TestWord = Utility.TruncateString( InWord, InWord.Length - 2 );
-        if( MainWordsDictionary.ContainsKey( TestWord ))
-          {
-          // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
-          return TestWord;
-          }
-        }
-
-      if( (InWord[InWord.Length - 2] == 's' ) &&
-          (InWord[InWord.Length - 1] == 't' ))
-        {
-        TestWord = Utility.TruncateString( InWord, InWord.Length - 2 );
-        if( MainWordsDictionary.ContainsKey( TestWord ))
-          {
-          // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
-          return TestWord;
-          }
-        }
-
-      if( (InWord[InWord.Length - 2] == 'a' ) &&
-          (InWord[InWord.Length - 1] == 'l' ))
-        {
-        TestWord = Utility.TruncateString( InWord, InWord.Length - 2 );
-        if( MainWordsDictionary.ContainsKey( TestWord ))
-          {
-          // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
-          return TestWord;
-          }
-        }
-
-      if( (InWord[InWord.Length - 2] == 'i' ) &&
-          (InWord[InWord.Length - 1] == 'c' ))
-        {
-        TestWord = Utility.TruncateString( InWord, InWord.Length - 2 );
-        if( MainWordsDictionary.ContainsKey( TestWord ))
-          {
-          // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
-          return TestWord;
-          }
-        }
-
-      if( (InWord[InWord.Length - 2] == 'l' ) &&
-          (InWord[InWord.Length - 1] == 'y' ))
-        {
-        TestWord = Utility.TruncateString( InWord, InWord.Length - 2 );
-        if( MainWordsDictionary.ContainsKey( TestWord ))
-          {
-          // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
-          return TestWord;
-          }
-        }
       }
 
-
-    Test = 3;
-    ///////////////
     if( InWord.Length >= 6 )
       {
-      if( (InWord[InWord.Length - 3] == 'i' ) &&
-          (InWord[InWord.Length - 2] == 'n' ) &&
-          (InWord[InWord.Length - 1] == 'g' ))
-        {
-        TestWord = Utility.TruncateString( InWord, InWord.Length - 3 );
-        if( MainWordsDictionary.ContainsKey( TestWord ))
-          {
-          // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
-          return TestWord;
-          }
-
-        string ETest = TestWord + "e";
-        if( MainWordsDictionary.ContainsKey( ETest ))
-          {
-          // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
-          return ETest;
-          }
-
-        if( TestWord.Length >= 4 )
-          {
-          char LastLetter = TestWord[TestWord.Length - 1];
-          if( (TestWord[TestWord.Length - 2] == LastLetter )) // &&
-          //    (TestWord[TestWord.Length - 1] == LastLetter ))
-            {
-            TestWord = Utility.TruncateString( TestWord, TestWord.Length - 1 );
-            if( MainWordsDictionary.ContainsKey( TestWord ))
-              {
-              // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
-              return TestWord;
-              }
-            }
-          }
-        }
-
-
-      if( (InWord[InWord.Length - 3] == 'e' ) &&
-          (InWord[InWord.Length - 2] == 's' ) &&
-          (InWord[InWord.Length - 1] == 't' ))
-        {
-        TestWord = Utility.TruncateString( InWord, InWord.Length - 3 );
-        if( MainWordsDictionary.ContainsKey( TestWord ))
-          {
-          // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
-          return TestWord;
-          }
-
-        /*
-        string ETest = TestWord + "e";
-        if( MainWordsDictionary.ContainsKey( ETest ))
-          {
-          // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
-          return ETest;
-          }
-          */
-
-        if( TestWord.Length >= 4 )
-          {
-          if( (TestWord[TestWord.Length - 2] == 'g' ) &&
-              (TestWord[TestWord.Length - 1] == 'g' ))
-            {
-            TestWord = Utility.TruncateString( TestWord, TestWord.Length - 1 );
-            if( MainWordsDictionary.ContainsKey( TestWord ))
-              {
-              // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
-              return TestWord;
-              }
-            }
-          }
-        }
-
-
-      if( (InWord[InWord.Length - 3] == 'i' ) &&
-          (InWord[InWord.Length - 2] == 'e' ) &&
-          (InWord[InWord.Length - 1] == 's' ))
-        {
-        TestWord = Utility.TruncateString( InWord, InWord.Length - 3 );
-
-        TestWord += "y";
-        if( MainWordsDictionary.ContainsKey( TestWord ))
-          {
-          // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
-          return TestWord;
-          }
-        }
-
-      if( (InWord[InWord.Length - 3] == 'i' ) &&
-          (InWord[InWord.Length - 2] == 'e' ) &&
-          (InWord[InWord.Length - 1] == 'r' ))
-        {
-        TestWord = Utility.TruncateString( InWord, InWord.Length - 3 );
-
-        TestWord += "y";
-        if( MainWordsDictionary.ContainsKey( TestWord ))
-          {
-          // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
-          return TestWord;
-          }
-        }
-
-      if( (InWord[InWord.Length - 3] == 'i' ) &&
-          (InWord[InWord.Length - 2] == 'e' ) &&
-          (InWord[InWord.Length - 1] == 'd' ))
-        {
-        TestWord = Utility.TruncateString( InWord, InWord.Length - 3 );
-
-        TestWord += "y";
-        if( MainWordsDictionary.ContainsKey( TestWord ))
-          {
-          // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
-          return TestWord;
-          }
-        }
-
-      if( (InWord[InWord.Length - 3] == 'i' ) &&
-          (InWord[InWord.Length - 2] == 'o' ) &&
-          (InWord[InWord.Length - 1] == 'n' ))
-        {
-        TestWord = Utility.TruncateString( InWord, InWord.Length - 3 );
-        if( MainWordsDictionary.ContainsKey( TestWord ))
-          {
-          // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
-          return TestWord;
-          }
-
-        string ETest = TestWord + "e";
-        if( MainWordsDictionary.ContainsKey( ETest ))
-          {
-          // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
-          return ETest;
-          }
-        }
-
-      if( (InWord[InWord.Length - 3] == 'o' ) &&
-          (InWord[InWord.Length - 2] == 'u' ) &&
-          (InWord[InWord.Length - 1] == 's' ))
-        {
-        TestWord = Utility.TruncateString( InWord, InWord.Length - 3 );
-        if( MainWordsDictionary.ContainsKey( TestWord ))
-          {
-          // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
-          return TestWord;
-          }
-
-        // polygomy
-        // polygomous
-        string YTest = TestWord + "y";
-        if( MainWordsDictionary.ContainsKey( YTest ))
-          {
-          // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + YTest );
-          return YTest;
-          }
-        }
-
-
-      if( (InWord[InWord.Length - 3] == 'i' ) &&
-          (InWord[InWord.Length - 2] == 'a' ) &&
-          (InWord[InWord.Length - 1] == 'l' ))
-        {
-        TestWord = Utility.TruncateString( InWord, InWord.Length - 3 );
-        if( MainWordsDictionary.ContainsKey( TestWord ))
-          {
-          // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
-          return TestWord;
-          }
-
-        string ETest = TestWord + "e";
-        if( MainWordsDictionary.ContainsKey( ETest ))
-          {
-          // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
-          return ETest;
-          }
-        }
-
-      if( (InWord[InWord.Length - 3] == 'i' ) &&
-          (InWord[InWord.Length - 2] == 't' ) &&
-          (InWord[InWord.Length - 1] == 'y' ))
-        {
-        TestWord = Utility.TruncateString( InWord, InWord.Length - 3 );
-        if( MainWordsDictionary.ContainsKey( TestWord ))
-          {
-          // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
-          return TestWord;
-          }
-
-        string ETest = TestWord + "e";
-        if( MainWordsDictionary.ContainsKey( ETest ))
-          {
-          // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
-          return ETest;
-          }
-        }
-
-      if( (InWord[InWord.Length - 3] == 'i' ) &&
-          (InWord[InWord.Length - 2] == 's' ) &&
-          (InWord[InWord.Length - 1] == 'm' ))
-        {
-        TestWord = Utility.TruncateString( InWord, InWord.Length - 3 );
-        if( MainWordsDictionary.ContainsKey( TestWord ))
-          {
-          // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
-          return TestWord;
-          }
-        }
-
-      if( (InWord[InWord.Length - 3] == 'i' ) &&
-          (InWord[InWord.Length - 2] == 's' ) &&
-          (InWord[InWord.Length - 1] == 't' ))
-        {
-        TestWord = Utility.TruncateString( InWord, InWord.Length - 3 );
-        if( MainWordsDictionary.ContainsKey( TestWord ))
-          {
-          // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
-          return TestWord;
-          }
-        }
+      TestWord = FixSuffix3( InWord );
+      if( TestWord != "" )
+        return TestWord;
 
       }
 
-
-    Test = 4;
-    ///////////////
     if( InWord.Length >= 7 )
       {
-      if( (InWord[InWord.Length - 4] == 'n' ) &&
-          (InWord[InWord.Length - 3] == 'e' ) &&
-          (InWord[InWord.Length - 2] == 's' ) &&
-          (InWord[InWord.Length - 1] == 's' ))
-        {
-        TestWord = Utility.TruncateString( InWord, InWord.Length - 4 );
-        if( MainWordsDictionary.ContainsKey( TestWord ))
-          {
-          // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
-          return TestWord;
-          }
-        }
+      TestWord = FixSuffix4( InWord );
+      if( TestWord != "" )
+        return TestWord;
 
-      if( (InWord[InWord.Length - 4] == 't' ) &&
-          (InWord[InWord.Length - 3] == 'i' ) &&
-          (InWord[InWord.Length - 2] == 'o' ) &&
-          (InWord[InWord.Length - 1] == 'n' ))
-        {
-        TestWord = Utility.TruncateString( InWord, InWord.Length - 4 );
-        if( MainWordsDictionary.ContainsKey( TestWord ))
-          {
-          // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
-          return TestWord;
-          }
-
-        string ETest = TestWord + "e";
-        if( MainWordsDictionary.ContainsKey( ETest ))
-          {
-          // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
-          return ETest;
-          }
-        }
-
-      // enlargement
-      if( (InWord[InWord.Length - 4] == 'm' ) &&
-          (InWord[InWord.Length - 3] == 'e' ) &&
-          (InWord[InWord.Length - 2] == 'n' ) &&
-          (InWord[InWord.Length - 1] == 't' ))
-        {
-        TestWord = Utility.TruncateString( InWord, InWord.Length - 4 );
-        if( MainWordsDictionary.ContainsKey( TestWord ))
-          {
-          // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
-          return TestWord;
-          }
-
-        /*
-        string ETest = TestWord + "e";
-        if( MainWordsDictionary.ContainsKey( ETest ))
-          {
-          // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
-          return ETest;
-          }
-          */
-        }
       }
 
     return "";
     }
     catch( Exception Except )
       {
-      MForm.ShowStatus( "Exception in GetValidWordForm():" );
+      MForm.ShowStatus( "Exception in FixSuffix():" );
       MForm.ShowStatus( "Test is: " + Test.ToString() );
       MForm.ShowStatus( Except.Message );
       return "";
@@ -558,7 +165,511 @@ namespace DGOLibrary
 
 
 
-  internal bool WordIsExcluded( string Word )
+
+  private string FixSuffix1( string InWord )
+    {
+    int Test = 1;
+    try
+    {
+    string TestWord = "";
+
+    if( InWord.Length < 4 )
+      return "";
+
+    if( InWord[InWord.Length - 1] == 's' )
+      {
+      TestWord = Utility.TruncateString( InWord, InWord.Length - 1 );
+      if( MainWordsDictionary.ContainsKey( TestWord ))
+        return TestWord;
+
+      }
+
+    if( InWord[InWord.Length - 1] == 'r' )
+      {
+      TestWord = Utility.TruncateString( InWord, InWord.Length - 1 );
+      if( MainWordsDictionary.ContainsKey( TestWord ))
+        return TestWord;
+
+      }
+
+    if( InWord[InWord.Length - 1] == 'd' )
+      {
+      TestWord = Utility.TruncateString( InWord, InWord.Length - 1 );
+      if( MainWordsDictionary.ContainsKey( TestWord ))
+        return TestWord;
+
+      }
+
+    if( InWord[InWord.Length - 1] == 'n' )
+      {
+      TestWord = Utility.TruncateString( InWord, InWord.Length - 1 );
+      if( MainWordsDictionary.ContainsKey( TestWord ))
+        return TestWord;
+
+      }
+
+    if( InWord[InWord.Length - 1] == 'y' )
+      {
+      TestWord = Utility.TruncateString( InWord, InWord.Length - 1 );
+      if( MainWordsDictionary.ContainsKey( TestWord ))
+        return TestWord;
+
+      // favorably
+      // favorable
+      string ETest = TestWord + "e";
+      if( MainWordsDictionary.ContainsKey( ETest ))
+        return ETest;
+
+      }
+
+    return "";
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Exception in FixSuffix1():" );
+      MForm.ShowStatus( "Test is: " + Test.ToString() );
+      MForm.ShowStatus( Except.Message );
+      return "";
+      }
+    }
+
+
+
+  private string FixSuffix2( string InWord )
+    {
+    int Test = 1;
+    try
+    {
+    string TestWord = "";
+
+    if( InWord.Length < 5 )
+      return "";
+
+    if( (InWord[InWord.Length - 2] == 'e' ) &&
+        (InWord[InWord.Length - 1] == 'd' ))
+      {
+      TestWord = Utility.TruncateString( InWord, InWord.Length - 2 );
+      if( MainWordsDictionary.ContainsKey( TestWord ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+        return TestWord;
+        }
+
+      if( TestWord.Length >= 4 )
+        {
+        char LastLetter = TestWord[TestWord.Length - 1];
+        if( (TestWord[TestWord.Length - 2] == LastLetter )) // &&
+            // (TestWord[TestWord.Length - 1] == 'n' ))
+          {
+          TestWord = Utility.TruncateString( TestWord, TestWord.Length - 1 );
+          if( MainWordsDictionary.ContainsKey( TestWord ))
+            {
+            // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+            return TestWord;
+            }
+          }
+        }
+      }
+
+    if( (InWord[InWord.Length - 2] == 'e' ) &&
+        (InWord[InWord.Length - 1] == 'r' ))
+      {
+      TestWord = Utility.TruncateString( InWord, InWord.Length - 2 );
+      if( MainWordsDictionary.ContainsKey( TestWord ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+        return TestWord;
+        }
+      }
+
+    if( (InWord[InWord.Length - 2] == 'e' ) &&
+        (InWord[InWord.Length - 1] == 's' ))
+      {
+      TestWord = Utility.TruncateString( InWord, InWord.Length - 2 );
+      if( MainWordsDictionary.ContainsKey( TestWord ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+        return TestWord;
+        }
+      }
+
+    if( (InWord[InWord.Length - 2] == 's' ) &&
+        (InWord[InWord.Length - 1] == 't' ))
+      {
+      TestWord = Utility.TruncateString( InWord, InWord.Length - 2 );
+      if( MainWordsDictionary.ContainsKey( TestWord ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+        return TestWord;
+        }
+      }
+
+    if( (InWord[InWord.Length - 2] == 'a' ) &&
+        (InWord[InWord.Length - 1] == 'l' ))
+      {
+      TestWord = Utility.TruncateString( InWord, InWord.Length - 2 );
+      if( MainWordsDictionary.ContainsKey( TestWord ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+        return TestWord;
+        }
+      }
+
+    if( (InWord[InWord.Length - 2] == 'i' ) &&
+        (InWord[InWord.Length - 1] == 'c' ))
+      {
+      TestWord = Utility.TruncateString( InWord, InWord.Length - 2 );
+      if( MainWordsDictionary.ContainsKey( TestWord ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+        return TestWord;
+        }
+      }
+
+    if( (InWord[InWord.Length - 2] == 'l' ) &&
+        (InWord[InWord.Length - 1] == 'y' ))
+      {
+      TestWord = Utility.TruncateString( InWord, InWord.Length - 2 );
+      if( MainWordsDictionary.ContainsKey( TestWord ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+        return TestWord;
+        }
+      }
+
+    return "";
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Exception in FixSuffix2():" );
+      MForm.ShowStatus( "Test is: " + Test.ToString() );
+      MForm.ShowStatus( Except.Message );
+      return "";
+      }
+    }
+
+
+
+
+  private string FixSuffix3( string InWord )
+    {
+    int Test = 1;
+    try
+    {
+    string TestWord = "";
+
+    if( InWord.Length < 6 )
+      return InWord;
+
+    if( (InWord[InWord.Length - 3] == 'i' ) &&
+        (InWord[InWord.Length - 2] == 'n' ) &&
+        (InWord[InWord.Length - 1] == 'g' ))
+      {
+      TestWord = Utility.TruncateString( InWord, InWord.Length - 3 );
+      if( MainWordsDictionary.ContainsKey( TestWord ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+        return TestWord;
+        }
+
+      string ETest = TestWord + "e";
+      if( MainWordsDictionary.ContainsKey( ETest ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
+        return ETest;
+        }
+
+      if( TestWord.Length >= 4 )
+        {
+        char LastLetter = TestWord[TestWord.Length - 1];
+        if( (TestWord[TestWord.Length - 2] == LastLetter )) // &&
+        //    (TestWord[TestWord.Length - 1] == LastLetter ))
+          {
+          TestWord = Utility.TruncateString( TestWord, TestWord.Length - 1 );
+          if( MainWordsDictionary.ContainsKey( TestWord ))
+            {
+            // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+            return TestWord;
+            }
+          }
+        }
+      }
+
+
+    if( (InWord[InWord.Length - 3] == 'e' ) &&
+        (InWord[InWord.Length - 2] == 's' ) &&
+        (InWord[InWord.Length - 1] == 't' ))
+      {
+      TestWord = Utility.TruncateString( InWord, InWord.Length - 3 );
+      if( MainWordsDictionary.ContainsKey( TestWord ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+        return TestWord;
+        }
+
+      /*
+      string ETest = TestWord + "e";
+      if( MainWordsDictionary.ContainsKey( ETest ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
+        return ETest;
+        }
+        */
+
+      if( TestWord.Length >= 4 )
+        {
+        if( (TestWord[TestWord.Length - 2] == 'g' ) &&
+            (TestWord[TestWord.Length - 1] == 'g' ))
+          {
+          TestWord = Utility.TruncateString( TestWord, TestWord.Length - 1 );
+          if( MainWordsDictionary.ContainsKey( TestWord ))
+            {
+            // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+            return TestWord;
+            }
+          }
+        }
+      }
+
+
+    if( (InWord[InWord.Length - 3] == 'i' ) &&
+        (InWord[InWord.Length - 2] == 'e' ) &&
+        (InWord[InWord.Length - 1] == 's' ))
+      {
+      TestWord = Utility.TruncateString( InWord, InWord.Length - 3 );
+
+      TestWord += "y";
+      if( MainWordsDictionary.ContainsKey( TestWord ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+        return TestWord;
+        }
+      }
+
+    if( (InWord[InWord.Length - 3] == 'i' ) &&
+        (InWord[InWord.Length - 2] == 'e' ) &&
+        (InWord[InWord.Length - 1] == 'r' ))
+      {
+      TestWord = Utility.TruncateString( InWord, InWord.Length - 3 );
+
+      TestWord += "y";
+      if( MainWordsDictionary.ContainsKey( TestWord ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+        return TestWord;
+        }
+      }
+
+    if( (InWord[InWord.Length - 3] == 'i' ) &&
+        (InWord[InWord.Length - 2] == 'e' ) &&
+        (InWord[InWord.Length - 1] == 'd' ))
+      {
+      TestWord = Utility.TruncateString( InWord, InWord.Length - 3 );
+
+      TestWord += "y";
+      if( MainWordsDictionary.ContainsKey( TestWord ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+        return TestWord;
+        }
+      }
+
+    if( (InWord[InWord.Length - 3] == 'i' ) &&
+        (InWord[InWord.Length - 2] == 'o' ) &&
+        (InWord[InWord.Length - 1] == 'n' ))
+      {
+      TestWord = Utility.TruncateString( InWord, InWord.Length - 3 );
+      if( MainWordsDictionary.ContainsKey( TestWord ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+        return TestWord;
+        }
+
+      string ETest = TestWord + "e";
+      if( MainWordsDictionary.ContainsKey( ETest ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
+        return ETest;
+        }
+      }
+
+    if( (InWord[InWord.Length - 3] == 'o' ) &&
+        (InWord[InWord.Length - 2] == 'u' ) &&
+        (InWord[InWord.Length - 1] == 's' ))
+      {
+      TestWord = Utility.TruncateString( InWord, InWord.Length - 3 );
+      if( MainWordsDictionary.ContainsKey( TestWord ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+        return TestWord;
+        }
+
+      // polygomy
+      // polygomous
+      string YTest = TestWord + "y";
+      if( MainWordsDictionary.ContainsKey( YTest ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + YTest );
+        return YTest;
+        }
+      }
+
+
+    if( (InWord[InWord.Length - 3] == 'i' ) &&
+        (InWord[InWord.Length - 2] == 'a' ) &&
+        (InWord[InWord.Length - 1] == 'l' ))
+      {
+      TestWord = Utility.TruncateString( InWord, InWord.Length - 3 );
+      if( MainWordsDictionary.ContainsKey( TestWord ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+        return TestWord;
+        }
+
+      string ETest = TestWord + "e";
+      if( MainWordsDictionary.ContainsKey( ETest ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
+        return ETest;
+        }
+      }
+
+    if( (InWord[InWord.Length - 3] == 'i' ) &&
+        (InWord[InWord.Length - 2] == 't' ) &&
+        (InWord[InWord.Length - 1] == 'y' ))
+      {
+      TestWord = Utility.TruncateString( InWord, InWord.Length - 3 );
+      if( MainWordsDictionary.ContainsKey( TestWord ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+        return TestWord;
+        }
+
+      string ETest = TestWord + "e";
+      if( MainWordsDictionary.ContainsKey( ETest ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
+        return ETest;
+        }
+      }
+
+    if( (InWord[InWord.Length - 3] == 'i' ) &&
+        (InWord[InWord.Length - 2] == 's' ) &&
+        (InWord[InWord.Length - 1] == 'm' ))
+      {
+      TestWord = Utility.TruncateString( InWord, InWord.Length - 3 );
+      if( MainWordsDictionary.ContainsKey( TestWord ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+        return TestWord;
+        }
+      }
+
+    if( (InWord[InWord.Length - 3] == 'i' ) &&
+        (InWord[InWord.Length - 2] == 's' ) &&
+        (InWord[InWord.Length - 1] == 't' ))
+      {
+      TestWord = Utility.TruncateString( InWord, InWord.Length - 3 );
+      if( MainWordsDictionary.ContainsKey( TestWord ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+        return TestWord;
+        }
+      }
+
+    return "";
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Exception in FixSuffix3():" );
+      MForm.ShowStatus( "Test is: " + Test.ToString() );
+      MForm.ShowStatus( Except.Message );
+      return "";
+      }
+    }
+
+
+  private string FixSuffix4( string InWord )
+    {
+    int Test = 1;
+    try
+    {
+    string TestWord = "";
+
+    if( InWord.Length < 7 )
+      return InWord;
+
+    if( (InWord[InWord.Length - 4] == 'n' ) &&
+        (InWord[InWord.Length - 3] == 'e' ) &&
+        (InWord[InWord.Length - 2] == 's' ) &&
+        (InWord[InWord.Length - 1] == 's' ))
+      {
+      TestWord = Utility.TruncateString( InWord, InWord.Length - 4 );
+      if( MainWordsDictionary.ContainsKey( TestWord ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+        return TestWord;
+        }
+      }
+
+    if( (InWord[InWord.Length - 4] == 't' ) &&
+        (InWord[InWord.Length - 3] == 'i' ) &&
+        (InWord[InWord.Length - 2] == 'o' ) &&
+        (InWord[InWord.Length - 1] == 'n' ))
+      {
+      TestWord = Utility.TruncateString( InWord, InWord.Length - 4 );
+      if( MainWordsDictionary.ContainsKey( TestWord ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+        return TestWord;
+        }
+
+      string ETest = TestWord + "e";
+      if( MainWordsDictionary.ContainsKey( ETest ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
+        return ETest;
+        }
+      }
+
+    // enlargement
+    if( (InWord[InWord.Length - 4] == 'm' ) &&
+        (InWord[InWord.Length - 3] == 'e' ) &&
+        (InWord[InWord.Length - 2] == 'n' ) &&
+        (InWord[InWord.Length - 1] == 't' ))
+      {
+      TestWord = Utility.TruncateString( InWord, InWord.Length - 4 );
+      if( MainWordsDictionary.ContainsKey( TestWord ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+        return TestWord;
+        }
+
+      /*
+      string ETest = TestWord + "e";
+      if( MainWordsDictionary.ContainsKey( ETest ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
+        return ETest;
+        }
+        */
+      }
+
+    return "";
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Exception in FixSuffix4():" );
+      MForm.ShowStatus( "Test is: " + Test.ToString() );
+      MForm.ShowStatus( Except.Message );
+      return "";
+      }
+    }
+
+
+
+
+  private bool WordIsExcluded( string Word )
     {
 
     // This is mainly needed to help find new words
@@ -585,6 +696,11 @@ namespace DGOLibrary
 
 
 
+
+  // See the not above about how this is used.  It has
+  // already been checked against the main words dictionary
+  // and it's not in that.  So it's not replacing part
+  // of a good word with something else.
   private string ReplaceCommonWordForms( string InWord )
     {
     if( !ReplaceWordsDictionary.ContainsKey( InWord ))
@@ -599,8 +715,8 @@ namespace DGOLibrary
     {
     ReplaceWordsDictionary["ariz"] = "arizona";
     ReplaceWordsDictionary["beyonc"] = "beyonce";
-    ReplaceWordsDictionary["bookstore"] = "book store";
     ReplaceWordsDictionary["broomfiled"] = "broomfield";
+    ReplaceWordsDictionary["brucoli"] = "brocoli";
     ReplaceWordsDictionary["calif"] = "california";
     ReplaceWordsDictionary["cinderela"] = "cinderella";
     ReplaceWordsDictionary["colo"] = "colorado";
@@ -626,6 +742,38 @@ namespace DGOLibrary
     }
 
 
+  internal string FixUserInput( string UserInput )
+    {
+    // CleanUnicode ...
+    // ==========
+    return "";
+    }
+
+
+
+  internal string ReplaceForSplitWords( string InWord )
+    {
+    if( !SplitWordsDictionary.ContainsKey( InWord ))
+      return InWord;
+
+    return SplitWordsDictionary[InWord];
+    }
+
+
+
+  private void AddSplitWords()
+    {
+    // If you were searching for 'book' you'd find
+    // 'book' but not 'bookstore' or 'bookshop'.
+    SplitWordsDictionary["bookstore"] = "book store";
+    SplitWordsDictionary["bookshop"] = "book shop";
+    SplitWordsDictionary["realestate"] = "real estate";
+    SplitWordsDictionary["worksite"] = "work site";
+
+
+    }
+
+
 
   internal bool ReadFromTextFile()
     {
@@ -646,6 +794,10 @@ namespace DGOLibrary
     string KeyWord = "";
     int CountValue = 0;
 
+    // I would rather not post all of the words in the
+    // text file where I've collected non-G-rated words
+    // along with all the others.  (They are collected
+    // from newspaper articles.)
     using( StreamReader SReader = new StreamReader( FileName  )) 
       {
       while( SReader.Peek() >= 0 ) 
