@@ -38,6 +38,12 @@ namespace DGOLibrary
     }
 
 
+  internal ulong GetContentsUpdatedIndex()
+    {
+    return ContentsUpdated.GetIndex();
+    }
+
+
   internal string GetURL()
     {
     return URL;
@@ -135,18 +141,32 @@ namespace DGOLibrary
       }
     else
       {
-      Title = UseTitle;
+      // Truncate the title if it's too long.
+      Title = Utility.TruncateString( UseTitle, 500 );
       }
 
     string FileContents = ReadFromTextFile( InFileName );
     if( FileContents == "" )
       return false;
 
+    if( FileContents.Contains( "https://n26.network-auth.com/splash/" ))
+      {
+      // Obviously this is not running on a real server here.
+      MForm.ShowStatus( "Cancelled because WiFi access needs OK." );
+      MForm.ShowStatus( "Deleting File: " + InFileName );
+      File.Delete( InFileName );
+      MForm.SetCancelled();
+      return false;
+      }
+
+    // Notice that a main page like the ones added in
+    // GetURLManagerForm.cs will have a file name that has
+    // the date when it was first created.
     if( FileName.Length < 1 )
       FileName = MakeNewFileName();
 
     // MForm.ShowStatus( " " );
-    MForm.ShowStatus( " " );
+    // MForm.ShowStatus( " " );
     // MForm.ShowStatus( "Title: " + Title );
     // MForm.ShowStatus( "Updating: " + URL );
     // MForm.ShowStatus( "File name: " + FileName );
@@ -178,16 +198,16 @@ namespace DGOLibrary
     // used in every file.
     FileContents = Utility.RemoveFromStartToEnd( "<!--", "-->", FileContents );
     FileContents = Utility.RemoveFromStartToEnd( "<script", "/script>", FileContents );
-
-    // FileContents = Utility.RemoveFromStartToEnd( "<link", ">", FileContents );
-    // FileContents = Utility.RemoveFromStartToEnd( "<meta", ">", FileContents );
-    // FileContents = Utility.RemoveFromStartToEnd( "<style", "/style>", FileContents );
+    FileContents = Utility.RemoveFromStartToEnd( "<link", "/>", FileContents );
+    FileContents = Utility.RemoveFromStartToEnd( "<meta", "/>", FileContents );
+    FileContents = Utility.RemoveFromStartToEnd( "<style", "/style>", FileContents );
     // FileContents = Utility.RemoveFromStartToEnd( "<form", "/form>", FileContents );
 
     // <div> tags are nested in all kinds of weird ways
     // and they're not helpful.
-    // FileContents = Utility.RemoveFromStartToEnd( "<div", ">", FileContents );
-    // FileContents = FileContents.Replace( "</div>", " " );
+    // </p></div><div><p class="articleText">An
+    FileContents = Utility.RemoveFromStartToEnd( "<div", ">", FileContents );
+    FileContents = FileContents.Replace( "</div>", " " );
 
     if( SetTime )
       ContentsUpdated.SetToNow();
@@ -225,7 +245,9 @@ namespace DGOLibrary
     CleanContents = CleanContents.Replace( "</em>", " " );
     CleanContents = CleanContents.Replace( "&quot;", "\"" );
     CleanContents = CleanContents.Replace( "&apos;", "'" );
-
+    CleanContents = CleanContents.Replace( "Capt. ", "Captain " );
+    CleanContents = CleanContents.Replace( "<center>", " " );
+    CleanContents = CleanContents.Replace( "</center>", " " );
     // &eacute;   As in Resum&eacute;
 
     // <font>
@@ -306,7 +328,7 @@ namespace DGOLibrary
     if( !File.Exists( ReadFileName ))
       {
       MForm.ShowStatus( " " );
-      MForm.ShowStatus( "The file does not exist for:" );
+      MForm.ShowStatus( "Reading text file. The file does not exist for:" );
       MForm.ShowStatus( Title );
       MForm.ShowStatus( ReadFileName );
       MForm.ShowStatus( URL );
@@ -403,8 +425,13 @@ namespace DGOLibrary
     Title = Utility.GetCleanUnicodeString( SplitS[0], 1000 );
     URL = Utility.GetCleanUnicodeString( SplitS[1], 2000 );
 
+    URL = URL.Replace( "http://www.durangoherald.com//", "http://www.durangoherald.com/" );
+
     if( URL.Contains( ".aspx?" ))
       return false;
+
+    if( URL.Contains( "durangoherald.com/#tab" ))
+       return false;
 
     ulong TimeIndex = (ulong)Int64.Parse( SplitS[2] );
     ContentsUpdated.SetFromIndex( TimeIndex );
@@ -417,15 +444,37 @@ namespace DGOLibrary
 
     FileName = Utility.GetCleanUnicodeString( SplitS[3], 1000 );
 
+    if( FileName.Length > 10 )
+      {
+      if( !File.Exists( FileName ))
+        {
+        MForm.ShowStatus( " " );
+        MForm.ShowStatus( "The file does not exist for:" );
+        MForm.ShowStatus( Title );
+        MForm.ShowStatus( FileName );
+        MForm.ShowStatus( URL );
+        MForm.ShowStatus( " " );
+        return false;
+        }
+      }
+
     Index = Int32.Parse( SplitS[4] );
 
     if( SplitS.Length >= 6 )
       RelativeURLBase = Utility.GetCleanUnicodeString( SplitS[5], 1000 );
     else
-      RelativeURLBase = "http://www.durangoherald.com/";
+      RelativeURLBase = "http://www.durangoherald.com";
 
     if( RelativeURLBase.Length < 10 )
-      RelativeURLBase = "http://www.durangoherald.com/";
+      {
+      RelativeURLBase = "http://www.durangoherald.com";
+      }
+    else
+      {
+      if( RelativeURLBase[RelativeURLBase.Length - 1] == '/' )
+        RelativeURLBase = Utility.TruncateString( RelativeURLBase, RelativeURLBase.Length - 1 );
+
+      }
 
     return true;
     }
