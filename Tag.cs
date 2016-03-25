@@ -221,12 +221,15 @@ namespace DGOLibrary
           // Show all tags it misses. ============
           if( StartName == "a" )
             {
-            MForm.ShowStatus( " " );
-            MForm.ShowStatus( StartName + ": Didn't find the full tag end." );
-            // It can't find the end of the tag within
-            // this outer tag.
-            // MForm.ShowStatus( Utility.TruncateString( "Outer tag: " + MainText, 200 ));
-            MForm.ShowStatus( "Starting at: " + GetTruncatedErrorText( StartAt, 200 ));
+            if( !MainText.Contains( "thecloudscout.com" ))
+              {
+              MForm.ShowStatus( " " );
+              MForm.ShowStatus( StartName + ": Didn't find the full tag end." );
+              // It can't find the end of the tag within
+              // this outer tag.
+              // MForm.ShowStatus( Utility.TruncateString( "Outer tag: " + MainText, 200 ));
+              MForm.ShowStatus( "Starting at: " + GetTruncatedErrorText( StartAt, 200 ));
+              }
             }
 
           continue;
@@ -260,21 +263,18 @@ namespace DGOLibrary
       if( (StartName == "title") ||
           (StartName == "p" ))
         {
-        string FixedS = NewTagS;
-
-        // <p class="articleText">
-        // <span class="dropcap">W</span>alking into
-        FixedS = FixedS.Replace( "class=\"articleText\"><span class=\"dropcap\">", "" );
-        FixedS = FixedS.Replace( "</span>", "" );
-
-        // You can't search for Durango if Durango Herald
-        // is in every page.
-        FixedS = FixedS.Replace( "durango", " " );
-        FixedS = FixedS.Replace( "herald", " " );
-        FixedS = MForm.WordsDictionary1.ReplaceForSplitWords( FixedS );
-        FixedS = FixedS.Trim();
-
-        ParseWords( StartName, FixedS );
+        string FixedS = NewTagS.ToLower();
+        if( (FixedS.Contains( "embed code:</p" )) ||
+            (FixedS.Contains( "<iframe" )) ||
+            (FixedS.Contains( "src='//www.washingtonpost.com/video" )))
+          {
+          // MForm.ShowStatus( " " );
+          // MForm.ShowStatus( "Embed code FixedS is: " + FixedS );
+          }
+        else
+          {
+          ParseWords( StartName, FixedS );
+          }
         }
 
       if( StartName == "a" )
@@ -319,6 +319,41 @@ namespace DGOLibrary
     }
 
 
+  private string RemoveDropCapPart( string InString )
+    {
+    if( !InString.Contains( "<span class=\"dropcap\">" ))
+      return InString;
+
+    InString = InString.Replace( "class=\"articletext\">", "" );
+    // <span class="dropcap">W</span>alking into
+    int Start = InString.IndexOf( "<span class=\"dropcap\">" );
+    if( Start < 0 )
+      return InString;
+
+    // 1234567890123456789012
+    // <span class="dropcap">
+
+    int End = InString.IndexOf( "</span>" );
+    if( End < 0 )
+      return InString;
+
+    StringBuilder SBuilder = new StringBuilder();
+    for( int Count = 0; Count < InString.Length; Count++ )
+      {
+      if( (Count >= Start) && (Count < (Start + 22)))
+        continue;
+
+      if( (Count >= End) && (Count < (End + 7)))
+        continue;
+
+      SBuilder.Append( InString[Count] );
+      }
+
+    // MForm.ShowStatus( "DropCap: " + SBuilder.ToString());
+    return SBuilder.ToString();
+    }
+
+
 
   private string GetTruncatedErrorText( int StartAt, int HowLong )
     {
@@ -345,6 +380,45 @@ namespace DGOLibrary
 
     InString = InString.ToLower();
 
+    if( InString.Contains( "durangoherald" ))
+      InString = InString.Replace( "durangoherald", " " );
+
+    // Do ParseLink() for this one.
+    if( InString.Contains( "class=\"grid_4 alpha byline\">" ))
+      {
+      // if( InString.Contains( "associated press" ))
+
+      // class="credit">associated press file photo</p
+
+      // MForm.ShowStatus( "AP:  " + InString );
+      return;
+      }
+
+    if( InString.Contains( "class=\"credit\">" ))
+      {
+      // class="credit">associated press file photo</p
+      // Frequent:  class="credit">courtesy of 
+      // class="credit">associated press</p
+
+      return;
+      }
+      
+
+    if( InString.Contains( "associated press" ))
+      {
+      InString = InString.Replace( "associated press", " " );
+      // InString = InString.Replace( "told the associated press", " " );
+      }
+
+    // if( InString.Contains( "work" ))
+      // MForm.ShowStatus( "Most frequent:  " + InString );
+
+    // if( InString.Contains( "people" ))
+      // MForm.ShowStatus( "Frequent:  " + InString );
+
+    if( InString.Contains( "class=\"grid_4 omega timestamp\">article last updated:" ))
+      return;
+
     if( TagName == "title" )
       {
       InString = InString.Replace( "</title", "" );
@@ -370,12 +444,45 @@ namespace DGOLibrary
       // that is intended to entice the reader to read the
       // full story." ~ Google
       InString = InString.Replace( "class=lede>", "" );
+
+      // <span class="mwc_subheads">Free practice
+      //  tests</span>The College Board 
+      InString = InString.Replace( "class=\"articleText\"><span class=\"mwc_subheads\">", "" );
+
+      // <p class="articleText">
+      // <span class="dropcap">W</span>alking into
+      InString = RemoveDropCapPart( InString );
+      InString = InString.Replace( "class=\"articletext\">", "" );
+      InString = InString.Replace( "</span>", " " );
       }
+
+    if( InString.Contains( "<span class=\"mwc_subheads\">" ))
+      InString = InString.Replace( "<span class=\"mwc_subheads\">", " " );
+
+
+    if( InString.Contains( "<span" ))
+      {
+      InString = InString.Replace( "<span class=\"mwc_tagline\">sources:", " " );
+      InString = InString.Replace( "<span class=\"mwc_tagline\">herald staff", " " );
+      InString = InString.Replace( "<span class=\"mwc_tagline\">", " " );
+      }
+
+    if( InString.Contains( "<span" ))
+      {
+      MForm.ShowStatus( "Span: " + InString );
+      }
+
+    // You can't search for Durango if Durango Herald
+    // is in every page.  
+    // But what about a Dodge Durango?
+    InString = InString.Replace( "durango herald", " " );
+    InString = InString.Replace( "</p", " " );
+    InString = MForm.WordsDictionary1.ReplaceForSplitWords( InString );
+    InString = InString.Trim();
 
     // "Durango's "
     InString = InString.Replace( "'s ", " " );
     InString = InString.Replace( "'", " " );
-
 
     InString = InString.Replace( "\r", " " );
     InString = InString.Replace( ":", " " );
@@ -450,6 +557,9 @@ namespace DGOLibrary
       return;
       }
 
+    if( InString.Contains( "http://wapo.st/" ))
+      return;
+
     if( InString.Contains( "class=\"jFlowPrev" ))
       return;
 
@@ -462,14 +572,15 @@ namespace DGOLibrary
     if( InString.Contains( "onclick=\"" ))
       return;
 
-    if( InString.Contains( "/pbcs.dll/" ))
-      return;
-
     if( InString.Contains( "ctl00_ContentPlaceHolder" ))
       return;
 
     if( InString.Contains( "fb:comments-count" ))
       return;
+
+    if( InString.Contains( "http://www.legacy.com/ns/termsofuse.aspx" ))
+      return;
+
 
     // Obituaries for a particular person:
     // if( InString.Contains( ".aspx?" ))
@@ -480,7 +591,6 @@ namespace DGOLibrary
 
     if( InString.Contains( "/section/Opinion02/" ))
       InString = InString.Replace( "/section/Opinion02/", "/section/opinion02/" );
-
 
     // bool HasImageTag = false;
     if( InString.Contains( "<img" ))
@@ -529,6 +639,35 @@ namespace DGOLibrary
     if( !Attributes.Contains( "href=" ))
       {
       MForm.ShowStatus( "No link in: " + InString );
+      return;
+      }
+
+    // if( InString.Contains( "/pbcs.dll/personalia?id=" ))
+    if( InString.Contains( "/pbcs.dll/personalia" ))
+      {
+      if( !((Title.Contains( "General Inquiries") ))) // ||
+        {
+        // MForm.ShowStatus( "File Name: " + CallingPage.GetFileName());
+        MForm.ShowStatus( "By line: " + Title );
+        ParseWords( "not used", Title );
+        }
+
+      /*
+      // Don't index these:
+      InString = InString.Replace( "herald staff report", " " );
+      InString = InString.Replace( "herald staff writer", " " );
+      InString = InString.Replace( "associated press", " " );
+        the denver post
+        special to the herald
+        high country news
+         ap medical writer
+      */
+      return;
+      }
+
+    if( InString.Contains( "/pbcs.dll/" ))
+      {
+      // MForm.ShowStatus( "Pbcs.dll: " + InString );
       return;
       }
 
@@ -596,6 +735,9 @@ namespace DGOLibrary
 
    private bool LinkIsGood( string LinkURL )
      {
+     if( LinkURL.Contains( "durangoherald.com/#tab" ))
+       return false;
+
      if( LinkURL.Contains( "/taxonomy/" ))
        return false;
 
@@ -614,8 +756,8 @@ namespace DGOLibrary
      if( LinkURL.StartsWith( "http://obituaries.durangoherald.com/" ))
        return true;
 
-     // if( LinkURL.StartsWith( "http://finance.yahoo.com/" ))
-       // return true;
+     if( LinkURL.StartsWith( "http://finance.yahoo.com/" ))
+       return true;
 
     // if( LinkURL.StartsWith( "http://news.yahoo.com/" ))
        // return true;
