@@ -10,13 +10,13 @@ using System.IO;
 
 
 
-
 namespace DGOLibrary
 {
   class PageList
   {
   private MainForm MForm;
   private SortedDictionary<string, Page> PageDictionary;
+  private SortedDictionary<int, string> URLIndexDictionary;
   private string FileName = "";
   private int NextIndex = 1;
 
@@ -30,6 +30,8 @@ namespace DGOLibrary
     {
     MForm = UseForm;
     PageDictionary = new SortedDictionary<string, Page>();
+    URLIndexDictionary = new SortedDictionary<int, string>();
+
     FileName = MForm.GetDataDirectory() + "Pages.txt";
     }
 
@@ -47,7 +49,9 @@ namespace DGOLibrary
     if( !PageDictionary.ContainsKey( URL ))
       return -1;
 
-    return PageDictionary[URL].GetIndex();
+    int Index = PageDictionary[URL].GetIndex();
+    URLIndexDictionary[Index] = URL;
+    return Index;
     }
 
 
@@ -92,6 +96,7 @@ namespace DGOLibrary
       UsePage = new Page( MForm );
       PageDictionary[URL] = UsePage;
       PageDictionary[URL].SetIndex( NextIndex );
+      URLIndexDictionary[NextIndex] = URL;
       NextIndex++;
       }
 
@@ -119,6 +124,7 @@ namespace DGOLibrary
     UsePage.SetNewTitleAndURL( Title, URL, RelativeURLBase );
     PageDictionary[URL] = UsePage;
     PageDictionary[URL].SetIndex( NextIndex );
+    URLIndexDictionary[NextIndex] = URL;
     NextIndex++;
     }
 
@@ -148,6 +154,8 @@ namespace DGOLibrary
           continue;
 
         int PageIndex = Page1.GetIndex();
+        URLIndexDictionary[PageIndex] = Page1.GetURL();
+
         if( PageIndex >= NextIndex )
           NextIndex = PageIndex + 1;
 
@@ -213,20 +221,15 @@ namespace DGOLibrary
       MForm.ShowStatus( Kvp.Key );
       }
 
-    // ===========
     // Validate duplicate links to see if they're all
     // still there later.
-    // Appaloosa Trading Co. property up for sale >  http://www.durangoherald.com/article/20160319/NEWS04/160319501/0/News01/Appaloosa-Trading-Co-property-up-for-sale
-    // Appaloosa Trading Co. property up for sale >  http://www.durangoherald.com/article/20160319/NEWS04/160319501/0/News03/Appaloosa-Trading-Co-property-up-for-sale
-    // Appaloosa Trading Co. property up for sale >  http://www.durangoherald.com/article/20160319/NEWS04/160319501/0/News04/Appaloosa-Trading-Co-property-up-for-sale
-    // Appaloosa Trading Co. property up for sale >  http://www.durangoherald.com/article/20160319/NEWS04/160319501/0/News05/Appaloosa-Trading-Co-property-up-for-sale
-    // Appaloosa Trading Co. property up for sale >  http://www.durangoherald.com/article/20160319/NEWS04/160319501/0/News06/Appaloosa-Trading-Co-property-up-for-sale
-    // Appaloosa Trading Co. property up for sale >  http://www.durangoherald.com/article/20160319/NEWS04/160319501/-1/News04/Appaloosa-Trading-Co-property-up-for-sale
     }
 
 
 
   internal void IndexAll()
+    {
+    try
     {
     ECTime StartTime = new ECTime();
     StartTime.SetToNow();
@@ -245,6 +248,12 @@ namespace DGOLibrary
     MForm.AllWords.WriteToTextFile();
     MForm.ShowStatus( " " );
     MForm.ShowStatus( "Finished indexing in: " + StartTime.GetSecondsToNow().ToString( "N0" ));
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Exception in PageList.IndexAll()." );
+      MForm.ShowStatus( Except.Message );
+      }
     }
 
 
@@ -268,6 +277,75 @@ namespace DGOLibrary
 
     MForm.ShowStatus( "Finished ReadAllFiles()." );
     }
+
+
+
+
+  internal byte[] Get24HoursPage()
+    {
+    StringBuilder SBuilder = new StringBuilder();
+
+    // Obviously you could get parts of pages like
+    // this from files or something, but this is just
+    // a very basic example with no style sheets or
+    // anything like that in it.
+    SBuilder.Append( "<!DOCTYPE html>\r\n" );
+    SBuilder.Append( "<html>\r\n<head>\r\n" );
+    SBuilder.Append( "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\" />\r\n" );
+    SBuilder.Append( "<title>The Library Project</title>\r\n" );
+    SBuilder.Append( "<p><b>The Library Project.</b></p><br>\r\n" );
+
+    SortedDictionary<string, string> TitlesDictionary = new SortedDictionary<string, string>();
+
+    ECTime OldTime = new ECTime();
+    OldTime.SetToNow();
+    OldTime.AddSeconds( -(60 * 60 * 24) ); // 24 hours back.
+    ulong OldIndex = OldTime.GetIndex();
+    foreach( KeyValuePair<string, Page> Kvp in PageDictionary )
+      {
+      Page SendPage = Kvp.Value;
+      // if( SendPage.GetContentsUpdatedIndex() < OldIndex )
+        // continue;
+
+      // "It is acceptable and approved to link to any of
+      // our materials, including deep links to our site.
+      // Text from our stories can be quoted when linking
+      // to our content, but it must not be more than
+      // one-tenth of the total word count of the story or
+      // 100 words, whichever is lesser. Quoted content
+      // must contain a direct link to the story from which
+      // it is taken."
+
+      // This title is the original title from the original
+      // link.  It's not from the title tag within the page.
+      // It's not from the content of the page.
+      string TitlePart = SendPage.GetTitle();
+
+      // To sort it by title.
+      // Sort it by time index instead?
+      string TagPart = "<p><a href=\"" + Kvp.Key +
+        "\">" + TitlePart +
+        "</a></p>\r\n";
+
+      // There are duplicated articles with the same title
+      // but different URLs.  They put the same article
+      // in several different sections.  This will only
+      // get the last one.  (As iterated with foreach 
+      //from PageDictionary.)
+      TitlesDictionary[TitlePart] = TagPart;
+      }
+
+    foreach( KeyValuePair<string, string> Kvp in TitlesDictionary )
+      {
+      SBuilder.Append( Kvp.Value );
+      }
+
+    SBuilder.Append( "</body>\r\n</html>\r\n" );
+
+    // This could return null if there was a problem.
+    return UTF8Strings.StringToBytes( SBuilder.ToString());
+    }
+
 
 
 
