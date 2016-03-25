@@ -17,7 +17,6 @@ namespace DGOLibrary
   private MainForm MForm;
   private SortedDictionary<string, int> MainWordsDictionary;
   private SortedDictionary<string, string> ReplaceWordsDictionary;
-  private SortedDictionary<string, string> SplitWordsDictionary;
   private SortedDictionary<string, int> ExcludedWordsDictionary;
   private string FileName = "";
   private string ExcludedFileName = "";
@@ -39,11 +38,9 @@ namespace DGOLibrary
 
     MainWordsDictionary = new SortedDictionary<string, int>();
     ReplaceWordsDictionary = new SortedDictionary<string, string>();
-    SplitWordsDictionary = new SortedDictionary<string, string>();
     ExcludedWordsDictionary = new SortedDictionary<string, int>();
 
     AddCommonReplacements();
-    AddSplitWords();
     }
 
 
@@ -282,6 +279,24 @@ namespace DGOLibrary
         }
       }
 
+    if( (InWord[InWord.Length - 2] == 'o' ) &&
+        (InWord[InWord.Length - 1] == 'r' ))
+      {
+      TestWord = Utility.TruncateString( InWord, InWord.Length - 2 );
+      if( MainWordsDictionary.ContainsKey( TestWord ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+        return TestWord;
+        }
+
+      string ETest = TestWord + "e";
+      if( MainWordsDictionary.ContainsKey( ETest ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
+        return ETest;
+        }
+      }
+
     if( (InWord[InWord.Length - 2] == 'e' ) &&
         (InWord[InWord.Length - 1] == 's' ))
       {
@@ -313,6 +328,13 @@ namespace DGOLibrary
         // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
         return TestWord;
         }
+
+      string ETest = TestWord + "e";
+      if( MainWordsDictionary.ContainsKey( ETest ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
+        return ETest;
+        }
       }
 
     if( (InWord[InWord.Length - 2] == 'i' ) &&
@@ -324,9 +346,27 @@ namespace DGOLibrary
         // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
         return TestWord;
         }
+
+      string ETest = TestWord + "y";
+      if( MainWordsDictionary.ContainsKey( ETest ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
+        return ETest;
+        }
       }
 
     if( (InWord[InWord.Length - 2] == 'l' ) &&
+        (InWord[InWord.Length - 1] == 'y' ))
+      {
+      TestWord = Utility.TruncateString( InWord, InWord.Length - 2 );
+      if( MainWordsDictionary.ContainsKey( TestWord ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+        return TestWord;
+        }
+      }
+
+    if( (InWord[InWord.Length - 2] == 'r' ) &&
         (InWord[InWord.Length - 1] == 'y' ))
       {
       TestWord = Utility.TruncateString( InWord, InWord.Length - 2 );
@@ -465,12 +505,17 @@ namespace DGOLibrary
         (InWord[InWord.Length - 1] == 'd' ))
       {
       TestWord = Utility.TruncateString( InWord, InWord.Length - 3 );
-
-      TestWord += "y";
       if( MainWordsDictionary.ContainsKey( TestWord ))
         {
         // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
         return TestWord;
+        }
+
+      string ETest = TestWord + "y";
+      if( MainWordsDictionary.ContainsKey( ETest ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+        return ETest;
         }
       }
 
@@ -491,6 +536,26 @@ namespace DGOLibrary
         // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
         return ETest;
         }
+      }
+
+    if( (InWord[InWord.Length - 3] == 'i' ) &&
+        (InWord[InWord.Length - 2] == 'a' ) &&
+        (InWord[InWord.Length - 1] == 'n' ))
+      {
+      TestWord = Utility.TruncateString( InWord, InWord.Length - 3 );
+      if( MainWordsDictionary.ContainsKey( TestWord ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+        return TestWord;
+        }
+
+      /*
+      string ETest = TestWord + "e";
+      if( MainWordsDictionary.ContainsKey( ETest ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
+        return ETest;
+        }*/
       }
 
     if( (InWord[InWord.Length - 3] == 'o' ) &&
@@ -532,7 +597,14 @@ namespace DGOLibrary
         // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
         return ETest;
         }
-      }
+ 
+      ETest = TestWord + "y";
+      if( MainWordsDictionary.ContainsKey( ETest ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
+        return ETest;
+        }
+       }
 
     if( (InWord[InWord.Length - 3] == 'i' ) &&
         (InWord[InWord.Length - 2] == 't' ) &&
@@ -554,6 +626,25 @@ namespace DGOLibrary
       }
 
     if( (InWord[InWord.Length - 3] == 'i' ) &&
+        (InWord[InWord.Length - 2] == 'l' ) &&
+        (InWord[InWord.Length - 1] == 'y' ))
+      {
+      TestWord = Utility.TruncateString( InWord, InWord.Length - 3 );
+      if( MainWordsDictionary.ContainsKey( TestWord ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+        return TestWord;
+        }
+
+      string ETest = TestWord + "y";
+      if( MainWordsDictionary.ContainsKey( ETest ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
+        return ETest;
+        }
+      }
+
+    if( (InWord[InWord.Length - 3] == 'i' ) &&
         (InWord[InWord.Length - 2] == 's' ) &&
         (InWord[InWord.Length - 1] == 'm' ))
       {
@@ -562,6 +653,32 @@ namespace DGOLibrary
         {
         // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
         return TestWord;
+        }
+
+      string ETest = TestWord + "e";
+      if( MainWordsDictionary.ContainsKey( ETest ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
+        return ETest;
+        }
+      }
+
+    if( (InWord[InWord.Length - 3] == 'i' ) &&
+        (InWord[InWord.Length - 2] == 'v' ) &&
+        (InWord[InWord.Length - 1] == 'e' ))
+      {
+      TestWord = Utility.TruncateString( InWord, InWord.Length - 3 );
+      if( MainWordsDictionary.ContainsKey( TestWord ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+        return TestWord;
+        }
+
+      string ETest = TestWord + "e";
+      if( MainWordsDictionary.ContainsKey( ETest ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
+        return ETest;
         }
       }
 
@@ -575,6 +692,56 @@ namespace DGOLibrary
         // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
         return TestWord;
         }
+
+      string ETest = TestWord + "e";
+      if( MainWordsDictionary.ContainsKey( ETest ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
+        return ETest;
+        }
+
+      // entomology
+      // entomologist
+      ETest = TestWord + "y";
+      if( MainWordsDictionary.ContainsKey( ETest ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
+        return ETest;
+        }
+
+      }
+
+    if( (InWord[InWord.Length - 3] == 'i' ) &&
+        (InWord[InWord.Length - 2] == 's' ) &&
+        (InWord[InWord.Length - 1] == 'h' ))
+      {
+      TestWord = Utility.TruncateString( InWord, InWord.Length - 3 );
+      if( MainWordsDictionary.ContainsKey( TestWord ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+        return TestWord;
+        }
+      }
+
+    if( (InWord[InWord.Length - 3] == 'a' ) &&
+        (InWord[InWord.Length - 2] == 'r' ) &&
+        (InWord[InWord.Length - 1] == 'y' ))
+      {
+      TestWord = Utility.TruncateString( InWord, InWord.Length - 3 );
+      if( MainWordsDictionary.ContainsKey( TestWord ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+        return TestWord;
+        }
+
+      /*
+      ETest = TestWord + "y";
+      if( MainWordsDictionary.ContainsKey( ETest ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
+        return ETest;
+        }
+        */
       }
 
     return "";
@@ -602,6 +769,19 @@ namespace DGOLibrary
     if( (InWord[InWord.Length - 4] == 'n' ) &&
         (InWord[InWord.Length - 3] == 'e' ) &&
         (InWord[InWord.Length - 2] == 's' ) &&
+        (InWord[InWord.Length - 1] == 's' ))
+      {
+      TestWord = Utility.TruncateString( InWord, InWord.Length - 4 );
+      if( MainWordsDictionary.ContainsKey( TestWord ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+        return TestWord;
+        }
+      }
+
+    if( (InWord[InWord.Length - 4] == 'i' ) &&
+        (InWord[InWord.Length - 3] == 'n' ) &&
+        (InWord[InWord.Length - 2] == 'g' ) &&
         (InWord[InWord.Length - 1] == 's' ))
       {
       TestWord = Utility.TruncateString( InWord, InWord.Length - 4 );
@@ -655,6 +835,70 @@ namespace DGOLibrary
         */
       }
 
+    if( (InWord[InWord.Length - 4] == 'a' ) &&
+        (InWord[InWord.Length - 3] == 'l' ) &&
+        (InWord[InWord.Length - 2] == 'l' ) &&
+        (InWord[InWord.Length - 1] == 'y' ))
+      {
+      TestWord = Utility.TruncateString( InWord, InWord.Length - 4 );
+      if( MainWordsDictionary.ContainsKey( TestWord ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+        return TestWord;
+        }
+
+      /*
+      string ETest = TestWord + "e";
+      if( MainWordsDictionary.ContainsKey( ETest ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
+        return ETest;
+        }
+        */
+      }
+
+    if( (InWord[InWord.Length - 4] == 'i' ) &&
+        (InWord[InWord.Length - 3] == 'a' ) &&
+        (InWord[InWord.Length - 2] == 'n' ) &&
+        (InWord[InWord.Length - 1] == 's' ))
+      {
+      TestWord = Utility.TruncateString( InWord, InWord.Length - 4 );
+      if( MainWordsDictionary.ContainsKey( TestWord ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+        return TestWord;
+        }
+
+      /*
+      string ETest = TestWord + "e";
+      if( MainWordsDictionary.ContainsKey( ETest ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
+        return ETest;
+        }
+        */
+      }
+
+    if( (InWord[InWord.Length - 4] == 'i' ) &&
+        (InWord[InWord.Length - 3] == 'e' ) &&
+        (InWord[InWord.Length - 2] == 's' ) &&
+        (InWord[InWord.Length - 1] == 't' ))
+      {
+      TestWord = Utility.TruncateString( InWord, InWord.Length - 4 );
+      if( MainWordsDictionary.ContainsKey( TestWord ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+        return TestWord;
+        }
+
+      string ETest = TestWord + "y";
+      if( MainWordsDictionary.ContainsKey( ETest ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
+        return ETest;
+        }
+      }
+
     return "";
     }
     catch( Exception Except )
@@ -697,7 +941,7 @@ namespace DGOLibrary
 
 
 
-  // See the not above about how this is used.  It has
+  // See the note above about how this is used.  It has
   // already been checked against the main words dictionary
   // and it's not in that.  So it's not replacing part
   // of a good word with something else.
@@ -721,11 +965,22 @@ namespace DGOLibrary
     ReplaceWordsDictionary["cinderela"] = "cinderella";
     ReplaceWordsDictionary["colo"] = "colorado";
     ReplaceWordsDictionary["conn"] = "connecticut";
+    ReplaceWordsDictionary["dicapio"] = "dicaprio";
     ReplaceWordsDictionary["downton"] = "downtown";
+    ReplaceWordsDictionary["febuary"] = "february";
     ReplaceWordsDictionary["fla"] = "florida";
+    ReplaceWordsDictionary["inacio"] = "ignacio";
     ReplaceWordsDictionary["intro"] = "introduction";
-    ReplaceWordsDictionary["thinkin"] = "think";
+    ReplaceWordsDictionary["mangement"] = "management";
+    ReplaceWordsDictionary["margaritis"] ="margaritas";
+    ReplaceWordsDictionary["outsude"] = "outside";
+    ReplaceWordsDictionary["participaes"] = "participates";
+    ReplaceWordsDictionary["recidivisim"] = "recidivism";
 
+    ReplaceWordsDictionary["slowin"] = "slowing";
+    ReplaceWordsDictionary["tardition"] = "tradition";
+    ReplaceWordsDictionary["thinkin"] = "think";
+    ReplaceWordsDictionary["wearin"] = "wearing";
 
     // ReplaceWordsDictionary["jan"] = "january";
     ReplaceWordsDictionary["feb"] = "february";
@@ -751,26 +1006,27 @@ namespace DGOLibrary
 
 
 
-  internal string ReplaceForSplitWords( string InWord )
-    {
-    if( !SplitWordsDictionary.ContainsKey( InWord ))
-      return InWord;
 
-    return SplitWordsDictionary[InWord];
-    }
-
-
-
-  private void AddSplitWords()
+  internal string ReplaceForSplitWords( string InString )
     {
     // If you were searching for 'book' you'd find
     // 'book' but not 'bookstore' or 'bookshop'.
-    SplitWordsDictionary["bookstore"] = "book store";
-    SplitWordsDictionary["bookshop"] = "book shop";
-    SplitWordsDictionary["realestate"] = "real estate";
-    SplitWordsDictionary["worksite"] = "work site";
 
+    string Result = InString;
 
+    // Put these in a file?
+
+    Result = Result.Replace( "bookstore", "book store" );
+    Result = Result.Replace( "bookshop", "book shop" );
+    Result = Result.Replace( "colostate", "colorado state" );
+    Result = Result.Replace( "puertorico", "puerto rico" );
+    Result = Result.Replace( "ragtimefestival", "ragtime festival" );
+    Result = Result.Replace( "realestate", "real estate" );
+    Result = Result.Replace( "realproperty", "real property" );
+    Result = Result.Replace( "runningclub", "running club" );
+    Result = Result.Replace( "worksite", "work site" );
+
+    return Result;
     }
 
 
@@ -848,7 +1104,7 @@ namespace DGOLibrary
         }
       }
 
-    // ShowMostFrequentWords();
+    ShowMostFrequentWords();
 
     MForm.ShowStatus( " " );
     MForm.ShowStatus( "Words Count: " + MainWordsDictionary.Count.ToString( "N0" ));
@@ -949,13 +1205,11 @@ namespace DGOLibrary
           CountValue = Test;
           }
 
-        // For test:
-        CountValue = 0;
+        // This is the excluded words:
+        // CountValue = 0;
         ExcludedWordsDictionary[KeyWord] = CountValue;
         }
       }
-
-    // ShowMostFrequentWords();
 
     MForm.ShowStatus( " " );
     MForm.ShowStatus( "Excluded words Count: " + ExcludedWordsDictionary.Count.ToString( "N0" ));
@@ -1017,7 +1271,7 @@ namespace DGOLibrary
 
     foreach( KeyValuePair<string, int> Kvp in MainWordsDictionary )
       {
-      if( Kvp.Value < 100 )
+      if( Kvp.Value < 1000 )
         continue;
 
       // If it's not unique this gets the last one.
