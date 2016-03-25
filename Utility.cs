@@ -269,11 +269,20 @@ namespace DGOLibrary
 
   internal static string  SimplifyAndCleanCharacters( string InString )
     {
+    // This was done in ReadFromTextFile().
+    //  Don't go higher than D800 (Surrogates).
+    //  if( ToCheck >= 0xD800 )
+
     string Result = InString;
     Result = Result.Replace( "&#x2018;", "'" );
     Result = Result.Replace( "&#x2019;", "'" );
     // Result = Result.Replace( "&amp;", "&" );
-    Result = Result.Replace( "&#x2013", " " ); // A weird symbol.
+    Result = Result.Replace( "&#x2013;", " " ); // A weird symbol.
+
+    Result = Result.Replace( "&#x201c;", "\"" );
+    Result = Result.Replace( "&#x201d;", "\"" );
+    Result = Result.Replace( "&#xe4;", "a" );
+    Result = Result.Replace( "&#xad;", "" );
 
     Result = Result.Replace( "&laquo;", "\"" );
     Result = Result.Replace( "&raquo;", "\"" );
@@ -289,10 +298,7 @@ namespace DGOLibrary
     // HTML character codes
     // http://www.w3schools.com/html/html_symbols.asp
 
-    // This was done in ReadFromTextFile().
-    //  Don't go higher than D800 (Surrogates).
-    //  if( ToCheck >= 0xD800 )
- 
+
     return Result;
     }
 
