@@ -21,21 +21,26 @@ namespace DGOLibrary
 {
   public partial class MainForm : Form
   {
-  internal const string VersionDate = "3/21/2016";
+  internal const string VersionDate = "3/25/2016";
   internal const int VersionNumber = 09; // 0.9
   internal const string MessageBoxTitle = "Library Project";
   private System.Threading.Mutex SingleInstanceMutex = null;
   private bool IsSingleInstance = false;
   internal GetURLManagerForm GetURLMgrForm;
+  internal WebListenerForm WebListenForm;
+  internal WebFilesData WebFData;
   private string TempFileDirectory = "";
   private string PagesDirectory = "";
   private string DataDirectory = "";
+  private string WebPagesDirectory = "";
   private bool IsClosing = false;
   private bool Cancelled = false;
   internal GlobalProperties GlobalProps;
   internal PageList PageList1;
   internal Words AllWords;
   internal WordsDictionary WordsDictionary1;
+  internal NetIPStatus NetStats;
+
 
 
 
@@ -49,14 +54,20 @@ namespace DGOLibrary
     GlobalProps = new GlobalProperties( this );
     ///////////////////////
 
+    NetStats = new NetIPStatus( this );
+    NetStats.ReadFromFile();
+
     WordsDictionary1 = new WordsDictionary( this );
     PageList1 = new PageList( this );
     AllWords = new Words( this );
+    WebFData = new WebFilesData( this );
 
     if( !CheckSingleInstance())
       return;
 
     IsSingleInstance = true;
+
+    WebListenForm = new WebListenerForm( this );
 
     StartupTimer.Interval = 200;
     StartupTimer.Start();
@@ -81,9 +92,9 @@ namespace DGOLibrary
 
   private void testToolStripMenuItem_Click(object sender, EventArgs e)
     {
-    string URL = "http://www.durangoherald.com";
+    string URL = "http://www.durangoherald.com/";
     string FileName = GetPagesDirectory() + "TestFile.txt";
-    PageList1.UpdatePageFromFile( "Main Page", URL, FileName, true );
+    PageList1.UpdatePageFromFile( "Main Page", URL, FileName, true, "http://www.durangoherald.com/" );
     }
 
 
@@ -104,12 +115,16 @@ namespace DGOLibrary
     // PagesDirectory = Application.StartupPath + "\\Pages\\";
     PagesDirectory = "c:\\DGOLibProject\\Pages\\";
     DataDirectory = Application.StartupPath + "\\Data\\";
+    WebPagesDirectory = Application.StartupPath + "\\WebPages\\";
 
     if( !Directory.Exists( TempFileDirectory ))
       Directory.CreateDirectory( TempFileDirectory );
 
     if( !Directory.Exists( PagesDirectory ))
       Directory.CreateDirectory( PagesDirectory );
+
+    if( !Directory.Exists( WebPagesDirectory ))
+      Directory.CreateDirectory( WebPagesDirectory );
 
     if( !Directory.Exists( DataDirectory ))
       Directory.CreateDirectory( DataDirectory );
@@ -135,6 +150,12 @@ namespace DGOLibrary
     }
 
 
+  internal string GetWebPagesDirectory()
+    {
+    return WebPagesDirectory;
+    }
+
+
   internal string GetDataDirectory()
     {
     return DataDirectory;
@@ -144,6 +165,13 @@ namespace DGOLibrary
   internal bool GetIsClosing()
     {
     return IsClosing;
+    }
+
+
+
+  internal void SetCancelled()
+    {
+    Cancelled = true;
     }
 
 
@@ -246,9 +274,9 @@ namespace DGOLibrary
       }
 
     IsClosing = true;
-    // CheckTimer.Stop();
+    CheckTimer.Stop();
 
-    // NetStats.SaveToFile();
+    NetStats.SaveToFile();
 
     if( GetURLMgrForm != null )
       {
@@ -263,12 +291,41 @@ namespace DGOLibrary
       GetURLMgrForm = null;
       }
 
+    if( WebListenForm != null )
+      {
+      if( !WebListenForm.IsDisposed )
+        {
+        WebListenForm.Hide();
+        
+        // This could take a while since it's closing connections:
+        WebListenForm.FreeEverythingAndStopServer();
+        WebListenForm.Dispose();
+        }
+
+      WebListenForm = null;
+      }
+
     PageList1.WriteToTextFile();
     AllWords.WriteToTextFile();
     WordsDictionary1.WriteToTextFile();
 
     // After getting what those others show.
     SaveStatusToFile();
+    }
+
+
+  internal void ShowWebListenerFormStatus( string Status )
+    {
+    if( IsClosing )
+      return;
+
+    if( WebListenForm == null )
+      return;
+      
+    if( WebListenForm.IsDisposed )
+      return;
+
+    WebListenForm.ShowStatus( Status ); 
     }
 
 
@@ -357,27 +414,39 @@ namespace DGOLibrary
 
     GetURLMgrForm = new GetURLManagerForm( this );
 
+    ReadWebFileData();
+    ShowStatus( "Finished reading web files." );
+
+    WebListenForm.StartServer();
+    // TLSListenForm.StartServer();
+    ShowStatus( "After the servers were started." );
+
     /////////////////
     // Make this last.
     // This calls CheckEvents().
-    PageList1.ReadAllFilesToContentStrings();
+    PageList1.ReadAllFilesToContent();
 
-    // Every five minutes.
-    CheckTimer.Interval = 5 * 60 * 1000;
+    CheckTimer.Interval = 15 * 60 * 1000;
     CheckTimer.Start();
     }
 
 
+  internal void ReadWebFileData()
+    {
+    ShowStatus( "Starting to read web file data." );
+    WebFData.SearchWebPagesDirectory();
+    ShowStatus( "Finished reading web file data." );
+    }
+
 
   private void CheckTimer_Tick(object sender, EventArgs e)
     {
-    /*
-    ShowStatus( "Saving data files." );
+    NetStats.SaveToFile();
+    // ShowStatus( "Saving data files." );
     PageList1.WriteToTextFile();
     WordsDictionary1.WriteToTextFile();
     AllWords.WriteToTextFile();
-    ShowStatus( "Finished saving data files." );
-    */
+    // ShowStatus( "Finished saving data files." );
     }
 
 
@@ -402,9 +471,16 @@ namespace DGOLibrary
 
     ShowStatus( SBuilder.ToString());
 
+
     int HexVal = 2013;
     ShowStatus( HexVal.ToString( "X4" ));
     ShowStatus( Char.ToString( (char)2013 ));
+
+    ShowStatus( " " );
+    ShowStatus( "&#x201c; " + Char.ToString( (char)0x201c ));
+    ShowStatus( "&#x201d; " + Char.ToString( (char)0x201d ));
+    ShowStatus( "&#xe4; " + Char.ToString( (char)0xe4 ));
+    ShowStatus( "&#xad; " + Char.ToString( (char)0xad ));
     }
 
 
@@ -412,12 +488,6 @@ namespace DGOLibrary
   private void showUnicodeToolStripMenuItem_Click(object sender, EventArgs e)
     {
     MakeNonAsciiCharacters();
-    }
-
-
-
-  private void pageTitlesToolStripMenuItem_Click(object sender, EventArgs e)
-    {
     }
 
 
@@ -433,6 +503,39 @@ namespace DGOLibrary
     {
     PageList1.IndexAll();
     }
+
+
+
+  private void SaveAllMidnightFiles()
+    {
+    /*
+    if( WebListenForm != null )
+      {
+      if( !WebListenForm.IsDisposed )
+        {
+        WebListenForm.ClearDailyHackCount();
+        }
+      }
+      */
+
+    NetStats.ClearMidnightValues();
+    }
+
+
+
+  private void showWebServerToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+    if( WebListenForm == null )
+      return;
+
+    if( WebListenForm.IsDisposed )
+      return;
+
+    WebListenForm.Show();
+    WebListenForm.WindowState = FormWindowState.Normal;
+    WebListenForm.BringToFront();
+    }
+
 
 
   }
