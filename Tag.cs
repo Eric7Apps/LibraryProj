@@ -242,21 +242,22 @@ namespace DGOLibrary
 
       // By <a href="/apps/pbcs.dll/personalia?ID=jlivingston">John Livingston</a>
       // <p class="articleText">
+
       /*
       if( !((StartName == "html" ) ||
             (StartName == "head" ) ||
-            (StartName == "a" ) ||
-            (StartName == "body" ))) 
-            ////////
-      if( StartName == "p" )
+            // (StartName == "a" ) ||
+            (StartName == "body" )))  */
+      /*
+      if( StartName == "td" )
         {
-        MForm.ShowStatus( " " );
-        MForm.ShowStatus( " " );
-        MForm.ShowStatus( " " );
-        MForm.ShowStatus( " " );
-        MForm.ShowStatus( " " );
-        MForm.ShowStatus( "StartName: " + StartName );
-        MForm.ShowStatus( "NewTagS: " + NewTagS );
+        if( NewTagS.Contains( "class=\"yfnc_tabledata1" ))
+          {
+          MForm.ShowStatus( " " );
+          MForm.ShowStatus( " " );
+          MForm.ShowStatus( "StartName: " + StartName );
+          MForm.ShowStatus( "NewTagS: " + NewTagS );
+          }
         }
         */
 
@@ -264,6 +265,20 @@ namespace DGOLibrary
           (StartName == "p" ))
         {
         string FixedS = NewTagS.ToLower();
+
+        if( FixedS.Contains( "caption" ))
+          {
+          FixedS = FixedS.Replace( "class=\"caption\">", " " );
+          }
+
+        /*
+        if( FixedS.Contains( "caption" ))
+          {
+          MForm.ShowStatus( " " );
+          MForm.ShowStatus( "Caption: " + FixedS );
+          }
+          */
+
         if( (FixedS.Contains( "embed code:</p" )) ||
             (FixedS.Contains( "<iframe" )) ||
             (FixedS.Contains( "src='//www.washingtonpost.com/video" )))
@@ -465,6 +480,10 @@ namespace DGOLibrary
       InString = InString.Replace( "<span class=\"mwc_tagline\">sources:", " " );
       InString = InString.Replace( "<span class=\"mwc_tagline\">herald staff", " " );
       InString = InString.Replace( "<span class=\"mwc_tagline\">", " " );
+      InString = InString.Replace( "<span class=\"mwc_breakout_text_bold_leadin\">", " " );
+      InString = InString.Replace( "<span class=\"mwc_blotter_day\">", " " );
+      InString = InString.Replace( "<span class=\"mwc_blotter_text\">", " " );
+
       }
 
     if( InString.Contains( "<span" ))
@@ -485,6 +504,8 @@ namespace DGOLibrary
     InString = InString.Replace( "'", " " );
 
     InString = InString.Replace( "\r", " " );
+    InString = InString.Replace( "\"", " " );
+    InString = InString.Replace( "'", " " );
     InString = InString.Replace( ":", " " );
     InString = InString.Replace( ";", " " );
     InString = InString.Replace( ".", " " );
@@ -492,13 +513,26 @@ namespace DGOLibrary
     InString = InString.Replace( "-", " " );
     InString = InString.Replace( "_", " " );
     InString = InString.Replace( "!", " " );
+    InString = InString.Replace( "?", " " );
     InString = InString.Replace( "(", " " );
     InString = InString.Replace( ")", " " );
+    InString = InString.Replace( "[", " " );
+    InString = InString.Replace( "]", " " );
+    InString = InString.Replace( "{", " " );
+    InString = InString.Replace( "}", " " );
     InString = InString.Replace( "<", " " );
     InString = InString.Replace( ">", " " );
     InString = InString.Replace( "|", " " );
     InString = InString.Replace( "\\", " " );
     InString = InString.Replace( "/", " " );
+    // InString = InString.Replace( "=", " " );
+    InString = InString.Replace( "href=", " " );
+    InString = InString.Replace( "rel=", " " );
+    InString = InString.Replace( "target=", " " );
+    InString = InString.Replace( "subject=", " " );
+    InString = InString.Replace( "alt=", " " );
+    InString = InString.Replace( "src=", " " );
+    InString = InString.Replace( "class=", " " );
 
     SortedDictionary<string, int> WordsDictionary = new SortedDictionary<string, int>();
 
@@ -548,6 +582,7 @@ namespace DGOLibrary
 
     if( InString.Length < 10 )
       return;
+
 
     if( InString.Contains( "<span" ))
       {
@@ -645,12 +680,15 @@ namespace DGOLibrary
     // if( InString.Contains( "/pbcs.dll/personalia?id=" ))
     if( InString.Contains( "/pbcs.dll/personalia" ))
       {
+      /*
       if( !((Title.Contains( "General Inquiries") ))) // ||
         {
         // MForm.ShowStatus( "File Name: " + CallingPage.GetFileName());
-        MForm.ShowStatus( "By line: " + Title );
+        // MForm.ShowStatus( "By line: " + Title );
+        // These words won't be linked to anything
+        // since this link doesn't get used.
         ParseWords( "not used", Title );
-        }
+        } */
 
       /*
       // Don't index these:
@@ -705,15 +743,18 @@ namespace DGOLibrary
       LinkURL = RelativeURLBase + LinkURL;
       // LinkURL = "http://www.durangoherald.com" + LinkURL;
 
-    if( !LinkIsGood( LinkURL ))
+    if( !LinkIsGood( LinkURL, Title ))
       {
       // MForm.ShowStatus( "Not using URL: " + LinkURL );
       return;
       }
-      
-    // MForm.ShowStatus( " " );
-    // MForm.ShowStatus( "Title: " + Title );
-    // MForm.ShowStatus( "LinkURL: " + LinkURL );
+
+    if( InString.Contains( "Caption: class=\"caption" ))
+      {
+      MForm.ShowStatus( " " );
+      MForm.ShowStatus( "Title: " + Title );
+      MForm.ShowStatus( "LinkURL: " + LinkURL );
+      }
 
     if( !MForm.PageList1.ContainsURL( LinkURL ))
       {
@@ -733,7 +774,7 @@ namespace DGOLibrary
 
 
 
-   private bool LinkIsGood( string LinkURL )
+   private bool LinkIsGood( string LinkURL, string Title )
      {
      if( LinkURL.Contains( "durangoherald.com/#tab" ))
        return false;
@@ -755,12 +796,6 @@ namespace DGOLibrary
 
      if( LinkURL.StartsWith( "http://obituaries.durangoherald.com/" ))
        return true;
-
-     if( LinkURL.StartsWith( "http://finance.yahoo.com/" ))
-       return true;
-
-    // if( LinkURL.StartsWith( "http://news.yahoo.com/" ))
-       // return true;
 
      return false;
      }
