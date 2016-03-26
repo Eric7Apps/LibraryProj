@@ -37,9 +37,176 @@ namespace DGOLibrary
 
 
 
+
   internal bool ContainsURL( string URL )
     {
-    return PageDictionary.ContainsKey( URL );
+    if( PageDictionary.ContainsKey( URL ))
+      return true;
+
+    if( PageDictionary.ContainsKey( URL + "/" ))
+      return true;
+
+    if( URL.Length < 3 )
+      return false;
+
+    string TestURL = URL;
+    if( URL.EndsWith( "/" ))
+      {
+      TestURL = Utility.TruncateString( URL, URL.Length - 1 );
+      if( PageDictionary.ContainsKey( TestURL ))
+        return true;
+
+      }
+
+
+    // There are duplicate links because they fall
+    // under multiple categories or because they are
+    // just messed up.
+
+    // TitlesDictionary
+
+    // Durango track and field team strong in Farmington
+    // /20160320/SPORTS03/160329972/0/Sports/Durango-track-and-field-team-strong-in-Farmington
+    // /20160320/SPORTS03/160329972/0/Sports01/Durango-track-and-field-team-strong-in-Farmington
+    // /20160320/SPORTS03/160329972/0/Sports02/Durango-track-and-field-team-strong-in-Farmington
+    // /20160320/SPORTS03/160329972/0/Sports03/Durango-track-and-field-team-strong-in-Farmington
+    // /20160320/SPORTS03/160329972/0/Sports04/Durango-track-and-field-team-strong-in-Farmington
+    // /20160320/SPORTS03/160329972/0/Sports05/Durango-track-and-field-team-strong-in-Farmington
+    // /20160320/SPORTS03/160329972/-1/Sports
+    // /20160320/SPORTS03/160329972/-1/Sports03/Durango-track-and-field-team-strong-in-Farmington
+    // /20160320/SPORTS03/160329972/Durango-track-and-field-team-strong-in-Farmington
+
+    // http://www.durangoherald.com/article/
+
+    // 4-H garden is gateway to lessons about health
+    // /20160316/COLUMNISTS05/160319649/-1/Columnists
+    // /20160316/COLUMNISTS05/160319649/-1/Lifestyle
+    // /20160316/COLUMNISTS05/160319649/-1/Lifestyle01
+    // /20160316/COLUMNISTS05/160319649/-1/Lifestyle04
+    // /20160316/COLUMNISTS05/160319649/-1/News06
+
+    return false;
+    }
+
+
+
+  // Keep this method private to this object.
+  private bool IsBadLink( string URL )
+    {
+    if( URL.Contains( "/FRONTPAGE/" ))
+      return true;
+
+    // These are all duplicates, but with a missing /
+    // character at the end.
+    if( URL == "http://www.durangoherald.com" )
+      return true;
+
+    if( URL == "http://www.durangoherald.com/section/News01" )
+      return true;
+
+    if( URL == "http://www.durangoherald.com/section/News03" )
+      return true;
+
+    if( URL == "http://www.durangoherald.com/section/News04" )
+      return true;
+
+    if( URL == "http://www.durangoherald.com//section/Columnists" )
+      return true;
+
+    if( URL == "http://obituaries.durangoherald.com/obituaries/durangoherald" )
+      return true;
+
+    if( URL == "http://www.durangoherald.com/section/News05" )
+      return true;
+
+    if( URL == "http://www.durangoherald.com/section/News06" )
+      return true;
+
+    if( URL == "http://www.durangoherald.com/section/realestate" )
+      return true;
+
+    if( URL == "http://www.durangoherald.com/section/Sports" )
+      return true;
+
+    if( URL == "http://www.durangoherald.com/section/Sports01" )
+      return true;
+
+    if( URL == "http://www.durangoherald.com/section/Sports02" )
+      return true;
+
+    if( URL == "http://www.durangoherald.com/section/Sports03" )
+      return true;
+
+    if( URL == "http://www.durangoherald.com/section/Sports04" )
+      return true;
+
+    if( URL == "http://www.durangoherald.com/section/Sports05" )
+      return true;
+
+    if( URL == "http://www.durangoherald.com/section/Arts" )
+      return true;
+
+    if( URL == "http://www.durangoherald.com/section/Arts01" )
+      return true;
+
+    if( URL == "http://www.durangoherald.com/section/Arts02" )
+      return true;
+
+    if( URL == "http://www.durangoherald.com/section/Arts03" )
+      return true;
+
+    if( URL == "http://www.durangoherald.com/section/Arts04" )
+      return true;
+
+    if( URL == "http://www.durangoherald.com/section/Arts05" )
+      return true;
+
+    if( URL == "http://www.durangoherald.com/section/Lifestyle" )
+      return true;
+
+    if( URL == "http://www.durangoherald.com/section/Lifestyle01" )
+      return true;
+
+    if( URL == "http://www.durangoherald.com/section/Lifestyle02" )
+      return true;
+
+    if( URL == "http://www.durangoherald.com/section/Lifestyle03" )
+      return true;
+
+    if( URL == "http://www.durangoherald.com/section/Lifestyle04" )
+      return true;
+
+    if( URL == "http://www.durangoherald.com/section/Lifestyle05" )
+      return true;
+
+    if( URL == "http://www.durangoherald.com/section/Lifestyle06" )
+      return true;
+
+    if( URL == "http://www.durangoherald.com/section/Opinion" )
+      return true;
+
+    if( URL == "http://www.durangoherald.com/section/Opinion01" )
+      return true;
+
+    if( URL == "http://www.durangoherald.com/section/Opinion02" )
+      return true;
+
+    if( URL == "http://www.durangoherald.com/section/Opinion03" )
+      return true;
+
+    if( URL == "http://www.durangoherald.com/section/newsstand" )
+      return true;
+
+    if( URL == "http://www.durangoherald.com/section/goldking" )
+      return true;
+
+    if( URL == "https://www.colorado.gov" )
+      return true;
+
+    if( URL == "http://www.durangogov.org" )
+      return true;
+
+    return false;
     }
 
 
@@ -56,6 +223,16 @@ namespace DGOLibrary
 
 
 
+  internal string GetURLFromIndex( int Index )
+    {
+    if( !URLIndexDictionary.ContainsKey( Index ))
+      return "";
+
+    return URLIndexDictionary[Index];
+    }
+
+
+
   internal void UpdatePageFromFile( string Title, string URL, string FileName, bool SetTime, string RelativeURLBase )
     {
     if( !MForm.CheckEvents())
@@ -66,6 +243,9 @@ namespace DGOLibrary
       MForm.ShowStatus( "URL is null in UpdatePageFromTempFile()." );
       return;
       }
+
+    if( IsBadLink( URL ))
+      return;
 
     if( Title == null )
       {
@@ -80,7 +260,7 @@ namespace DGOLibrary
       }
 
     // "Main Page"
-    if( Title.Length < 5 )
+    if( Title.Length < 3 )
       {
       MForm.ShowStatus( "Title is too short in UpdatePageFromTempFile()." );
       return;
@@ -117,7 +297,10 @@ namespace DGOLibrary
 
   internal void AddEmptyPage( string Title, string URL, string RelativeURLBase )
     {
-    if( PageDictionary.ContainsKey( URL ))
+    if( ContainsURL( URL ))
+      return;
+
+    if( IsBadLink( URL ))
       return;
 
     Page UsePage = new Page( MForm );
@@ -151,6 +334,12 @@ namespace DGOLibrary
 
         Page Page1 = new Page( MForm );
         if( !Page1.StringToObject( Line ))
+          continue;
+
+        if( IsBadLink( Page1.GetURL() ))
+          continue;
+
+        if( ContainsURL( Page1.GetURL() ))
           continue;
 
         int PageIndex = Page1.GetIndex();
@@ -202,18 +391,11 @@ namespace DGOLibrary
     }
 
 
-
+  /*
   internal void ShowTitles()
     {
-    SortedDictionary<string, int> TitlesDictionary = new SortedDictionary<string, int>();
 
-    foreach( KeyValuePair<string, Page> Kvp in PageDictionary )
-      {
-      string Line = Kvp.Value.GetTitle() + " >  " + Kvp.Key;
-      TitlesDictionary[Line] = 1;
-      }
-
-    foreach( KeyValuePair<string, int> Kvp in TitlesDictionary )
+    foreach( KeyValuePair<string, string> Kvp in TitlesDictionary )
       {
       if( !MForm.CheckEvents())
         return;
@@ -221,10 +403,10 @@ namespace DGOLibrary
       MForm.ShowStatus( Kvp.Key );
       }
 
-    // Validate duplicate links to see if they're all
-    // still there later.
+    // There are duplicate links because they fall
+    // under multiple categories.
     }
-
+    */
 
 
   internal void IndexAll()
@@ -283,6 +465,8 @@ namespace DGOLibrary
 
   internal byte[] Get24HoursPage()
     {
+    // http://127.0.0.1/get24hours.htm
+
     StringBuilder SBuilder = new StringBuilder();
 
     // Obviously you could get parts of pages like
@@ -304,8 +488,8 @@ namespace DGOLibrary
     foreach( KeyValuePair<string, Page> Kvp in PageDictionary )
       {
       Page SendPage = Kvp.Value;
-      // if( SendPage.GetContentsUpdatedIndex() < OldIndex )
-        // continue;
+      if( SendPage.GetContentsUpdatedIndex() < OldIndex )
+        continue;
 
       // "It is acceptable and approved to link to any of
       // our materials, including deep links to our site.
