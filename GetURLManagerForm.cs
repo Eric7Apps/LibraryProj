@@ -24,6 +24,7 @@ namespace DGOLibrary
   private int GetURLArrayLast = 0;
   private ECTime QueueTime;
   private int TempFileNameCount = 0;
+  private SortedDictionary<string, ulong> TitlesDictionary;
 
 
 
@@ -40,6 +41,8 @@ namespace DGOLibrary
 
     MForm = UseForm;
     GetURLArray = new GetFromURLForm[64];
+    TitlesDictionary = new SortedDictionary<string, ulong>();
+
     QueueTime = new ECTime();
     QueueTime.SetToNow();
 
@@ -61,7 +64,12 @@ namespace DGOLibrary
     // This is hard-coded for now, but it could be from a
     // list in a configuration file.
 
-    AddURLForm( "Durango Herald Main Page", "http://www.durangoherald.com", true, false, "http://www.durangoherald.com" );
+    // Does it work with https?
+    AddURLForm( "Colorado Government", "https://www.colorado.gov/", true, false, "https://www.colorado.gov" );
+
+    AddURLForm( "Durango Gov Main Page", "http://www.durangogov.org/", true, false, "http://www.durangogov.org" );
+
+    AddURLForm( "Durango Herald Main Page", "http://www.durangoherald.com/", true, false, "http://www.durangoherald.com" );
     AddURLForm( "Local / Regional", "http://www.durangoherald.com/section/News01/", true, false, "http://www.durangoherald.com" );
     AddURLForm( "National / World", "http://www.durangoherald.com/section/News03/", true, false, "http://www.durangoherald.com" );
     AddURLForm( "Business", "http://www.durangoherald.com/section/News04/", true, false, "http://www.durangoherald.com" );
@@ -94,42 +102,34 @@ namespace DGOLibrary
     AddURLForm( "Op Ed", "http://www.durangoherald.com/section/Opinion02/", true, false, "http://www.durangoherald.com" );
     AddURLForm( "Letters to the Editor", "http://www.durangoherald.com/section/Opinion03/", true, false, "http://www.durangoherald.com" );
     AddURLForm( "Newsstand", "http://www.durangoherald.com/section/newsstand/", true, false, "http://www.durangoherald.com" );
-    AddURLForm( "Gold King Mine Spill", "http://www.durangoherald.com/section/goldking", true, false, "http://www.durangoherald.com" );
+    AddURLForm( "Gold King Mine Spill", "http://www.durangoherald.com/section/goldking/", true, false, "http://www.durangoherald.com" );
 
-    // Colorado Government web site?
-    // https://www.colorado.gov/
-
-    // AddURLForm( "Durango Gov Main Page", "http://www.durangogov.org", true, false );
-
-    // Check on Tag.LinkIsGood().
-    // AddURLForm( "Yahoo News Main Page", "http://news.yahoo.com/", true, false );
-
-    AddURLForm( "Yahoo Finance Main Page", "http://finance.yahoo.com/", true, false, "http://finance.yahoo.com" );
 
 
     // Ones that are in every page. Don't keep reading these:
-    MForm.PageList1.AddEmptyPage( "Mobile", "http://www.durangoherald.com/section/mobile", "http://www.durangoherald.com" );
+    MForm.PageList1.AddEmptyPage( "Mobile", "http://www.durangoherald.com/section/mobile/", "http://www.durangoherald.com" );
     MForm.PageList1.AddEmptyPage( "Privacy policy", "http://www.durangoherald.com/section/privacypolicy/", "http://www.durangoherald.com" );
     MForm.PageList1.AddEmptyPage( "About Us", "http://www.durangoherald.com/section/aboutus/", "http://www.durangoherald.com" );
     MForm.PageList1.AddEmptyPage( "Subscribe", "http://www.durangoherald.com/section/subscribe/", "http://www.durangoherald.com" );
     MForm.PageList1.AddEmptyPage( "Terms of use", "http://www.durangoherald.com/section/termsofuse/", "http://www.durangoherald.com" );
     MForm.PageList1.AddEmptyPage( "Advertise", "http://www.durangoherald.com/section/advertise/", "http://www.durangoherald.com" );
-    MForm.PageList1.AddEmptyPage( "Advertising Guide", "http://www.durangoherald.com/section/advertise", "http://www.durangoherald.com" ); // This has no ending / character.
     MForm.PageList1.AddEmptyPage( "Customer Service", "http://www.durangoherald.com/section/customer-service/", "http://www.durangoherald.com" );
     MForm.PageList1.AddEmptyPage( "Feedback", "http://www.durangoherald.com/section/feedback/", "http://www.durangoherald.com" );
-    MForm.PageList1.AddEmptyPage( "All Guides", "http://www.durangoherald.com/section/newsstand", "http://www.durangoherald.com" );
+    MForm.PageList1.AddEmptyPage( "All Guides", "http://www.durangoherald.com/section/newsstand/", "http://www.durangoherald.com" );
     MForm.PageList1.AddEmptyPage( "Suspend Delivery", "http://www.durangoherald.com/section/suspend-delivery/", "http://www.durangoherald.com" );
     MForm.PageList1.AddEmptyPage( "Address", "http://www.durangoherald.com/section/directions/", "http://www.durangoherald.com" );
     MForm.PageList1.AddEmptyPage( "News Tip", "http://www.durangoherald.com/section/newstip/", "http://www.durangoherald.com" );
     MForm.PageList1.AddEmptyPage( "RSS", "http://www.durangoherald.com/section/rss/", "http://www.durangoherald.com" );
     MForm.PageList1.AddEmptyPage( "Staff Listing", "http://www.durangoherald.com/section/contact/", "http://www.durangoherald.com" );
+    MForm.PageList1.AddEmptyPage( "Submit an Obituary", "http://obituaries.durangoherald.com/obituaries/durangoherald/obituary-place-an-obituary.aspx", "http://www.durangoherald.com" );
+    MForm.PageList1.AddEmptyPage( "SnowDown", "http://www.durangoherald.com/section/snowdown/", "http://www.durangoherald.com" );
+    MForm.PageList1.AddEmptyPage( "View Multimedia", "http://www.durangoherald.com/section/video/", "http://www.durangoherald.com" );
+
 
     //  "Events", "http://swscene.com/" );
     // marketplace.durangoherald.com
     // AddURLForm( "Classifieds", "http://marketplace.durangoherald.com/searchresults.aspx?p=8727\" target=\"_blank\">" );
 
-    // /section/snowdown
-    // /section/video
     // Weather:
     // "http://thecloudscout.com/?referrer=durango-herald">
 
@@ -175,13 +175,72 @@ namespace DGOLibrary
 
 
 
+  // Two articles can have the same title, but that's
+  // unlikely with very recent articles.  They'll still
+  // get added if the URL is different, but not until
+  // later.
+  private bool TitleWasRecentlyAdded( string ToCheck )
+    {
+    ToCheck = ToCheck.ToLower();
+    if( !TitlesDictionary.ContainsKey( ToCheck ))
+      return false;
+
+    ulong TimeIndex = TitlesDictionary[ToCheck];
+    ECTime TimeAdded = new ECTime( TimeIndex );
+    double Seconds = TimeAdded.GetSecondsToNow();
+
+    if( (Seconds > 60) &&
+        (Seconds < (60 * 60)) )
+      {
+      MForm.ShowStatus( " " );
+      MForm.ShowStatus( "Article was added " + Seconds.ToString( "N0" ) + " seconds ago." );
+      MForm.ShowStatus( ToCheck );
+      return true;
+      }
+
+    return false;
+    }
+
+
+  private void UpdateTitleDateTime( string Title )
+    {
+    Title = Title.ToLower();
+
+    ECTime RightNow = new ECTime();
+    RightNow.SetToNow();
+
+    TitlesDictionary[Title] = RightNow.GetIndex();
+    }
+
+
+
   internal void AddURLForm( string Title, string URL, bool AddToPageList, bool ShowTitle, string RelativeURLBase )
     {
+    if( URL.Contains( "/FRONTPAGE/" ))
+      {
+      MForm.ShowStatus( " " );
+      MForm.ShowStatus( "No queue for FRONTPAGE:" );
+      MForm.ShowStatus( Title );
+      // MForm.ShowStatus( URL );
+      return;
+      }
+
     // For when I start out with no pages in the page list.
     if( AddToPageList )
+      {
+      UpdateTitleDateTime( Title );
+      // Add it if it's not already there.
       MForm.PageList1.AddEmptyPage( Title, URL, RelativeURLBase );
+      }
+    else
+      {
+      if( TitleWasRecentlyAdded( Title ))
+        return;
 
-    if( IsInQueue( URL ))
+      UpdateTitleDateTime( Title );
+      }
+
+    if( IsInQueue( URL, Title ))
       return;
 
     string FileName = GetNextTempFileName();
@@ -213,12 +272,20 @@ namespace DGOLibrary
 
 
 
-  internal bool IsInQueue( string URLToCheck )
+  internal bool IsInQueue( string URLToCheck, string CheckTitle )
     {
     for( int Count = 0; Count < GetURLArrayLast; Count++ )
       {
       if( GetURLArray[Count].GetURL() == URLToCheck )
         return true;
+
+      if( GetURLArray[Count].GetTitle() == CheckTitle )
+        {
+        // It will still get that link later, but not while
+        // the same title is still in the queue.
+        ShowStatus( "Same title in queue: " + CheckTitle );
+        return true;
+        }
 
       }
 
