@@ -14,8 +14,8 @@ namespace DGOLibrary
   {
   private MainForm MForm;
   private string Word = "";
-  private int[] PageIndexArray; // Index to pages that have this word.
-  private int PageIndexArrayLast = 0;
+  private IntegerCollection IntCollection;
+
 
 
   private OneWord()
@@ -27,6 +27,7 @@ namespace DGOLibrary
     {
     MForm = UseForm;
 
+    IntCollection = new IntegerCollection();
     }
 
 
@@ -45,21 +46,8 @@ namespace DGOLibrary
 
   internal string ObjectToString()
     {
-    string Result = Word + "\t"; // +
-
-    if( (PageIndexArray == null) ||
-        (PageIndexArrayLast == 0 ))
-      {
-      Result += ";\t";
-      }
-    else
-      {
-      StringBuilder SBuilder = new StringBuilder();
-      for( int Count = 0; Count < PageIndexArrayLast; Count++ )
-        SBuilder.Append( PageIndexArray[Count].ToString() + ";" );
-
-      Result += SBuilder.ToString() + "\t";
-      }
+    string Result = Word + "\t" +
+      IntCollection.ObjectToString();
 
     return Result;
     }
@@ -78,25 +66,8 @@ namespace DGOLibrary
     Word = Utility.GetCleanUnicodeString( SplitS[0], 100 );
 
     string IndexS = Utility.GetCleanUnicodeString( SplitS[1], 2000000000 );
-
-    string[] SplitIndex = IndexS.Split( new Char[] { ';' } );
-
-    for( int Count = 0; Count < SplitIndex.Length; Count++ )
-      {
-      if( SplitIndex[Count].Length < 1 )
-        break;
-
-      try
-      {
-      int Index = Int32.Parse( SplitIndex[Count] );
-      AddPageIndex( Index, false );
-      }
-      catch( Exception )
-        {
-        break;
-        }
-      }
-
+    if( !IntCollection.StringToObject( IndexS ))
+      return false;
 
     return true;
     }
@@ -126,63 +97,24 @@ namespace DGOLibrary
 
   internal bool IndexExists( int Index )
     {
-    if( PageIndexArray == null )
-      return false;
-
-    // This gets called on every word that is added from
-    // a file so it should be fast.
-    // Do a binary sort and search.
-    // Or partition it by a bit mask (like mod 32).
-    for( int Count = 0; Count < PageIndexArrayLast; Count++ )
-      {
-      if( Index == PageIndexArray[Count] )
-        return true;
-
-      }
-
-    return false;
+    return IntCollection.IntegerExists( Index );
     }
 
 
 
-  internal bool AddPageIndex( int Index, bool CheckExists )
+  internal void AddPageIndex( int Index, bool CheckExists )
     {
     try
     {
-    if( CheckExists )
-      {
-      if( IndexExists( Index ))
-        return true;
-
-      }
-
-    if( PageIndexArray == null )
-      PageIndexArray = new int[8];
-
-    PageIndexArray[PageIndexArrayLast] = Index;
-    PageIndexArrayLast++;
-
-    if( PageIndexArrayLast >= PageIndexArray.Length )
-      {
-      try
-      {
-      Array.Resize( ref PageIndexArray, PageIndexArray.Length + 64 );
-      }
-      catch
-        {
-        return false;
-        }
-      }
-
-    return true;
+    IntCollection.AddInteger( Index, CheckExists );
     }
     catch( Exception Except )
       {
       MForm.ShowStatus( "Exception in AddPageIndex()." );
       MForm.ShowStatus( Except.Message );
-      return false;
       }
     }
+
 
 
   }
