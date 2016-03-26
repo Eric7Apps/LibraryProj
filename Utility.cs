@@ -273,16 +273,147 @@ namespace DGOLibrary
     //  Don't go higher than D800 (Surrogates).
     //  if( ToCheck >= 0xD800 )
 
+    // Result = Result.Replace( "&amp;", "&" );
+
     string Result = InString;
     Result = Result.Replace( "&#x2018;", "'" );
     Result = Result.Replace( "&#x2019;", "'" );
-    // Result = Result.Replace( "&amp;", "&" );
     Result = Result.Replace( "&#x2013;", " " ); // A weird symbol.
+    Result = Result.Replace( "&#x2026;", "..." );
+
 
     Result = Result.Replace( "&#x201c;", "\"" );
     Result = Result.Replace( "&#x201d;", "\"" );
+
+    Result = Result.Replace( "&#xad;", "" ); // hyphen for word wrap I think.
+
+    // UTF8 bytes start with 0 for ASCII, or
+    // 10 for a continuing byte, or
+    // 110, 1110 for starting bytes.
+    //  7 	U+007F 	0xxxxxxx
+    // 11 	U+07FF 	110xxxxx 	10xxxxxx
+    // 16 	U+FFFF 	1110xxxx 	10xxxxxx 	10xxxxxx
+
+    // So character 0xA0 would be represented with two
+    // bytes in UTF8.
+
+/*
+A1) ¡
+A2) ¢
+A3) £
+A4) ¤
+A5) ¥
+A6) ¦
+A7) §
+A8) ¨
+A9) ©
+AA) ª
+AB) «
+AC) ¬
+AD) ­
+AE) ®
+AF) ¯
+B0) °
+B1) ±
+B2) ²
+B3) ³
+B4) ´
+B5) µ
+B6) ¶
+B7) ·
+B8) ¸
+B9) ¹
+BA) º
+BB) »
+BC) ¼
+BD) ½
+BE) ¾
+BF) ¿
+C0) À
+C1) Á
+C2) Â
+C3) Ã
+C4) Ä
+C5) Å
+C6) Æ
+C7) Ç
+C8) È
+C9) É
+CA) Ê
+CB) Ë
+CC) Ì
+CD) Í
+CE) Î
+CF) Ï
+D0) Ð
+D1) Ñ
+D2) Ò
+D3) Ó
+D4) Ô
+D5) Õ
+D6) Ö
+D7) ×
+D8) Ø
+D9) Ù
+DA) Ú
+DB) Û
+DC) Ü
+DD) Ý
+DE) Þ
+DF) ß
+*/
+
+    // à, á, â, ã, ä, å, æ
+    Result = Result.Replace( "&#xe0;", "a" );
+    Result = Result.Replace( "&#xe1;", "a" );
+    Result = Result.Replace( "&#xe2;", "a" );
+    Result = Result.Replace( "&#xe3;", "a" );
     Result = Result.Replace( "&#xe4;", "a" );
-    Result = Result.Replace( "&#xad;", "" );
+    Result = Result.Replace( "&#xe5;", "a" );
+    Result = Result.Replace( "&#xe6;", "ae" );
+
+    // ç
+    Result = Result.Replace( "&#xe7;", "c" );
+
+    // è, é, ê, ë
+    Result = Result.Replace( "&#xe8;", "e" );
+    Result = Result.Replace( "&#xe9;", "e" );
+    Result = Result.Replace( "&#xea;", "e" );
+    Result = Result.Replace( "&#xeb;", "e" );
+
+    // ì, í, î, ï, 
+    Result = Result.Replace( "&#xec;", "i" );
+    Result = Result.Replace( "&#xed;", "i" );
+    Result = Result.Replace( "&#xee;", "i" );
+    Result = Result.Replace( "&#xef;", "i" );
+
+    // ð
+    Result = Result.Replace( "&#xf0;", "o" );
+
+    // ñ
+    Result = Result.Replace( "&#xf1;", "n" );
+
+    // ò, ó, ô, õ, ö
+    Result = Result.Replace( "&#xf2;", "o" );
+    Result = Result.Replace( "&#xf3;", "o" );
+    Result = Result.Replace( "&#xf4;", "o" );
+    Result = Result.Replace( "&#xf5;", "o" );
+    Result = Result.Replace( "&#xf6;", "o" );
+
+    // F7) ÷
+    // F8) ø
+
+    // ù, ú, û, ü
+
+    Result = Result.Replace( "&#xf9;", "u" );
+    Result = Result.Replace( "&#xfa;", "u" );
+    Result = Result.Replace( "&#xfb;", "u" );
+    Result = Result.Replace( "&#xfc;", "u" );
+
+    // ý, ÿ
+    // FE) þ
+    Result = Result.Replace( "&#xfd;", "y" );
+    Result = Result.Replace( "&#xff;", "y" );
 
     Result = Result.Replace( "&laquo;", "\"" );
     Result = Result.Replace( "&raquo;", "\"" );
