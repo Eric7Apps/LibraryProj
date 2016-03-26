@@ -198,6 +198,7 @@ namespace DGOLibrary
     // used in every file.
     FileContents = Utility.RemoveFromStartToEnd( "<!--", "-->", FileContents );
     FileContents = Utility.RemoveFromStartToEnd( "<script", "/script>", FileContents );
+    FileContents = Utility.RemoveFromStartToEnd( "<noscript", "/noscript>", FileContents );
     FileContents = Utility.RemoveFromStartToEnd( "<link", "/>", FileContents );
     FileContents = Utility.RemoveFromStartToEnd( "<meta", "/>", FileContents );
     FileContents = Utility.RemoveFromStartToEnd( "<style", "/style>", FileContents );
@@ -208,6 +209,9 @@ namespace DGOLibrary
     // </p></div><div><p class="articleText">An
     FileContents = Utility.RemoveFromStartToEnd( "<div", ">", FileContents );
     FileContents = FileContents.Replace( "</div>", " " );
+
+    FileContents = FileContents.Replace( "”", "\"" );
+    FileContents = FileContents.Replace( "’", "'" );
 
     if( SetTime )
       ContentsUpdated.SetToNow();
