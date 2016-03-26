@@ -915,7 +915,6 @@ namespace DGOLibrary
 
   private bool WordIsExcluded( string Word )
     {
-
     // This is mainly needed to help find new words
     // that aren't yet in any dictionary.
 
@@ -1098,8 +1097,8 @@ namespace DGOLibrary
         if( WordIsExcluded( KeyWord ))
           continue;
 
-        // For test:
-        CountValue = 0;
+        // For testing set it back to zero:
+        // CountValue = 0;
         MainWordsDictionary[KeyWord] = CountValue;
         }
       }
