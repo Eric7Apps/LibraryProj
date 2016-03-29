@@ -69,6 +69,14 @@ namespace DGOLibrary
 
 
 
+  internal void ClearDailyHackCount()
+    {
+    MForm.ShowStatus( " " );
+    MForm.ShowStatus( "DailyHackCount: " + DailyHackCount.ToString( "N0" ));
+    DailyHackCount = 0;
+    }
+
+
   private void clearStatusToolStripMenuItem_Click(object sender, EventArgs e)
     {
     MainTextBox.Text = "";
@@ -234,8 +242,7 @@ namespace DGOLibrary
       // If this message has not already been processed.
       if( !Clients[Count].GetProcessingStarted())
         {
-        string InputS = Utility.GetCleanUnicodeString( Clients[Count].GetAllInputS(), 2000 );
-        InputS = InputS.Trim();
+        string InputS = Utility.GetCleanUnicodeString( Clients[Count].GetAllInputS(), 2000, true );
         if( InputS.Length > 0 )
           {
           // ShowStatus( "Timed out with: " + InputS );
@@ -517,7 +524,7 @@ namespace DGOLibrary
 
       Clients[Count].SetProcessingStarted( true );
 
-      string InputS = Utility.GetCleanUnicodeString( Clients[Count].GetAllInputS(), 2000 );
+      string InputS = Utility.GetCleanUnicodeString( Clients[Count].GetAllInputS(), 2000, true );
 
       // This FileName is already cleaned ASCII.
       string FileName = Clients[Count].GetHTTPFileRequested();
@@ -583,8 +590,43 @@ namespace DGOLibrary
         continue;
         }
 
+      if( FileName == "crudesearch.htm" )
+        {
+        if( MForm.GetIsClosing())
+          return;
+
+        // MForm.NetStats.AddTo...
+
+        byte[] ToSendBuf = MForm.PageList1.GetCrudeSearchPage();
+        if( ToSendBuf != null )
+          Clients[Count].SendGenericWebResponse( ToSendBuf, RightNow.GetIndex(), UniqueEntityTag, "text/html" );
+
+        Referer = Clients[Count].GetReferer();
+        UserAgent = Clients[Count].GetUserAgent();
+        // MForm.ServerLog.AddToLog() ...
+        continue;
+        }
+
+      if( FileName == "indexedsearch.htm" )
+        {
+        if( MForm.GetIsClosing())
+          return;
+
+        // MForm.NetStats.AddTo...
+
+        byte[] ToSendBuf = MForm.PageList1.GetIndexedSearchPage();
+        if( ToSendBuf != null )
+          Clients[Count].SendGenericWebResponse( ToSendBuf, RightNow.GetIndex(), UniqueEntityTag, "text/html" );
+
+        Referer = Clients[Count].GetReferer();
+        UserAgent = Clients[Count].GetUserAgent();
+        // MForm.ServerLog.AddToLog() ...
+        continue;
+        }
+
       if( !MForm.WebFData.ContainsFile( FileName ))
         {
+        MForm.ShowStatus( "Didn't find: " + FileName );
         // To do: Send the client an error message first.
         Clients[Count].FreeEverything();
          // This is already clean ASCII.
