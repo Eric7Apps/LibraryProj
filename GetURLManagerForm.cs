@@ -64,11 +64,6 @@ namespace DGOLibrary
     // This is hard-coded for now, but it could be from a
     // list in a configuration file.
 
-    // Does it work with https?
-    AddURLForm( "Colorado Government", "https://www.colorado.gov/", true, false, "https://www.colorado.gov" );
-
-    AddURLForm( "Durango Gov Main Page", "http://www.durangogov.org/", true, false, "http://www.durangogov.org" );
-
     AddURLForm( "Durango Herald Main Page", "http://www.durangoherald.com/", true, false, "http://www.durangoherald.com" );
     AddURLForm( "Local / Regional", "http://www.durangoherald.com/section/News01/", true, false, "http://www.durangoherald.com" );
     AddURLForm( "National / World", "http://www.durangoherald.com/section/News03/", true, false, "http://www.durangoherald.com" );
@@ -104,8 +99,6 @@ namespace DGOLibrary
     AddURLForm( "Newsstand", "http://www.durangoherald.com/section/newsstand/", true, false, "http://www.durangoherald.com" );
     AddURLForm( "Gold King Mine Spill", "http://www.durangoherald.com/section/goldking/", true, false, "http://www.durangoherald.com" );
 
-
-
     // Ones that are in every page. Don't keep reading these:
     MForm.PageList1.AddEmptyPage( "Mobile", "http://www.durangoherald.com/section/mobile/", "http://www.durangoherald.com" );
     MForm.PageList1.AddEmptyPage( "Privacy policy", "http://www.durangoherald.com/section/privacypolicy/", "http://www.durangoherald.com" );
@@ -126,32 +119,67 @@ namespace DGOLibrary
     MForm.PageList1.AddEmptyPage( "View Multimedia", "http://www.durangoherald.com/section/video/", "http://www.durangoherald.com" );
 
 
-    //  "Events", "http://swscene.com/" );
-    // marketplace.durangoherald.com
-    // AddURLForm( "Classifieds", "http://marketplace.durangoherald.com/searchresults.aspx?p=8727\" target=\"_blank\">" );
+   ////////////////////
+    // It works with https.
+    AddURLForm( "Colorado Gov Main Page", "https://www.colorado.gov/", true, false, "https://www.colorado.gov" );
+    AddURLForm( "Colorado Gov State Agencies", "https://www.colorado.gov/state-agencies", true, false, "https://www.colorado.gov" );
+    AddURLForm( "Colorado Gov Branches of Government", "https://www.colorado.gov/government-branches", true, false, "https://www.colorado.gov" );
+    // AddURLForm( "Colorado Gov Local Government", "https://www.colorado.gov/local-government", true, false, "https://www.colorado.gov" );
+    // AddURLForm( "Colorado Gov Businesses & Employers", "https://www.colorado.gov/businesses-employers", true, false, "https://www.colorado.gov" );
+    // AddURLForm( "Colorado Gov Resources", "https://www.colorado.gov/business-resources", true, false, "https://www.colorado.gov" );
+    // AddURLForm( "Colorado Gov Jobs & Training", "https://www.colorado.gov/jobs-training", true, false, "https://www.colorado.gov" );
+    // AddURLForm( "Colorado Gov Unemployment", "https://www.colorado.gov/unemployment", true, false, "https://www.colorado.gov" );
+    // AddURLForm( "Colorado Gov Professional Licenses", "https://www.colorado.gov/professional-licenses", true, false, "https://www.colorado.gov" );
+    // AddURLForm( "Colorado Gov K - 12 Education", "https://www.colorado.gov/k-12-education", true, false, "https://www.colorado.gov" );
+    // AddURLForm( "Colorado Gov Higher Education", "https://www.colorado.gov/higher-education", true, false, "https://www.colorado.gov" );
+    // AddURLForm( "Colorado Gov Family Resources", "https://www.colorado.gov/family-resources", true, false, "https://www.colorado.gov" );
+    // AddURLForm( "Colorado Gov Civic Resources", "https://www.colorado.gov/civic-resources", true, false, "https://www.colorado.gov" );
+    // AddURLForm( "Colorado Gov Outdoor Activities", "https://www.colorado.gov/outdoor-activities", true, false, "https://www.colorado.gov" );
+    // AddURLForm( "Colorado Gov Leisure Activities", "https://www.colorado.gov/leisure-activities", true, false, "https://www.colorado.gov" );
+    // AddURLForm( "Colorado Gov Colorado's History", "https://www.colorado.gov/colorado-history", true, false, "https://www.colorado.gov" );
+    // AddURLForm( "Colorado Gov State Information", "https://www.colorado.gov/state-information", true, false, "https://www.colorado.gov" );
+    // AddURLForm( "Colorado Gov Online Services", "https://www.colorado.gov/online-services", true, false, "https://www.colorado.gov" );
+    // AddURLForm( "Colorado Gov Explore All", "https://www.colorado.gov/cogov-now", true, false, "https://www.colorado.gov" );
+    // AddURLForm( "Colorado Gov DMV", "https://www.colorado.gov/search?tid=dmv", true, false, "https://www.colorado.gov" );
+    // AddURLForm( "Colorado Gov Drivers License", "https://www.colorado.gov/search?tid=drivers+license", true, false, "https://www.colorado.gov" );
+    // AddURLForm( "Colorado Gov Marijuana", "https://www.colorado.gov/search?tid=marijuana", true, false, "https://www.colorado.gov" );
+    // AddURLForm( "Colorado Gov Forms", "https://www.colorado.gov/search?tid=forms", true, false, "https://www.colorado.gov" );
+    // AddURLForm( "Colorado Gov DORA", "https://www.colorado.gov/search?tid=dora", true, false, "https://www.colorado.gov" );
+    // AddURLForm( "Colorado Gov Sales Tax", "https://www.colorado.gov/search?tid=sales+tax", true, false, "https://www.colorado.gov" );
+    // AddURLForm( "Colorado Gov Business License", "https://www.colorado.gov/search?tid=business+license", true, false, "https://www.colorado.gov" );
+    // AddURLForm( "Colorado Gov Revenue Online", "https://www.colorado.gov/search?tid=revenue+online", true, false, "https://www.colorado.gov" );
+    // AddURLForm( "Colorado Gov Medicaid", "https://www.colorado.gov/search?tid=medicaid", true, false, "https://www.colorado.gov" );
+    // AddURLForm( "Colorado Gov Transparency Online Project (TOPS)", "https://www.colorado.gov/apps/oit/transparency/index.html", true, false, "https://www.colorado.gov" );
+    // AddURLForm( "Colorado Gov Registered Services", "https://www.colorado.gov/registered-services", true, false, "https://www.colorado.gov" );
 
-    // Weather:
-    // "http://thecloudscout.com/?referrer=durango-herald">
 
-    // Shop:
-    // href="http://shop.fourcornersmarketplace.com/durango-co" target="_blank">
+    /////////////
+    AddURLForm( "Durango Gov Main Page", "http://www.durangogov.org/", true, false, "http://www.durangogov.org" );
+    AddURLForm( "Durango Gov View the new Facilities", "http://www.durangogov.org/Facilities", true, false, "http://www.durangogov.org" );
+    AddURLForm( "Durango Gov Business", "http://www.durangogov.org/Index.aspx?NID=269", true, false, "http://www.durangogov.org" );
+    AddURLForm( "Durango Gov Business Development", "http://www.durangogov.org/index.aspx?nid=857", true, false, "http://www.durangogov.org" );
+    AddURLForm( "Durango Gov Business Directory", "http://www.durangogov.org/index.aspx?NID=842", true, false, "http://www.durangogov.org" );
+    AddURLForm( "Durango Gov Central Business District", "http://www.durangogov.org/Index.aspx?NID=285", true, false, "http://www.durangogov.org" );
+    AddURLForm( "Durango Gov Government Resources", "http://www.durangogov.org/Index.aspx?NID=271", true, false, "http://www.durangogov.org" );
+    AddURLForm( "Durango Gov Our City", "http://www.durangogov.org/Index.aspx?NID=270", true, false, "http://www.durangogov.org" );
+    AddURLForm( "Durango Gov City Council", "http://www.durangogov.org/index.aspx?NID=169", true, false, "http://www.durangogov.org" );
+    AddURLForm( "Durango Gov Job Opportunities", "http://www.durangogov.org/index.aspx?NID=201", true, false, "http://www.durangogov.org" );
+    AddURLForm( "Durango Gov History", "http://www.durangogov.org/Index.aspx?NID=274", true, false, "http://www.durangogov.org" );
+    AddURLForm( "Durango Gov History of the Charter", "http://www.durangogov.org/Index.aspx?NID=276", true, false, "http://www.durangogov.org" );
+    AddURLForm( "Durango Gov Photo Gallery", "http://www.durangogov.org/gallery.aspx", true, false, "http://www.durangogov.org" );
+    AddURLForm( "Durango Gov Public Art", "http://www.durangogov.org/index.aspx?nid=327", true, false, "http://www.durangogov.org" );
+    AddURLForm( "Durango Gov Social Media", "http://www.durangogov.org/Index.aspx?NID=79", true, false, "http://www.durangogov.org" );
+    AddURLForm( "Durango Gov Durango's Voice", "http://www.durangogov.org/index.aspx?NID=712", true, false, "http://www.durangogov.org" );
+    AddURLForm( "Durango Gov What's Happening", "http://www.durangogov.org/Index.aspx?NID=268", true, false, "http://www.durangogov.org" );
+    AddURLForm( "Durango Gov City News", "http://www.durangogov.org/CivicAlerts.aspx", true, false, "http://www.durangogov.org" );
+    AddURLForm( "Durango Gov Library", "http://www.durangogov.org/index.aspx?NID=220", true, false, "http://www.durangogov.org" );
+    AddURLForm( "Durango Gov Meeting Calendar", "http://www.durangogov.org/index.aspx?NID=101", true, false, "http://www.durangogov.org" );
+    AddURLForm( "Durango Gov Parks & Recreation", "http://www.durangogov.org/index.aspx?NID=222", true, false, "http://www.durangogov.org" );
+    AddURLForm( "Durango Gov Places to Eat / Shop / Stay", "http://www.durangogov.org/Index.aspx?NID=295", true, false, "http://www.durangogov.org" );
+    AddURLForm( "Durango Gov Transportation", "http://www.durangogov.org/Index.aspx?NID=290", true, false, "http://www.durangogov.org" );
 
-    // Webcams:
-    // http://thecloudscout.com
+    AddURLForm( "Durango Telegraph Main Page", "http://www.DurangoTelegraph.com/", true, false, "http://www.DurangoTelegraph.com" );
 
-    // Highway web cams:
-    // http://i.cotrip.org
-
-    // 4 Corners TV:
-    // http://4cornerstv.com
-
-    // http://www.pinerivertimes.com
-
-    // http://www.the-journal.com
-
-    // http://www.dgomag.com
-
-    // /section/focusonbusiness/
     }
 
 
@@ -189,12 +217,11 @@ namespace DGOLibrary
     ECTime TimeAdded = new ECTime( TimeIndex );
     double Seconds = TimeAdded.GetSecondsToNow();
 
-    if( (Seconds > 60) &&
-        (Seconds < (60 * 60)) )
+    if( Seconds < (60 * 30) )
       {
-      MForm.ShowStatus( " " );
-      MForm.ShowStatus( "Article was added " + Seconds.ToString( "N0" ) + " seconds ago." );
-      MForm.ShowStatus( ToCheck );
+      // MForm.ShowStatus( " " );
+      // MForm.ShowStatus( "Article was added " + Seconds.ToString( "N0" ) + " seconds ago." );
+      // MForm.ShowStatus( ToCheck );
       return true;
       }
 
@@ -216,15 +243,6 @@ namespace DGOLibrary
 
   internal void AddURLForm( string Title, string URL, bool AddToPageList, bool ShowTitle, string RelativeURLBase )
     {
-    if( URL.Contains( "/FRONTPAGE/" ))
-      {
-      MForm.ShowStatus( " " );
-      MForm.ShowStatus( "No queue for FRONTPAGE:" );
-      MForm.ShowStatus( Title );
-      // MForm.ShowStatus( URL );
-      return;
-      }
-
     // For when I start out with no pages in the page list.
     if( AddToPageList )
       {
@@ -240,7 +258,7 @@ namespace DGOLibrary
       UpdateTitleDateTime( Title );
       }
 
-    if( IsInQueue( URL, Title ))
+    if( IsInQueue( URL ))
       return;
 
     string FileName = GetNextTempFileName();
@@ -272,20 +290,12 @@ namespace DGOLibrary
 
 
 
-  internal bool IsInQueue( string URLToCheck, string CheckTitle )
+  internal bool IsInQueue( string URLToCheck )
     {
     for( int Count = 0; Count < GetURLArrayLast; Count++ )
       {
       if( GetURLArray[Count].GetURL() == URLToCheck )
         return true;
-
-      if( GetURLArray[Count].GetTitle() == CheckTitle )
-        {
-        // It will still get that link later, but not while
-        // the same title is still in the queue.
-        ShowStatus( "Same title in queue: " + CheckTitle );
-        return true;
-        }
 
       }
 
@@ -311,9 +321,9 @@ namespace DGOLibrary
   private void testToolStripMenuItem_Click(object sender, EventArgs e)
     {
     QueueTime.SetToNow();
-    QueueTime.AddSeconds( -8 );
+    // QueueTime.AddSeconds( -8 );
 
-    QueueTimer.Interval = 5000;
+    QueueTimer.Interval = 1000;
     QueueTimer.Start();
     }
 
@@ -380,8 +390,7 @@ namespace DGOLibrary
       if( !GetURLArray[Count].GetHasStarted())
         continue;
 
-      if( GetURLArray[Count].GetFileIsDone()) // ||
-        // GetURLArray[Count].GetHadErrorOrCancel())
+      if( GetURLArray[Count].GetFileIsDone())
         {
         // ShowStatus( "Closing finished form." );
         if( !GetURLArray[Count].IsDisposed )
@@ -400,10 +409,10 @@ namespace DGOLibrary
         {
         // It's hung up or something and it shouldn't
         // take this long.
-        ShowStatus( " " );
-        ShowStatus( "Form timed out." );
-        ShowStatus( GetURLArray[Count].GetTitle());
-        ShowStatus( GetURLArray[Count].GetURL());
+        MForm.ShowStatus( " " );
+        MForm.ShowStatus( "Form timed out." );
+        MForm.ShowStatus( GetURLArray[Count].GetTitle());
+        MForm.ShowStatus( GetURLArray[Count].GetURL());
         if( !GetURLArray[Count].IsDisposed )
           {
           GetURLArray[Count].Hide();
@@ -442,10 +451,6 @@ namespace DGOLibrary
       // Check for new links again this way instead of
       // using the new links timer?
       // AddInitialLinks();
-
-      // Or just keep checking for breaking stories
-      // only here?
-      // AddURLForm( "Main Page", "http://www.durangoherald.com" );
 
       QueueTimer.Stop(); // For testing.
 
@@ -492,29 +497,35 @@ namespace DGOLibrary
 
   private void QueueTimer_Tick(object sender, EventArgs e)
     {
-    try
-    {
     if( MForm.GetIsClosing())
       return;
 
+    try
+    {
+    QueueTimer.Stop();
+
+    try
+    {
     FreeOldForms();
 
-    if( !MForm.CheckEvents())
-      return;
-
     // Play nice and don't send requests too often.
-    if( QueueTime.GetSecondsToNow() > 3.0 )
+    if( QueueTime.GetSecondsToNow() > 4.0 )
       {
       // ShowStatus( "Timer for next in queue." );
       StartNextInQueue();
       QueueTime.SetToNow();
       }
-
     }
     catch( Exception Except )
       {
       ShowStatus( "Exception in QueueTimer_Tick():" );
       ShowStatus( Except.Message );
+      }
+
+    }
+    finally
+      {
+      QueueTimer.Start();
       }
     }
 
@@ -522,11 +533,13 @@ namespace DGOLibrary
 
   private void NewLinksTimer_Tick(object sender, EventArgs e)
     {
+    /*
     if( !MForm.CheckEvents())
       return;
 
     // Check for new links again once every so often.
     AddInitialLinks();
+    */
     }
 
 
