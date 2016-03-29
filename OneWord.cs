@@ -63,9 +63,9 @@ namespace DGOLibrary
     if( SplitS.Length < 2 )
       return false;
 
-    Word = Utility.GetCleanUnicodeString( SplitS[0], 100 );
+    Word = Utility.GetCleanUnicodeString( SplitS[0], 100, true );
 
-    string IndexS = Utility.GetCleanUnicodeString( SplitS[1], 2000000000 );
+    string IndexS = Utility.GetCleanUnicodeString( SplitS[1], 2000000000, true );
     if( !IntCollection.StringToObject( IndexS ))
       return false;
 
@@ -115,6 +115,12 @@ namespace DGOLibrary
       }
     }
 
+
+  internal IntegerCollection GetIntegerCollection()
+    {
+    // Or return a copy of it.
+    return IntCollection;
+    }
 
 
   }
