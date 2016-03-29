@@ -41,11 +41,16 @@ namespace DGOLibrary
 
 
 
-  internal static string GetCleanUnicodeString( string InString, int HowLong )
+  internal static string GetCleanUnicodeString( string InString, int HowLong, bool TrimIt )
     {
     if( InString == null )
       return "";
 
+    // This is the maximum length before it's cleaned up.
+    // But that's about the same as the resulting length
+    // if it's already clean.  (Minus tabs, CR, LF.)
+    // It is normally just a reasonable maximum limit
+    // for user input.
     if( InString.Length > HowLong )
       InString = InString.Remove( HowLong );
 
@@ -54,8 +59,9 @@ namespace DGOLibrary
       {
       char ToCheck = InString[Count];
 
+      // This removes tabs and CR and LF.
       if( ToCheck < ' ' )
-        continue; // Don't want this character.
+        continue;
 
       //  Don't go higher than D800 (Surrogates).
       if( ToCheck >= 0xD800 )
@@ -64,7 +70,11 @@ namespace DGOLibrary
       SBuilder.Append( Char.ToString( ToCheck ));
       }
 
-    return SBuilder.ToString().Trim();
+    string Result = SBuilder.ToString();
+    if( TrimIt )
+      Result = Result.Trim();
+
+    return Result;
     }
 
 
@@ -172,86 +182,68 @@ namespace DGOLibrary
 
 
 
-  internal static string RemoveFromStartToEnd( string Start, string End, string InString )
+  internal static bool MatchesTestString( int Where, string InString, string MatchS )
     {
     try
     {
-    // Regular expressions?
+    int MatchLength = MatchS.Length;
+    if( InString.Length < MatchLength )
+      return false;
 
-    if( Start.Length > 100 )
-      return "Start length can't be more than 100.";
+    for( int Count = 0; Count < MatchLength; Count++ )
+      {
+      if( (Where + Count) >= InString.Length )
+        return false;
 
-    if( End.Length > 100 )
-      return "End length can't be more than 100.";
+      // ToLower() so it matches something like <ScRipT
+      if( Char.ToLower( InString[Where + Count] ) != MatchS[Count] )
+        return false;
 
-    char[] StartBuf = new char[100];
-    char[] EndBuf = new char[100];
+      }
 
-    int StartIndex = 0;
-    int EndIndex = 0;
+    return true;
+    }
+    catch( Exception Except )
+      {
+      string ShowS = "Exception in Utility.MatchesTestString().\r\n" +
+        Except.Message;
+
+      throw( new Exception( ShowS ));
+      }
+    }
+
+
+
+  internal static string RemovePatternFromStartToEnd( string StartS, string EndS, string InString )
+    {
+    try
+    {
     StringBuilder SBuilder = new StringBuilder();
     bool IsInside = false;
     for( int Count = 0; Count < InString.Length; Count++ )
       {
+      // When this is looking for <span at the beginning
+      // and > at the end, it can match both at the
+      // same time with the ><span pattern.
+      // So put if( IsInside ) first.
+
+      if( IsInside )
+        {                  //      /script>
+        if( MatchesTestString( Count - EndS.Length, InString, EndS ))
+          IsInside = false;
+
+        }
+
+      if( !IsInside )
+        {
+        if( MatchesTestString( Count, InString, StartS ))
+          IsInside = true;
+
+        }
+
       if( !IsInside )
         SBuilder.Append( InString[Count] );
 
-      if( !IsInside )
-        {
-        // ToLower() so it matches something like <ScRipT
-        StartBuf[StartIndex] = Char.ToLower( InString[Count] );
-        if( StartBuf[StartIndex] == Start[StartIndex] )
-          {
-          StartIndex++;
-          }
-        else
-          {
-          // No match, so start at zero again.
-          StartIndex = 0;
-          StartBuf[StartIndex] = Char.ToLower( InString[Count] );
-          // Is it already at the beginning of a match here?
-          // pppppattern
-          if( StartBuf[StartIndex] == Start[StartIndex] )
-            StartIndex++;
-
-          }
-
-        if( StartIndex == Start.Length )
-          {
-          // Remove the start pattern.
-          int TruncateToLength = SBuilder.Length - Start.Length;
-          // if( TruncateToLength >= 0 )
-          SBuilder.Length = TruncateToLength;
-
-          IsInside = true;
-          EndIndex = 0;
-          }
-        }
-
-      // This is not the "else" from above because
-      // it might have changed above.
-      if( IsInside )
-        {
-        EndBuf[EndIndex] = Char.ToLower( InString[Count] );
-        if( EndBuf[EndIndex] == End[EndIndex] )
-          {
-          EndIndex++;
-          }
-        else
-          {
-          EndIndex = 0;
-          EndBuf[EndIndex] = Char.ToLower( InString[Count] );
-          if( EndBuf[EndIndex] == End[EndIndex] )
-            EndIndex++;
-
-          }
-
-        if( EndIndex == End.Length )
-          {
-          IsInside = false;
-          StartIndex = 0;
-          }
-        }
       }
 
     return SBuilder.ToString();
@@ -259,7 +251,7 @@ namespace DGOLibrary
     }
     catch( Exception Except )
       {
-      return "Exception in Utilit.RemoveFromStartToEnd().\r\n" +
+      return "Exception in Utility.RemovePatternFromStartToEnd().\r\n" +
         Except.Message;
 
       }
@@ -267,173 +259,49 @@ namespace DGOLibrary
 
 
 
-  internal static string  SimplifyAndCleanCharacters( string InString )
+  internal static SortedDictionary<string, int> GetPatternsFromStartToEnd( string StartS, string EndS, string InString )
     {
-    // This was done in ReadFromTextFile().
-    //  Don't go higher than D800 (Surrogates).
-    //  if( ToCheck >= 0xD800 )
+    try
+    {
+    SortedDictionary<string, int> LinesDictionary = new SortedDictionary<string, int>();
 
-    // Result = Result.Replace( "&amp;", "&" );
+    StringBuilder SBuilder = new StringBuilder();
+    bool IsInside = false;
+    for( int Count = 0; Count < InString.Length; Count++ )
+      {
+      // Put if( IsInside ) first.
 
-    string Result = InString;
-    Result = Result.Replace( "&#x2018;", "'" );
-    Result = Result.Replace( "&#x2019;", "'" );
-    Result = Result.Replace( "&#x2013;", " " ); // A weird symbol.
-    Result = Result.Replace( "&#x2026;", "..." );
+      if( IsInside )
+        {                  //      /script>
+        if( MatchesTestString( Count - EndS.Length, InString, EndS ))
+          {
+          IsInside = false;
+          string Line = SBuilder.ToString().Trim().ToLower();
+          SBuilder.Clear();
+          LinesDictionary[Line] = 1;
+          }
+        }
 
+      if( !IsInside )
+        {
+        if( MatchesTestString( Count, InString, StartS ))
+          IsInside = true;
 
-    Result = Result.Replace( "&#x201c;", "\"" );
-    Result = Result.Replace( "&#x201d;", "\"" );
+        }
 
-    Result = Result.Replace( "&#xad;", "" ); // hyphen for word wrap I think.
+      if( IsInside )
+        SBuilder.Append( InString[Count] );
 
-    // UTF8 bytes start with 0 for ASCII, or
-    // 10 for a continuing byte, or
-    // 110, 1110 for starting bytes.
-    //  7 	U+007F 	0xxxxxxx
-    // 11 	U+07FF 	110xxxxx 	10xxxxxx
-    // 16 	U+FFFF 	1110xxxx 	10xxxxxx 	10xxxxxx
+      }
 
-    // So character 0xA0 would be represented with two
-    // bytes in UTF8.
+    return LinesDictionary;
 
-/*
-A1) ¡
-A2) ¢
-A3) £
-A4) ¤
-A5) ¥
-A6) ¦
-A7) §
-A8) ¨
-A9) ©
-AA) ª
-AB) «
-AC) ¬
-AD) ­
-AE) ®
-AF) ¯
-B0) °
-B1) ±
-B2) ²
-B3) ³
-B4) ´
-B5) µ
-B6) ¶
-B7) ·
-B8) ¸
-B9) ¹
-BA) º
-BB) »
-BC) ¼
-BD) ½
-BE) ¾
-BF) ¿
-C0) À
-C1) Á
-C2) Â
-C3) Ã
-C4) Ä
-C5) Å
-C6) Æ
-C7) Ç
-C8) È
-C9) É
-CA) Ê
-CB) Ë
-CC) Ì
-CD) Í
-CE) Î
-CF) Ï
-D0) Ð
-D1) Ñ
-D2) Ò
-D3) Ó
-D4) Ô
-D5) Õ
-D6) Ö
-D7) ×
-D8) Ø
-D9) Ù
-DA) Ú
-DB) Û
-DC) Ü
-DD) Ý
-DE) Þ
-DF) ß
-*/
-
-    // à, á, â, ã, ä, å, æ
-    Result = Result.Replace( "&#xe0;", "a" );
-    Result = Result.Replace( "&#xe1;", "a" );
-    Result = Result.Replace( "&#xe2;", "a" );
-    Result = Result.Replace( "&#xe3;", "a" );
-    Result = Result.Replace( "&#xe4;", "a" );
-    Result = Result.Replace( "&#xe5;", "a" );
-    Result = Result.Replace( "&#xe6;", "ae" );
-
-    // ç
-    Result = Result.Replace( "&#xe7;", "c" );
-
-    // è, é, ê, ë
-    Result = Result.Replace( "&#xe8;", "e" );
-    Result = Result.Replace( "&#xe9;", "e" );
-    Result = Result.Replace( "&#xea;", "e" );
-    Result = Result.Replace( "&#xeb;", "e" );
-
-    // ì, í, î, ï, 
-    Result = Result.Replace( "&#xec;", "i" );
-    Result = Result.Replace( "&#xed;", "i" );
-    Result = Result.Replace( "&#xee;", "i" );
-    Result = Result.Replace( "&#xef;", "i" );
-
-    // ð
-    Result = Result.Replace( "&#xf0;", "o" );
-
-    // ñ
-    Result = Result.Replace( "&#xf1;", "n" );
-
-    // ò, ó, ô, õ, ö
-    Result = Result.Replace( "&#xf2;", "o" );
-    Result = Result.Replace( "&#xf3;", "o" );
-    Result = Result.Replace( "&#xf4;", "o" );
-    Result = Result.Replace( "&#xf5;", "o" );
-    Result = Result.Replace( "&#xf6;", "o" );
-
-    // F7) ÷
-    // F8) ø
-
-    // ù, ú, û, ü
-
-    Result = Result.Replace( "&#xf9;", "u" );
-    Result = Result.Replace( "&#xfa;", "u" );
-    Result = Result.Replace( "&#xfb;", "u" );
-    Result = Result.Replace( "&#xfc;", "u" );
-
-    // ý, ÿ
-    // FE) þ
-    Result = Result.Replace( "&#xfd;", "y" );
-    Result = Result.Replace( "&#xff;", "y" );
-
-    Result = Result.Replace( "&laquo;", "\"" );
-    Result = Result.Replace( "&raquo;", "\"" );
-    Result = Result.Replace( "&lsaquo;", "'" );
-    Result = Result.Replace( "&rsaquo;", "'" );
-    Result = Result.Replace( "&ldquo;", "\"" );
-    Result = Result.Replace( "&rdquo;", "\"" );
-    Result = Result.Replace( "&lsquo;", "'" );
-    Result = Result.Replace( "&rsquo;", "'" );
-    Result = Result.Replace( "&ndash;", "-" );
-    Result = Result.Replace( "&mdash;", "-" );
-
-    // HTML character codes
-    // http://www.w3schools.com/html/html_symbols.asp
-
-
-    return Result;
     }
-
-
+    catch( Exception ) // Except )
+      {
+      return null;
+      }
+    }
 
 
   }
