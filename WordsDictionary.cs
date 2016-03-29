@@ -419,6 +419,13 @@ namespace DGOLibrary
         return ETest;
         }
 
+      ETest = TestWord + "y";
+      if( MainWordsDictionary.ContainsKey( ETest ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
+        return ETest;
+        }
+
       if( TestWord.Length >= 4 )
         {
         char LastLetter = TestWord[TestWord.Length - 1];
@@ -961,24 +968,29 @@ namespace DGOLibrary
     ReplaceWordsDictionary["broomfiled"] = "broomfield";
     ReplaceWordsDictionary["brucoli"] = "brocoli";
     ReplaceWordsDictionary["calif"] = "california";
+    ReplaceWordsDictionary["celerbate"] = "celebrate";
+    ReplaceWordsDictionary["celerbating"] = "celebrating";
     ReplaceWordsDictionary["cinderela"] = "cinderella";
     ReplaceWordsDictionary["colo"] = "colorado";
     ReplaceWordsDictionary["conn"] = "connecticut";
     ReplaceWordsDictionary["dicapio"] = "dicaprio";
     ReplaceWordsDictionary["downton"] = "downtown";
     ReplaceWordsDictionary["febuary"] = "february";
+    ReplaceWordsDictionary["fianc"] = "fiance";
     ReplaceWordsDictionary["fla"] = "florida";
     ReplaceWordsDictionary["inacio"] = "ignacio";
     ReplaceWordsDictionary["intro"] = "introduction";
     ReplaceWordsDictionary["mangement"] = "management";
     ReplaceWordsDictionary["margaritis"] ="margaritas";
+    ReplaceWordsDictionary["moeny"] ="money";
     ReplaceWordsDictionary["outsude"] = "outside";
     ReplaceWordsDictionary["participaes"] = "participates";
+    ReplaceWordsDictionary["perservation"] = "preservation";
     ReplaceWordsDictionary["recidivisim"] = "recidivism";
-
     ReplaceWordsDictionary["slowin"] = "slowing";
     ReplaceWordsDictionary["tardition"] = "tradition";
     ReplaceWordsDictionary["thinkin"] = "think";
+    ReplaceWordsDictionary["througout"] = "throughout";
     ReplaceWordsDictionary["wearin"] = "wearing";
 
     // ReplaceWordsDictionary["jan"] = "january";
@@ -1003,30 +1015,6 @@ namespace DGOLibrary
     return "";
     }
 
-
-
-
-  internal string ReplaceForSplitWords( string InString )
-    {
-    // If you were searching for 'book' you'd find
-    // 'book' but not 'bookstore' or 'bookshop'.
-
-    string Result = InString;
-
-    // Put these in a file?
-
-    Result = Result.Replace( "bookstore", "book store" );
-    Result = Result.Replace( "bookshop", "book shop" );
-    Result = Result.Replace( "colostate", "colorado state" );
-    Result = Result.Replace( "puertorico", "puerto rico" );
-    Result = Result.Replace( "ragtimefestival", "ragtime festival" );
-    Result = Result.Replace( "realestate", "real estate" );
-    Result = Result.Replace( "realproperty", "real property" );
-    Result = Result.Replace( "runningclub", "running club" );
-    Result = Result.Replace( "worksite", "work site" );
-
-    return Result;
-    }
 
 
 
@@ -1072,11 +1060,11 @@ namespace DGOLibrary
         if( SplitS.Length < 2 )
           {
           CountValue = 0;
-          KeyWord = SplitS[0].Trim();
+          KeyWord = SplitS[0].Trim().ToLower();
           }
         else
           {
-          KeyWord = SplitS[0].Trim();
+          KeyWord = SplitS[0].Trim().ToLower();
           int Test = 0;
           string ValS = SplitS[1].Trim();
           if( ValS.Length > 0 )
@@ -1098,10 +1086,13 @@ namespace DGOLibrary
           continue;
 
         // For testing set it back to zero:
-        // CountValue = 0;
+        CountValue = 0;
         MainWordsDictionary[KeyWord] = CountValue;
         }
       }
+
+    // Write them back sorted and unique.
+    WriteToTextFile();
 
     ShowMostFrequentWords();
 
