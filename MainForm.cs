@@ -21,7 +21,7 @@ namespace DGOLibrary
 {
   public partial class MainForm : Form
   {
-  internal const string VersionDate = "3/25/2016";
+  internal const string VersionDate = "3/29/2016";
   internal const int VersionNumber = 09; // 0.9
   internal const string MessageBoxTitle = "Library Project";
   private System.Threading.Mutex SingleInstanceMutex = null;
@@ -39,6 +39,8 @@ namespace DGOLibrary
   internal PageList PageList1;
   internal Words AllWords;
   internal WordsDictionary WordsDictionary1;
+  internal ScriptDictionary ScriptDictionary1;
+  internal CodeCommentDictionary CodeCommentDictionary1;
   internal NetIPStatus NetStats;
 
 
@@ -58,6 +60,8 @@ namespace DGOLibrary
     NetStats.ReadFromFile();
 
     WordsDictionary1 = new WordsDictionary( this );
+    ScriptDictionary1 = new ScriptDictionary( this );
+    CodeCommentDictionary1 = new CodeCommentDictionary( this );
     PageList1 = new PageList( this );
     AllWords = new Words( this );
     WebFData = new WebFilesData( this );
@@ -66,8 +70,6 @@ namespace DGOLibrary
       return;
 
     IsSingleInstance = true;
-
-    WebListenForm = new WebListenerForm( this );
 
     StartupTimer.Interval = 200;
     StartupTimer.Start();
@@ -92,9 +94,18 @@ namespace DGOLibrary
 
   private void testToolStripMenuItem_Click(object sender, EventArgs e)
     {
-    string URL = "http://www.durangoherald.com/";
+    // Herald page:
+    // string URL = "http://www.durangoherald.com/";
     string FileName = GetPagesDirectory() + "TestFile.txt";
-    PageList1.UpdatePageFromFile( "Main Page", URL, FileName, true, "http://www.durangoherald.com/" );
+    // PageList1.UpdatePageFromFile( "Main Page", URL, FileName, true, "http://www.durangoherald.com" );
+
+    // Durango Gov:
+    // string URL = "http://www.durangogov.org/";
+    // PageList1.UpdatePageFromFile( "Durango Gov Main Page", URL, FileName, true, "http://www.durangogov.org" );
+
+    // Colorado Gov:
+    string URL = "https://www.colorado.gov/";
+    PageList1.UpdatePageFromFile( "Colorado Gov Main Page", URL, FileName, true, "https://www.colorado.gov" );
     }
 
 
@@ -307,8 +318,9 @@ namespace DGOLibrary
 
     PageList1.WriteToTextFile();
     AllWords.WriteToTextFile();
-    WordsDictionary1.WriteToTextFile();
-
+    // WordsDictionary1.WriteToTextFile();
+    ScriptDictionary1.WriteToTextFile();
+    CodeCommentDictionary1.WriteToTextFile();
     // After getting what those others show.
     SaveStatusToFile();
     }
@@ -404,16 +416,22 @@ namespace DGOLibrary
     StartupTimer.Stop();
 
     ShowStatus( "Reading data..." );
+
+    // Make sure the PageList is loaded up before
+    // GetURLMgrForm is started.
     PageList1.ReadFromTextFile();
 
-    AllWords.ReadFromTextFile();
-
+    ScriptDictionary1.ReadFromTextFile();
+    CodeCommentDictionary1.ReadFromTextFile();
     WordsDictionary1.ReadFromTextFile();
     // Rewrite it so it's sorted and unique.
     WordsDictionary1.WriteToTextFile();
 
+    AllWords.ReadFromTextFile();
+
     GetURLMgrForm = new GetURLManagerForm( this );
 
+    WebListenForm = new WebListenerForm( this );
     ReadWebFileData();
     ShowStatus( "Finished reading web files." );
 
@@ -424,7 +442,7 @@ namespace DGOLibrary
     /////////////////
     // Make this last.
     // This calls CheckEvents().
-    PageList1.ReadAllFilesToContent();
+    // PageList1.ReadAllFilesToContent();
 
     CheckTimer.Interval = 15 * 60 * 1000;
     CheckTimer.Start();
@@ -444,8 +462,10 @@ namespace DGOLibrary
     NetStats.SaveToFile();
     // ShowStatus( "Saving data files." );
     PageList1.WriteToTextFile();
-    WordsDictionary1.WriteToTextFile();
+    // WordsDictionary1.WriteToTextFile();
     AllWords.WriteToTextFile();
+    ScriptDictionary1.WriteToTextFile();
+    CodeCommentDictionary1.WriteToTextFile();
     // ShowStatus( "Finished saving data files." );
     }
 
@@ -465,22 +485,15 @@ namespace DGOLibrary
 
   private void MakeNonAsciiCharacters()
     {
-    StringBuilder SBuilder = new StringBuilder();
-    for( int Count = 2013; Count < 2014; Count++ )
-      SBuilder.Append( (char)Count );
+    // for( int Count = 0xa0; Count < 0xe0; Count++ )
+      // ShowStatus( Count.ToString( "X2" ) + ") " + Char.ToString( (char)Count ));
 
-    ShowStatus( SBuilder.ToString());
+     // &#147;
+    int GetHexValFromDecimal = 147;
+    ShowStatus( "Character: " + Char.ToString( (char)GetHexValFromDecimal ));
 
-
-    int HexVal = 2013;
-    ShowStatus( HexVal.ToString( "X4" ));
-    ShowStatus( Char.ToString( (char)2013 ));
-
-    ShowStatus( " " );
-    ShowStatus( "&#x201c; " + Char.ToString( (char)0x201c ));
-    ShowStatus( "&#x201d; " + Char.ToString( (char)0x201d ));
-    ShowStatus( "&#xe4; " + Char.ToString( (char)0xe4 ));
-    ShowStatus( "&#xad; " + Char.ToString( (char)0xad ));
+    // ShowStatus( " " );
+    // ShowStatus( "&#xad; " + Char.ToString( (char)0xad ));
     }
 
 
@@ -494,7 +507,7 @@ namespace DGOLibrary
 
   private void showTitlesToolStripMenuItem_Click(object sender, EventArgs e)
     {
-    PageList1.ShowTitles();
+    // PageList1.ShowTitles();
     }
 
 
@@ -508,7 +521,6 @@ namespace DGOLibrary
 
   private void SaveAllMidnightFiles()
     {
-    /*
     if( WebListenForm != null )
       {
       if( !WebListenForm.IsDisposed )
@@ -516,7 +528,6 @@ namespace DGOLibrary
         WebListenForm.ClearDailyHackCount();
         }
       }
-      */
 
     NetStats.ClearMidnightValues();
     }
