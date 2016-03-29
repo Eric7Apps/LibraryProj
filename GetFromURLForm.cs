@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Net;
 using System.Threading;
@@ -22,7 +21,6 @@ namespace DGOLibrary
   {
   private MainForm MForm;
   private bool FileIsDone;
-  private bool HadErrorOrCancel;
   private bool HasStarted = false;
   private ECTime StartTime;
   private string URLToGet = "";
@@ -152,13 +150,6 @@ namespace DGOLibrary
 
 
 
-  internal bool GetHadErrorOrCancel()
-    {
-    return HadErrorOrCancel;
-    }
-
-
-
   private void HttpBackgroundWorker_DoWork(object sender, DoWorkEventArgs e)
     {
     BackgroundWorker Worker = (BackgroundWorker)sender;
@@ -187,14 +178,16 @@ namespace DGOLibrary
     Stream RespStream = Response.GetResponseStream();
     try
     {
+    /*
     long FileSize = Response.ContentLength;
-
+    File size is: -1  ?
     Worker.ReportProgress( 0, "File size is: " + FileSize.ToString( "N0" ));
     if( FileSize == 0 )
       {
       e.Cancel = true;
       return;
       }
+      */
 
     // Worker.ReportProgress( 0, " " );
     // Worker.ReportProgress( 0, "Headers are:" );
@@ -226,11 +219,14 @@ namespace DGOLibrary
           // this shouldn't be necessary.
           // Is it just slow in getting data from the connection?
           // If it is, wait a while.
+
+          // So is this delay neceessary?
           Thread.Sleep( 200 );
           BytesRead = RespStream.Read( ReadData, 0, ReadData.Length );
 
           if( BytesRead == 0 ) // End of the stream.
             {
+            /*
             if( FileSize > TotalBytesRead )
               {
               Worker.ReportProgress( 0, "Error: Could not get the complete file. " + WInfo.URLToGet );
@@ -238,10 +234,10 @@ namespace DGOLibrary
               return;
               }
             else
-              {
+              {  */
               Worker.ReportProgress( 0, "Finished with download." );
               return;
-              }
+              // }
             }
           }
 
@@ -261,8 +257,9 @@ namespace DGOLibrary
     }
     catch( Exception Except )
       {
-      Worker.ReportProgress( 0, "Error downloading the file " + WInfo.URLToGet + "\r\n" + Except.Message );
-      e.Cancel = true;
+      Worker.ReportProgress( 0, "Download Error: " + WInfo.URLToGet );
+      Worker.ReportProgress( 0, "Download Error: " + Except.Message );
+      // e.Cancel = true;
       return;
       }
     }
@@ -279,7 +276,14 @@ namespace DGOLibrary
     if( e.UserState == null )
       return;
 
-    ShowStatus( (string)e.UserState );
+    string ToShow = (string)e.UserState;
+    ShowStatus( ToShow );
+
+    if( ToShow.StartsWith( "Download Error:" ))
+      {
+      MForm.ShowStatus( "Title: " + Title );
+      MForm.ShowStatus( ToShow );
+      }
     
     // e.ProgressPercentage
     }
@@ -299,14 +303,12 @@ namespace DGOLibrary
 
     if( e.Cancelled )
       {
-      HadErrorOrCancel = true;
       ShowStatus( "HTTP Background worker was cancelled." );
       return;
       }
 
     if( e.Error != null )
       {
-      HadErrorOrCancel = true;
       ShowStatus( "There was an HTTP error: " + e.Error.Message );
       return;
       }
@@ -325,10 +327,8 @@ namespace DGOLibrary
   internal void StartHttp( bool ShowDiagnostics )
     {
     FileIsDone = false;
-    HadErrorOrCancel = false;
-    HasStarted = true;
     StartTime.SetToNow();
-    ShowStatus( "About to start HTTP background thread." );
+    HasStarted = true;
 
     if( ShowDiagnostics )
       {
@@ -376,9 +376,6 @@ namespace DGOLibrary
         SWriter.WriteLine( Line );
         }
       }
-
-    // MForm.StartProgramOrFile( FileName );
-
     }
     catch( Exception Except )
       {
