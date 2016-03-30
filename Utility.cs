@@ -15,6 +15,10 @@ namespace DGOLibrary
 
   internal static string CleanAsciiString( string InString, int MaxLength )
     {
+    // Strings are copy-on-write.  So a reference to a
+    // string from multiple threads like this is
+    // thread safe.  It's using its own internal 
+    // StringBuilder to make a new string.
     if( InString == null )
       return "";
 
