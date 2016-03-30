@@ -9,20 +9,13 @@ using System.Threading.Tasks;
 
 namespace DGOLibrary
 {
-  class ParagraphTag // : Make it a super class of BasicTag?
+  class ParagraphTag : BasicTag
   {
-  private BasicTag BaseTag;
 
 
-  private ParagraphTag()
+  internal ParagraphTag( Page UsePage, string UseText, string RelativeURL ) : base( UsePage, UseText, RelativeURL )
     {
-
-    }
-
-
-  internal ParagraphTag( Page UsePage, string UseText, string RelativeURL )
-    {
-    BaseTag = new BasicTag( UsePage, UseText, RelativeURL );
+    //  : base( UsePage, UseText, RelativeURL )
     }
 
 
@@ -31,10 +24,10 @@ namespace DGOLibrary
     {
     try
     {
-    if( BaseTag.GetCallingPage().GetIsCancelled())
+    if( GetCallingPage().GetIsCancelled())
       return;
 
-    string FullText = BaseTag.GetMainText().ToLower();
+    string FullText = GetMainText().ToLower();
 
     if( FullText.Length < 3 )
       return;
@@ -56,7 +49,6 @@ namespace DGOLibrary
     FullText = Utility.RemovePatternFromStartToEnd( "<span", ">", FullText );
     FullText = FullText.Replace( "</span>", " " );
 
-
     // Get rid of the parameters on the paragraph tag.
     //  <p style="margin-bottom: 0in; font-style: normal; line-height: 120%; text-decoration: none;" align="left" lang="en-US">
     string[] SplitS = FullText.Split( new Char[] { '>' } );
@@ -66,6 +58,14 @@ namespace DGOLibrary
       for( int Count = 1; Count < SplitS.Length; Count++ )
         FullText += SplitS[Count] + " ";
 
+      }
+
+    int TagStart = FindFirstTagIndex( 0, FullText );
+    if( TagStart >= 0 )
+      {
+      GetCallingPage().AddStatusString( " ", 500 );
+      GetCallingPage().AddStatusString( "Tag in the Paragraph?: ", 500 );
+      GetCallingPage().AddStatusString( FullText, 5000 );
       }
 
     FullText = FullText.Replace( "herald staff writer", " " );
@@ -114,23 +114,23 @@ namespace DGOLibrary
     InString = InString.Replace( "class=", " " );
     */
 
-    // BaseTag.GetCallingPage().AddStatusString( " ", 500 );
-    // BaseTag.GetCallingPage().AddStatusString( "Paragraph: ", 500 );
-    // BaseTag.GetCallingPage().AddStatusString( FullText, 5000 );
+    // GetCallingPage().AddStatusString( " ", 500 );
+    // GetCallingPage().AddStatusString( "Paragraph: ", 500 );
+    // GetCallingPage().AddStatusString( FullText, 5000 );
 
     string SearchText = CleanAndSimplify.SimplifyCharacterCodes( FullText );
-    BaseTag.GetCallingPage().AddToSearchableContents( SearchText );
+    GetCallingPage().AddToSearchableContents( SearchText );
 
     ParseWords ParseW = new ParseWords();
     SortedDictionary<string, int> WordsDictionary = ParseW.ParseText( FullText );
     if( WordsDictionary != null )
-      BaseTag.GetCallingPage().AddWords( WordsDictionary );
+      GetCallingPage().AddWords( WordsDictionary );
 
     }
     catch( Exception Except )
       {
-      BaseTag.GetCallingPage().AddStatusString( "Exception in LinkTag.ParseLink().", 500 );
-      BaseTag.GetCallingPage().AddStatusString( Except.Message, 500 );
+      GetCallingPage().AddStatusString( "Exception in LinkTag.ParseLink().", 500 );
+      GetCallingPage().AddStatusString( Except.Message, 500 );
       }
     }
 
@@ -138,6 +138,13 @@ namespace DGOLibrary
 
   private bool ContainsBadStuff( string InString )
     {
+    if( InString.Contains( "class=\"simpleblackborder" ))
+      return true;
+      
+    if( InString.Contains( ".rectrac.com/"  ))
+      return true;
+
+
     if( InString == "class=\"caption\"" )
       return true;
 
