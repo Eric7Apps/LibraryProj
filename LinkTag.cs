@@ -10,21 +10,13 @@ using System.Text;
 
 namespace DGOLibrary
 {
-  class LinkTag // : Make it a super class of BasicTag?
+  class LinkTag : BasicTag
   {
-  private BasicTag BaseTag;
 
 
-
-  private LinkTag()
+  internal LinkTag( Page UsePage, string UseText, string RelativeURL ) : base( UsePage, UseText, RelativeURL )
     {
-
-    }
-
-
-  internal LinkTag( Page UsePage, string UseText, string RelativeURL )
-    {
-    BaseTag = new BasicTag( UsePage, UseText, RelativeURL );
+    //  : base( UsePage, UseText, RelativeURL )
     }
 
 
@@ -37,12 +29,12 @@ namespace DGOLibrary
 
     try
     {
-    if( BaseTag.GetCallingPage().GetIsCancelled())
+    if( GetCallingPage().GetIsCancelled())
       return;
 
-    string FullText = BaseTag.GetMainText();
-    // BaseTag.GetCallingPage().AddStatusString( "Doing ParseLink with:", 500 );
-    // BaseTag.GetCallingPage().AddStatusString( FullText, 5000 );
+    string FullText = GetMainText();
+    // GetCallingPage().AddStatusString( "Doing ParseLink with:", 500 );
+    // GetCallingPage().AddStatusString( FullText, 5000 );
 
     if( FullText.EndsWith( ">" ))                              // </a>
       FullText = Utility.TruncateString( FullText, FullText.Length - 4 );
@@ -52,15 +44,13 @@ namespace DGOLibrary
 
     if( LinkStringContainsBadStuff( FullText ))
       {
-      // BaseTag.GetCallingPage().AddStatusString( "Link has bad stuff.", 5000 );
+      // GetCallingPage().AddStatusString( "Link has bad stuff.", 5000 );
       return;
       }
 
     if( FullText.Contains( "<span" ))
       {
-      // MForm.ShowStatus( "This has a span tag:" );
-      // MForm.ShowStatus( InString );
-      // MForm.ShowStatus( " " );
+      // This has a span tag:
       return;
       }
 
@@ -83,13 +73,13 @@ namespace DGOLibrary
       // if( InString =="href=\"/\"></a" )
         // return;
 
-      // MForm.ShowStatus( "The img tag was removed: " + InString );
+      // ( "The img tag was removed: " + InString );
       }
 
     string[] LinkParts = FullText.Split( new Char[] { '>' } );
     if( LinkParts.Length < 2 )
       {
-      BaseTag.GetCallingPage().AddStatusString( "LinkParts.Length < 2: " + FullText, 500 );
+      GetCallingPage().AddStatusString( "LinkParts.Length < 2: " + FullText, 500 );
       return;
       }
 
@@ -108,10 +98,11 @@ namespace DGOLibrary
     if( Title.Contains( "Read the next article in" ))
       return;
 
+    Title = CleanAndSimplify.SimplifyCharacterCodes( Title );
 
     if( !Attributes.ToLower().Contains( "href=" ))
       {
-      BaseTag.GetCallingPage().AddStatusString(  "No link in: " + FullText, 500 );
+      GetCallingPage().AddStatusString(  "No link in: " + FullText, 500 );
       return;
       }
 
@@ -143,7 +134,7 @@ namespace DGOLibrary
 
     if( FullText.Contains( "/pbcs.dll/" ))
       {
-      // MForm.ShowStatus( "Pbcs.dll: " + InString );
+      // "Pbcs.dll: " + InString );
       return;
       }
 
@@ -164,7 +155,7 @@ namespace DGOLibrary
     string[] AttribParts = Attributes.Split( new Char[] { ' ' } );
     if( AttribParts.Length < 1 )
       {
-      BaseTag.GetCallingPage().AddStatusString( "AttribParts.Length < 1: " + Attributes, 500 );
+      GetCallingPage().AddStatusString( "AttribParts.Length < 1: " + Attributes, 500 );
       return;
       }
 
@@ -172,37 +163,37 @@ namespace DGOLibrary
 
     if( LinkURL == "/" )
       {
-      // MForm.ShowStatus( "Ignoring the main page for parsing." );
+      //  "Ignoring the main page for parsing." );
       return;
       }
 
     if( !(LinkURL.StartsWith( "http://" ) ||
           LinkURL.StartsWith( "https://" )))
-      LinkURL = BaseTag.GetRelativeURLBase() + LinkURL;
+      LinkURL = GetRelativeURLBase() + LinkURL;
       // LinkURL = "http://www.durangoherald.com" + LinkURL;
 
     if( !LinkIsGood( LinkURL, Title ))
       {
-      // BaseTag.GetCallingPage().AddStatusString( "Not using URL: " + LinkURL, 500 );
+      // GetCallingPage().AddStatusString( "Not using URL: " + LinkURL, 500 );
       return;
       }
 
     /*
     if( InString.Contains( "Caption: class=\"caption" ))
       {
-      BaseTag.GetCallingPage().AddStatusString( " ", 10 );
-      BaseTag.GetCallingPage().AddStatusString( "Title: " + Title, 500 );
-      BaseTag.GetCallingPage().AddStatusString( "LinkURL: " + LinkURL, 500 );
+      GetCallingPage().AddStatusString( " ", 10 );
+      GetCallingPage().AddStatusString( "Title: " + Title, 500 );
+      GetCallingPage().AddStatusString( "LinkURL: " + LinkURL, 500 );
       } */
 
     // Add it if it's not already there.
-    BaseTag.GetCallingPage().AddLink( Title, LinkURL );
+    GetCallingPage().AddLink( Title, LinkURL );
 
     }
     catch( Exception Except )
       {
-      BaseTag.GetCallingPage().AddStatusString( "Exception in LinkTag.ParseLink().", 500 );
-      BaseTag.GetCallingPage().AddStatusString( Except.Message, 500 );
+      GetCallingPage().AddStatusString( "Exception in LinkTag.ParseLink().", 500 );
+      GetCallingPage().AddStatusString( Except.Message, 500 );
       }
     }
 
@@ -211,6 +202,9 @@ namespace DGOLibrary
   private bool LinkStringContainsBadStuff( string InString )
     {
     InString = InString.ToLower();
+
+    if( InString.Contains( "ctl09_rdpdatepicker" ))
+      return true;
 
     if( InString.Contains( "class=\"next\"" ))
       return true;
@@ -285,6 +279,9 @@ namespace DGOLibrary
        if( TestURL.Contains( "/frontpage/" ))
          return false;
 
+       if( TestURL == "http://www.durangoherald.com/frontpage" )
+         return false;
+
        }
  
     if( Title == "read more" )
@@ -308,6 +305,9 @@ namespace DGOLibrary
        return true;
 
      if( TestURL.StartsWith( "http://obituaries.durangoherald.com/" ))
+       return true;
+
+     if( TestURL.StartsWith( "http://www.durangotelegraph.com/" ))
        return true;
 
      return false;
