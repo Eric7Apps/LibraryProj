@@ -155,28 +155,28 @@ namespace DGOLibrary
 
     /////////////
     AddURLForm( "Durango Gov Main Page", "http://www.durangogov.org/", true, false, "http://www.durangogov.org" );
-    AddURLForm( "Durango Gov View the new Facilities", "http://www.durangogov.org/Facilities", true, false, "http://www.durangogov.org" );
-    AddURLForm( "Durango Gov Business", "http://www.durangogov.org/Index.aspx?NID=269", true, false, "http://www.durangogov.org" );
-    AddURLForm( "Durango Gov Business Development", "http://www.durangogov.org/index.aspx?nid=857", true, false, "http://www.durangogov.org" );
-    AddURLForm( "Durango Gov Business Directory", "http://www.durangogov.org/index.aspx?NID=842", true, false, "http://www.durangogov.org" );
-    AddURLForm( "Durango Gov Central Business District", "http://www.durangogov.org/Index.aspx?NID=285", true, false, "http://www.durangogov.org" );
-    AddURLForm( "Durango Gov Government Resources", "http://www.durangogov.org/Index.aspx?NID=271", true, false, "http://www.durangogov.org" );
-    AddURLForm( "Durango Gov Our City", "http://www.durangogov.org/Index.aspx?NID=270", true, false, "http://www.durangogov.org" );
+    // AddURLForm( "Durango Gov View the new Facilities", "http://www.durangogov.org/Facilities", true, false, "http://www.durangogov.org" );
+    // AddURLForm( "Durango Gov Business", "http://www.durangogov.org/Index.aspx?NID=269", true, false, "http://www.durangogov.org" );
+    // AddURLForm( "Durango Gov Business Development", "http://www.durangogov.org/index.aspx?nid=857", true, false, "http://www.durangogov.org" );
+    // AddURLForm( "Durango Gov Business Directory", "http://www.durangogov.org/index.aspx?NID=842", true, false, "http://www.durangogov.org" );
+    // AddURLForm( "Durango Gov Central Business District", "http://www.durangogov.org/Index.aspx?NID=285", true, false, "http://www.durangogov.org" );
+    // AddURLForm( "Durango Gov Government Resources", "http://www.durangogov.org/Index.aspx?NID=271", true, false, "http://www.durangogov.org" );
+    // AddURLForm( "Durango Gov Our City", "http://www.durangogov.org/Index.aspx?NID=270", true, false, "http://www.durangogov.org" );
     AddURLForm( "Durango Gov City Council", "http://www.durangogov.org/index.aspx?NID=169", true, false, "http://www.durangogov.org" );
-    AddURLForm( "Durango Gov Job Opportunities", "http://www.durangogov.org/index.aspx?NID=201", true, false, "http://www.durangogov.org" );
-    AddURLForm( "Durango Gov History", "http://www.durangogov.org/Index.aspx?NID=274", true, false, "http://www.durangogov.org" );
-    AddURLForm( "Durango Gov History of the Charter", "http://www.durangogov.org/Index.aspx?NID=276", true, false, "http://www.durangogov.org" );
-    AddURLForm( "Durango Gov Photo Gallery", "http://www.durangogov.org/gallery.aspx", true, false, "http://www.durangogov.org" );
-    AddURLForm( "Durango Gov Public Art", "http://www.durangogov.org/index.aspx?nid=327", true, false, "http://www.durangogov.org" );
-    AddURLForm( "Durango Gov Social Media", "http://www.durangogov.org/Index.aspx?NID=79", true, false, "http://www.durangogov.org" );
+    // AddURLForm( "Durango Gov Job Opportunities", "http://www.durangogov.org/index.aspx?NID=201", true, false, "http://www.durangogov.org" );
+    // AddURLForm( "Durango Gov History", "http://www.durangogov.org/Index.aspx?NID=274", true, false, "http://www.durangogov.org" );
+    // AddURLForm( "Durango Gov History of the Charter", "http://www.durangogov.org/Index.aspx?NID=276", true, false, "http://www.durangogov.org" );
+    // AddURLForm( "Durango Gov Photo Gallery", "http://www.durangogov.org/gallery.aspx", true, false, "http://www.durangogov.org" );
+    // AddURLForm( "Durango Gov Public Art", "http://www.durangogov.org/index.aspx?nid=327", true, false, "http://www.durangogov.org" );
+    // AddURLForm( "Durango Gov Social Media", "http://www.durangogov.org/Index.aspx?NID=79", true, false, "http://www.durangogov.org" );
     AddURLForm( "Durango Gov Durango's Voice", "http://www.durangogov.org/index.aspx?NID=712", true, false, "http://www.durangogov.org" );
     AddURLForm( "Durango Gov What's Happening", "http://www.durangogov.org/Index.aspx?NID=268", true, false, "http://www.durangogov.org" );
     AddURLForm( "Durango Gov City News", "http://www.durangogov.org/CivicAlerts.aspx", true, false, "http://www.durangogov.org" );
     AddURLForm( "Durango Gov Library", "http://www.durangogov.org/index.aspx?NID=220", true, false, "http://www.durangogov.org" );
-    AddURLForm( "Durango Gov Meeting Calendar", "http://www.durangogov.org/index.aspx?NID=101", true, false, "http://www.durangogov.org" );
-    AddURLForm( "Durango Gov Parks & Recreation", "http://www.durangogov.org/index.aspx?NID=222", true, false, "http://www.durangogov.org" );
-    AddURLForm( "Durango Gov Places to Eat / Shop / Stay", "http://www.durangogov.org/Index.aspx?NID=295", true, false, "http://www.durangogov.org" );
-    AddURLForm( "Durango Gov Transportation", "http://www.durangogov.org/Index.aspx?NID=290", true, false, "http://www.durangogov.org" );
+    // AddURLForm( "Durango Gov Meeting Calendar", "http://www.durangogov.org/index.aspx?NID=101", true, false, "http://www.durangogov.org" );
+    // AddURLForm( "Durango Gov Parks & Recreation", "http://www.durangogov.org/index.aspx?NID=222", true, false, "http://www.durangogov.org" );
+    // AddURLForm( "Durango Gov Places to Eat / Shop / Stay", "http://www.durangogov.org/Index.aspx?NID=295", true, false, "http://www.durangogov.org" );
+    // AddURLForm( "Durango Gov Transportation", "http://www.durangogov.org/Index.aspx?NID=290", true, false, "http://www.durangogov.org" );
 
     AddURLForm( "Durango Telegraph Main Page", "http://www.DurangoTelegraph.com/", true, false, "http://www.DurangoTelegraph.com" );
 
@@ -292,9 +292,10 @@ namespace DGOLibrary
 
   internal bool IsInQueue( string URLToCheck )
     {
+    URLToCheck = URLToCheck.ToLower();
     for( int Count = 0; Count < GetURLArrayLast; Count++ )
       {
-      if( GetURLArray[Count].GetURL() == URLToCheck )
+      if( GetURLArray[Count].GetURL().ToLower() == URLToCheck )
         return true;
 
       }
@@ -473,6 +474,9 @@ namespace DGOLibrary
 
   private void StartNextInQueue()
     {
+    if( MForm.GetCancelled())
+      return;
+
     try
     {
     for( int Count = 0; Count < GetURLArrayLast; Count++ )
