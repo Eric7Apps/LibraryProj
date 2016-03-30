@@ -38,30 +38,36 @@ namespace DGOLibrary
 
 
 
-  internal bool ContainsURL( string URL )
+  internal string GetExistingURL( string URL )
     {
-    if( PageDictionary.ContainsKey( URL ))
-      return true;
-
-    if( PageDictionary.ContainsKey( URL + "/" ))
-      return true;
+    try
+    {
+    // This key has to be lower case, but get the 
+    // actual URL from the page object.  It can't
+    // be case-sensitive for being unique.
+    URL = URL.ToLower();
 
     if( URL.Length < 3 )
-      return false;
+      return "";
+
+    if( PageDictionary.ContainsKey( URL ))
+      return URL;
+
+    if( PageDictionary.ContainsKey( URL + "/" ))
+      return URL + "/";
 
     string TestURL = URL;
     if( URL.EndsWith( "/" ))
       {
       TestURL = Utility.TruncateString( URL, URL.Length - 1 );
       if( PageDictionary.ContainsKey( TestURL ))
-        return true;
+        return TestURL;
 
       }
 
-
     // There are duplicate links because they fall
     // under multiple categories or because they are
-    // just messed up.
+    // just messed up and duplicated all over the place.
 
     // TitlesDictionary
 
@@ -85,173 +91,94 @@ namespace DGOLibrary
     // /20160316/COLUMNISTS05/160319649/-1/Lifestyle04
     // /20160316/COLUMNISTS05/160319649/-1/News06
 
-    return false;
+    return "";
+
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Exception in GetExistingURL():" );
+      MForm.ShowStatus( Except.Message );
+      return "";
+      }
     }
 
 
-
+   /*
   // Keep this method private to this object.
-  private bool IsBadLink( string URL )
+  // LinkTag has something that does this too.
+  private bool IsBadLinkToAdd( string URL )
     {
-    if( URL.Contains( "/FRONTPAGE/" ))
-      return true;
-
-    // These are all duplicates, but with a missing /
-    // character at the end.
-    if( URL == "http://www.durangoherald.com" )
-      return true;
-
-    if( URL == "http://www.durangoherald.com/section/News01" )
-      return true;
-
-    if( URL == "http://www.durangoherald.com/section/News03" )
-      return true;
-
-    if( URL == "http://www.durangoherald.com/section/News04" )
-      return true;
-
-    if( URL == "http://www.durangoherald.com//section/Columnists" )
-      return true;
-
-    if( URL == "http://obituaries.durangoherald.com/obituaries/durangoherald" )
-      return true;
-
-    if( URL == "http://www.durangoherald.com/section/News05" )
-      return true;
-
-    if( URL == "http://www.durangoherald.com/section/News06" )
-      return true;
-
-    if( URL == "http://www.durangoherald.com/section/realestate" )
-      return true;
-
-    if( URL == "http://www.durangoherald.com/section/Sports" )
-      return true;
-
-    if( URL == "http://www.durangoherald.com/section/Sports01" )
-      return true;
-
-    if( URL == "http://www.durangoherald.com/section/Sports02" )
-      return true;
-
-    if( URL == "http://www.durangoherald.com/section/Sports03" )
-      return true;
-
-    if( URL == "http://www.durangoherald.com/section/Sports04" )
-      return true;
-
-    if( URL == "http://www.durangoherald.com/section/Sports05" )
-      return true;
-
-    if( URL == "http://www.durangoherald.com/section/Arts" )
-      return true;
-
-    if( URL == "http://www.durangoherald.com/section/Arts01" )
-      return true;
-
-    if( URL == "http://www.durangoherald.com/section/Arts02" )
-      return true;
-
-    if( URL == "http://www.durangoherald.com/section/Arts03" )
-      return true;
-
-    if( URL == "http://www.durangoherald.com/section/Arts04" )
-      return true;
-
-    if( URL == "http://www.durangoherald.com/section/Arts05" )
-      return true;
-
-    if( URL == "http://www.durangoherald.com/section/Lifestyle" )
-      return true;
-
-    if( URL == "http://www.durangoherald.com/section/Lifestyle01" )
-      return true;
-
-    if( URL == "http://www.durangoherald.com/section/Lifestyle02" )
-      return true;
-
-    if( URL == "http://www.durangoherald.com/section/Lifestyle03" )
-      return true;
-
-    if( URL == "http://www.durangoherald.com/section/Lifestyle04" )
-      return true;
-
-    if( URL == "http://www.durangoherald.com/section/Lifestyle05" )
-      return true;
-
-    if( URL == "http://www.durangoherald.com/section/Lifestyle06" )
-      return true;
-
-    if( URL == "http://www.durangoherald.com/section/Opinion" )
-      return true;
-
-    if( URL == "http://www.durangoherald.com/section/Opinion01" )
-      return true;
-
-    if( URL == "http://www.durangoherald.com/section/Opinion02" )
-      return true;
-
-    if( URL == "http://www.durangoherald.com/section/Opinion03" )
-      return true;
-
-    if( URL == "http://www.durangoherald.com/section/newsstand" )
-      return true;
-
-    if( URL == "http://www.durangoherald.com/section/goldking" )
-      return true;
-
-    if( URL == "https://www.colorado.gov" )
-      return true;
-
-    if( URL == "http://www.durangogov.org" )
+    URL = URL.ToLower();
+    if( URL.Contains( "/frontpage/" ))
       return true;
 
     return false;
     }
-
+    */
 
 
   internal int GetIndex( string URL )
     {
-    if( !PageDictionary.ContainsKey( URL ))
+    try
+    {
+    string CheckURL = URL.ToLower();
+    if( !PageDictionary.ContainsKey( CheckURL ))
       return -1;
 
-    int Index = PageDictionary[URL].GetIndex();
-    URLIndexDictionary[Index] = URL;
+    int Index = PageDictionary[CheckURL].GetIndex();
+    URLIndexDictionary[Index] = CheckURL;
     return Index;
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Exception in GetIndex():" );
+      MForm.ShowStatus( Except.Message );
+      return -1;
+      }
     }
 
 
 
   internal string GetURLFromIndex( int Index )
     {
+    try
+    {
+    if( Index < 0 )
+      return "";
+
     if( !URLIndexDictionary.ContainsKey( Index ))
       return "";
 
-    return URLIndexDictionary[Index];
+    // It's already ToLower().
+    string CheckURL = URLIndexDictionary[Index];
+    if( !PageDictionary.ContainsKey( CheckURL ))
+      return "";
+
+    // Get the actual URL which might be case-sensitive.
+    return PageDictionary[CheckURL].GetURL();
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Exception in GetURLFromIndex():" );
+      MForm.ShowStatus( Except.Message );
+      return "";
+      }
     }
 
 
 
   internal void UpdatePageFromFile( string Title, string URL, string FileName, bool SetTime, string RelativeURLBase )
     {
-    if( !MForm.CheckEvents())
-      return;
-
+    try
+    {
     if( URL == null )
-      {
-      MForm.ShowStatus( "URL is null in UpdatePageFromTempFile()." );
       return;
-      }
 
-    if( IsBadLink( URL ))
-      return;
+    // if( IsBadLinkToAdd( URL ))
+      // return;
 
     if( Title == null )
-      {
-      MForm.ShowStatus( "Title is null in UpdatePageFromTempFile()." );
       return;
-      }
 
     if( URL.Length < 10 )
       {
@@ -267,16 +194,23 @@ namespace DGOLibrary
       }
 
     Page UsePage;
-    if( PageDictionary.ContainsKey( URL ))
+    string CheckURL = URL.ToLower();
+
+    // Not this:
+    // if( PageDictionary.ContainsKey( CheckURL ))
+    string ExistingURL = GetExistingURL( CheckURL );
+    if( ExistingURL.Length > 0 )
       {
-      UsePage = PageDictionary[URL];
+      CheckURL = ExistingURL;
+      UsePage = PageDictionary[CheckURL];
       }
     else
       {
       UsePage = new Page( MForm );
-      PageDictionary[URL] = UsePage;
-      PageDictionary[URL].SetIndex( NextIndex );
-      URLIndexDictionary[NextIndex] = URL;
+      PageDictionary[CheckURL] = UsePage;
+      PageDictionary[CheckURL].SetIndex( NextIndex );
+      URLIndexDictionary[NextIndex] = CheckURL;
+      // See notes below on the indexes.
       NextIndex++;
       }
 
@@ -287,40 +221,58 @@ namespace DGOLibrary
     // is updated but the old one is not saved.
 
     // When this page gets parsed it will refer back
-    // to this PageList to get the index for the URL
-    // by using GetIndex(), which looks in the
-    // PageDictionary.
+    // to this PageList to get the indexes for every
+    // URL in the links it is adding to the
+    // PageDictionary.  So while this is being called,
+    // NextIndex is being incremented for every new link.
     UsePage.UpdateFromFile( Title, URL, FileName, SetTime, RelativeURLBase );
+    // So at this point NextIndex has changed.
+
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Exception in UpdatePageFromFile():" );
+      MForm.ShowStatus( Except.Message );
+      }
     }
 
 
 
   internal void AddEmptyPage( string Title, string URL, string RelativeURLBase )
     {
-    if( ContainsURL( URL ))
+    try
+    {
+    if( "" != GetExistingURL( URL ))
       return;
 
-    if( IsBadLink( URL ))
-      return;
+    // if( IsBadLinkToAdd( URL ))
+      // return;
 
+    string CheckURL = URL.ToLower();
     Page UsePage = new Page( MForm );
     UsePage.SetNewTitleAndURL( Title, URL, RelativeURLBase );
-    PageDictionary[URL] = UsePage;
-    PageDictionary[URL].SetIndex( NextIndex );
-    URLIndexDictionary[NextIndex] = URL;
+    PageDictionary[CheckURL] = UsePage;
+    PageDictionary[CheckURL].SetIndex( NextIndex );
+    URLIndexDictionary[NextIndex] = CheckURL;
     NextIndex++;
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Exception in AddEmptyPage():" );
+      MForm.ShowStatus( Except.Message );
+      }
     }
 
 
 
   internal bool ReadFromTextFile()
     {
+    try
+    {
     PageDictionary.Clear();
     if( !File.Exists( FileName ))
       return false;
-      
-    try
-    {
+
     using( StreamReader SReader = new StreamReader( FileName  )) 
       {
       while( SReader.Peek() >= 0 ) 
@@ -336,19 +288,20 @@ namespace DGOLibrary
         if( !Page1.StringToObject( Line ))
           continue;
 
-        if( IsBadLink( Page1.GetURL() ))
-          continue;
+        // if( IsBadLinkToAdd( Page1.GetURL() ))
+          // continue;
 
-        if( ContainsURL( Page1.GetURL() ))
+        string CheckURL = Page1.GetURL().ToLower();
+        if( "" != GetExistingURL( CheckURL ))
           continue;
 
         int PageIndex = Page1.GetIndex();
-        URLIndexDictionary[PageIndex] = Page1.GetURL();
+        URLIndexDictionary[PageIndex] = CheckURL;
 
         if( PageIndex >= NextIndex )
           NextIndex = PageIndex + 1;
 
-        PageDictionary[Page1.GetURL()] = Page1;
+        PageDictionary[CheckURL] = Page1;
         }
       }
 
@@ -379,7 +332,7 @@ namespace DGOLibrary
         }
       }
 
-     MForm.ShowStatus( "PageList wrote " + PageDictionary.Count.ToString( "N0" ) + " page objects to the file." );
+     // MForm.ShowStatus( "PageList wrote " + PageDictionary.Count.ToString( "N0" ) + " page objects to the file." );
      return true;
     }
     catch( Exception Except )
@@ -418,10 +371,16 @@ namespace DGOLibrary
 
     MForm.AllWords.ClearAll();
 
+    int Loops = 0;
     foreach( KeyValuePair<string, Page> Kvp in PageDictionary )
       {
-      if( !MForm.CheckEvents())
-        return;
+      Loops++;
+      if( (Loops & 0x7) == 0 )
+        {
+        if( !MForm.CheckEvents())
+          return;
+
+        }
 
       Page Page1 = Kvp.Value;
       Page1.UpdateFromFile( Page1.GetTitle(), Page1.GetURL(), Page1.GetFileName(), false, Page1.GetRelativeURLBase() );
@@ -439,7 +398,7 @@ namespace DGOLibrary
     }
 
 
-
+  /*
   internal void ReadAllFilesToContent()
     {
     MForm.ShowStatus( "Start of ReadAllFiles()." );
@@ -459,11 +418,13 @@ namespace DGOLibrary
 
     MForm.ShowStatus( "Finished ReadAllFiles()." );
     }
-
+    */
 
 
 
   internal byte[] Get24HoursPage()
+    {
+    try
     {
     // http://127.0.0.1/get24hours.htm
 
@@ -488,17 +449,8 @@ namespace DGOLibrary
     foreach( KeyValuePair<string, Page> Kvp in PageDictionary )
       {
       Page SendPage = Kvp.Value;
-      if( SendPage.GetContentsUpdatedIndex() < OldIndex )
+      if( SendPage.GetContentsUpdateTimeIndex() < OldIndex )
         continue;
-
-      // "It is acceptable and approved to link to any of
-      // our materials, including deep links to our site.
-      // Text from our stories can be quoted when linking
-      // to our content, but it must not be more than
-      // one-tenth of the total word count of the story or
-      // 100 words, whichever is lesser. Quoted content
-      // must contain a direct link to the story from which
-      // it is taken."
 
       // This title is the original title from the original
       // link.  It's not from the title tag within the page.
@@ -528,6 +480,209 @@ namespace DGOLibrary
 
     // This could return null if there was a problem.
     return UTF8Strings.StringToBytes( SBuilder.ToString());
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Exception in PageList.Get24HoursPage()." );
+      MForm.ShowStatus( Except.Message );
+      return null;
+      }
+    }
+
+
+
+  internal byte[] GetCrudeSearchPage()
+    {
+    try
+    {
+    // http://127.0.0.1/CrudeSearch.htm
+
+    StringBuilder SBuilder = new StringBuilder();
+
+    SBuilder.Append( "<!DOCTYPE html>\r\n" );
+    SBuilder.Append( "<html>\r\n<head>\r\n" );
+    SBuilder.Append( "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\" />\r\n" );
+    SBuilder.Append( "<title>The Library Project</title>\r\n" );
+    SBuilder.Append( "<p><b>The Library Project.</b></p><br>\r\n" );
+
+    SortedDictionary<string, string> TitlesDictionary = new SortedDictionary<string, string>();
+
+    foreach( KeyValuePair<string, Page> Kvp in PageDictionary )
+      {
+      Page SendPage = Kvp.Value;
+      string Contents = SendPage.GetSearchableContents();
+
+      // Obviously you would pass in this word as a
+      // parameter for a search, but this is just a
+      // basic example.
+      if( !Contents.Contains( "library" ))
+        continue;
+
+      if( !Contents.Contains( "carnegie" ))
+        continue;
+
+      // if( !Contents.Contains( "something" ))
+        // continue;
+
+      MForm.ShowStatus( " " );
+      MForm.ShowStatus( " " );
+      MForm.ShowStatus( Contents );
+      // This title is the original title from the original
+      // link.  It's not from the title tag within the page.
+      // It's not from the content of the page.
+      string TitlePart = SendPage.GetTitle();
+
+      // To sort it by title.
+      // Sort it by time index instead?
+      string TagPart = "<p><a href=\"" + Kvp.Key +
+        "\">" + TitlePart +
+        "</a></p>\r\n";
+
+      // There are duplicated articles with the same title
+      // but different URLs.  They put the same article
+      // in several different sections.  This will only
+      // get the last one.  (As iterated with foreach 
+      //from PageDictionary.)
+      TitlesDictionary[TitlePart] = TagPart;
+      }
+
+    if( TitlesDictionary.Count > 0 )
+      {
+      foreach( KeyValuePair<string, string> Kvp in TitlesDictionary )
+        {
+        SBuilder.Append( Kvp.Value );
+        }
+      }
+    else
+      {
+      SBuilder.Append( "<p>Nothing was found.</p>\r\n" );
+      }
+
+    SBuilder.Append( "</body>\r\n</html>\r\n" );
+
+    // This could return null if there was a problem.
+    return UTF8Strings.StringToBytes( SBuilder.ToString());
+
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Exception in PageList.GetCrudeSearchPage()." );
+      MForm.ShowStatus( Except.Message );
+      return null;
+      }
+    }
+
+
+
+  internal byte[] GetIndexedSearchPage()
+    {
+    try
+    {
+    // http://127.0.0.1/IndexedSearch.htm
+
+    StringBuilder SBuilder = new StringBuilder();
+
+    SBuilder.Append( "<!DOCTYPE html>\r\n" );
+    SBuilder.Append( "<html>\r\n<head>\r\n" );
+    SBuilder.Append( "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\" />\r\n" );
+    SBuilder.Append( "<title>The Library Project</title>\r\n" );
+    SBuilder.Append( "<p><b>The Library Project.</b></p><br>\r\n" );
+
+    SortedDictionary<string, string> TitlesDictionary = new SortedDictionary<string, string>();
+
+    // Obviously you would pass in these words as
+    // parameters for a search, but this is just a
+    // basic example.
+    string Word1 = "library";
+    string Word2 = "carnegie";
+    IntegerCollection IntCol1 = MForm.AllWords.GetIntegerLinks( Word1 );
+    IntegerCollection IntCol2 = MForm.AllWords.GetIntegerLinks( Word2 );
+
+    IntegerCollection IntColBoth = null;
+
+    // This makes it search for one word if only
+    // one was found.
+    if( IntCol1 == null )
+      IntColBoth = IntCol2;
+
+    if( IntCol2 == null )
+      IntColBoth = IntCol1;
+
+    // If neither or both were null.
+    if( IntColBoth == null )
+      {
+      MForm.ShowStatus( "IntColBoth is null." );
+      // If either one is null then this will return an
+      // empty object.
+      IntColBoth = new IntegerCollection();
+      IntColBoth.LogicANDFromCollections( IntCol1, IntCol2 );
+      }
+
+    int[] IndexArray = IntColBoth.GetIndexArray();
+    if( IndexArray != null )
+      {
+      MForm.ShowStatus( "IndexArray.Length: " + IndexArray.Length.ToString());
+      for( int Count = 0; Count < IndexArray.Length; Count++ )
+        {
+        string URL = GetURLFromIndex( IndexArray[Count] );
+        if( URL.Length == 0 )
+          continue;
+
+        string CheckURL = URL.ToLower();
+
+        // GetExistingURL()
+        if( !PageDictionary.ContainsKey( CheckURL ))
+          {
+          MForm.ShowStatus( "Missing URL: " + URL );
+          continue;
+          }
+
+        Page SendPage = PageDictionary[CheckURL];
+        string TitlePart = SendPage.GetTitle();
+        MForm.ShowStatus( "TitlePart: " + TitlePart );
+
+        // To sort it by title.
+        string TagPart = "<p><a href=\"" + URL +
+          "\">" + TitlePart +
+          "</a></p>\r\n";
+
+      // There are duplicated articles with the same title
+      // but different URLs.  They put the same article
+      // in several different sections.  This will only
+      // get the last one.
+        TitlesDictionary[TitlePart] = TagPart;
+        }
+      }
+    else
+      {
+      MForm.ShowStatus( "IndexArray was null." );
+      }
+
+    if( TitlesDictionary.Count > 0 )
+      {
+      foreach( KeyValuePair<string, string> Kvp in TitlesDictionary )
+        {
+        SBuilder.Append( Kvp.Value );
+        }
+      }
+    else
+      {
+      MForm.ShowStatus( "TitlesDictionary was empty." );
+      SBuilder.Append( "<p>Nothing was found.</p>\r\n" );
+      }
+
+    SBuilder.Append( "</body>\r\n</html>\r\n" );
+    MForm.ShowStatus( "Done with indexed search." );
+
+    // This could return null if there was a problem.
+    return UTF8Strings.StringToBytes( SBuilder.ToString());
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Exception in PageList.GetIndexedSearchPage()." );
+      MForm.ShowStatus( Except.Message );
+      return null;
+      }
     }
 
 
