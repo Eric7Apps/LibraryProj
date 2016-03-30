@@ -16,7 +16,6 @@ namespace DGOLibrary
   // private BasicTag[] ContainedTags;
   // private int ContainedTagsLast = 0;
   private string MainText = "";
-  // protected
   private Page CallingPage;
   private string RelativeURLBase = "";
 
@@ -36,26 +35,26 @@ namespace DGOLibrary
     }
 
 
-  internal string GetMainText()
+  protected string GetMainText()
     {
     return MainText;
     }
 
 
-  internal Page GetCallingPage()
+  protected Page GetCallingPage()
     {
     return CallingPage;
     }
 
 
-  internal string GetRelativeURLBase()
+  protected string GetRelativeURLBase()
     {
     return RelativeURLBase;
     }
 
 
 
-  private int FindFirstTagIndex( int StartAt, string InString )
+  protected int FindFirstTagIndex( int StartAt, string InString )
     {
     // InString = InString.ToLower();
     for( int Count = StartAt; (Count + 1) < InString.Length; Count++ )
@@ -86,7 +85,7 @@ namespace DGOLibrary
 
 
 
-  private string FindTagName( int StartAt, string InString )
+  protected string FindTagName( int StartAt, string InString )
     {
     InString = InString.ToLower();
     string Result = "";
@@ -108,7 +107,7 @@ namespace DGOLibrary
 
 
 
-  private int FindIMGTypeTagEnd( int StartAt, string InString )
+  protected int FindIMGTypeTagEnd( int StartAt, string InString )
     {
     // The img tag and the br tag can end in />
     // like in <br/> or they can end with
@@ -135,7 +134,7 @@ namespace DGOLibrary
 
 
 
-  private int FindSingleTagEnd( int StartAt, string InString )
+  protected int FindSingleTagEnd( int StartAt, string InString )
     {
     // InString = InString.ToLower();
 
@@ -161,7 +160,7 @@ namespace DGOLibrary
 
 
 
-  private int FindParagraphTagEnd( int StartAt, string InString )
+  protected int FindParagraphTagEnd( int StartAt, string InString )
     {
     // Some things don't require an end tag.  Like
     // a <p> tag with no ending tag.  It might just
@@ -201,7 +200,7 @@ namespace DGOLibrary
 
 
 
-  private bool IsFullTag( string TagName )
+  protected bool IsFullTag( string TagName )
     {
     if( (TagName == "a") ||
         (TagName == "abbr") ||
@@ -320,7 +319,7 @@ namespace DGOLibrary
 
 
 
-  private int FindFullTagEnd( int StartAt, string TagName, string InString )
+  protected int FindFullTagEnd( int StartAt, string TagName, string InString )
     {
     // TagName is already lower case.
     // InString = InString.ToLower();
@@ -370,7 +369,7 @@ namespace DGOLibrary
 
 
 
-  private string GetTruncatedErrorText( int StartAt, string InString, int HowLong )
+  protected string GetTruncatedErrorText( int StartAt, string InString, int HowLong )
     {
     StringBuilder SBuilder = new StringBuilder();
 
@@ -610,6 +609,51 @@ namespace DGOLibrary
 
       }
 
+    if( TestS.Contains( "civicplus.com" ))
+      return;
+
+    if( StartName == "form" )
+      {
+      // :  name="aspnetForm" 
+      return;
+      }
+
+    if( StartName == "telerik" )
+      {
+      // RadScriptBlock>
+      return;
+      }
+
+    if( StartName == "gcse" )
+      {
+      return;
+      }
+
+    if( StartName == "svg" )
+      {
+      return;
+      }
+
+    if( StartName == "defs" )
+      {
+      return;
+      }
+
+    if( StartName == "filter" )
+      {
+      return;
+      }
+
+    if( StartName == "o" )
+      {
+      return;
+      }
+
+    if( StartName == "pbs" )
+      {
+      return;
+      }
+
     if( StartName == "head" )
       {
       // if( TestS.ToLower().Contains( "legacy.com" ))
@@ -699,6 +743,16 @@ namespace DGOLibrary
 
       }
 
+    if( StartName == "fegaussianblur" )
+      return;
+
+    if( StartName == "fecolormatrix" )
+      return;
+
+    if( StartName == "fecomposite" )
+      return;
+
+
     CallingPage.AddStatusString( " ", 5 );
     CallingPage.AddStatusString( "Unknown for tag: " + StartName + ": " + TestS, 500 );
     }
@@ -708,6 +762,54 @@ namespace DGOLibrary
   private bool SubTagCanBeParsed( string TagName )
     {
     if( TagName == "a" )
+      return false;
+
+    if( TagName == "fecolormatrix" )
+      return false;
+
+    if( TagName == "fecomposite" )
+      return false;
+
+    if( TagName == "o" )
+      return false;
+
+    if( TagName == "gcse" )
+      return false;
+
+    if( TagName == "svg" )
+      return false;
+
+    if( TagName == "pbs" )
+      return false;
+
+    if( TagName == "fegaussianblur" )
+      return false;
+
+    if( TagName == "defs" )
+      return false;
+
+    if( TagName == "filter" )
+      return false;
+
+    if( TagName == "telerik" )
+      return false;
+
+    if( TagName == "form" )
+      return false;
+
+    if( TagName == "input" )
+      return false;
+
+    if( TagName == "aspnetform" )
+      return false;
+
+    if( TagName == "filter" )
+      return false;
+
+    if( TagName == "defs" )
+      return false;
+
+    if( TagName == "svg" )
       return false;
 
     if( TagName == "cr" )
