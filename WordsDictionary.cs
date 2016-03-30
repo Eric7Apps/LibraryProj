@@ -556,13 +556,12 @@ namespace DGOLibrary
         return TestWord;
         }
 
-      /*
-      string ETest = TestWord + "e";
+      string ETest = TestWord + "y";
       if( MainWordsDictionary.ContainsKey( ETest ))
         {
         // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
         return ETest;
-        }*/
+        }
       }
 
     if( (InWord[InWord.Length - 3] == 'o' ) &&
@@ -985,6 +984,10 @@ namespace DGOLibrary
     ReplaceWordsDictionary["moeny"] ="money";
     ReplaceWordsDictionary["outsude"] = "outside";
     ReplaceWordsDictionary["participaes"] = "participates";
+    ReplaceWordsDictionary["partnerhip"] = "partnership";
+
+
+
     ReplaceWordsDictionary["perservation"] = "preservation";
     ReplaceWordsDictionary["recidivisim"] = "recidivism";
     ReplaceWordsDictionary["slowin"] = "slowing";
@@ -1085,6 +1088,7 @@ namespace DGOLibrary
         if( WordIsExcluded( KeyWord ))
           continue;
 
+        MForm.MainWordsData.AddWord( KeyWord );
         // For testing set it back to zero:
         CountValue = 0;
         MainWordsDictionary[KeyWord] = CountValue;
