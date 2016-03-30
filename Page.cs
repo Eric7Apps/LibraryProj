@@ -287,7 +287,7 @@ namespace DGOLibrary
 
   internal void AddLink( string Title, string LinkURL )
     {
-    if( MForm.PageList1.ContainsURL( LinkURL ))
+    if( "" != MForm.PageList1.GetExistingURL( LinkURL ))
       return;
 
     // Get this new page:
@@ -461,6 +461,7 @@ namespace DGOLibrary
       return false;
 
     Title = Utility.GetCleanUnicodeString( SplitS[0], 1000, true );
+    Title = CleanAndSimplify.SimplifyCharacterCodes( Title );
     URL = Utility.GetCleanUnicodeString( SplitS[1], 2000, true );
 
     if( URL.Contains( "durangoherald.com/#tab" ))
