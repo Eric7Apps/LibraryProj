@@ -87,7 +87,8 @@ namespace DGOLibrary
 
   protected string FindTagName( int StartAt, string InString )
     {
-    InString = InString.ToLower();
+    // ToLower() takes a lot of time on a long string.
+    // InString = InString.ToLower();
     string Result = "";
     for( int Count = StartAt; Count < InString.Length; Count++ )
       {
@@ -96,13 +97,12 @@ namespace DGOLibrary
           (InString[Count] == '/' ) ||  // <p/>
           (InString[Count] == '\r' ) ||
           (InString[Count] == '>' ))
-        return Result;
+        return Result.ToLower();
 
       Result += InString[Count];
       }
 
-    // Trim() for what?
-    return Result; // .Trim();
+    return Result.ToLower();
     }
 
 
@@ -165,14 +165,15 @@ namespace DGOLibrary
     // Some things don't require an end tag.  Like
     // a <p> tag with no ending tag.  It might just
     // get to the start of a new paragraph.
-    InString = InString.ToLower();
+    // InString = InString.ToLower();
 
     for( int Count = StartAt; Count < InString.Length; Count++ )
       {
       // Paragraph tags can't be nested.
       if( Count >= 1 )
         {
-        if( InString[Count] == 'p' )
+        if( (InString[Count] == 'p') ||
+            (InString[Count] == 'P'))
           {
           if( InString[Count - 1] == '<' )
             return Count - 2;
@@ -185,7 +186,8 @@ namespace DGOLibrary
         {
         if( InString[Count] == '>' )
           {
-          if( InString[Count - 1] == 'p' )
+          if( (InString[Count - 1] == 'p') ||
+              (InString[Count - 1] == 'P'))
             {
             if( InString[Count - 2] == '/' )
               return Count + 1;
@@ -409,8 +411,6 @@ namespace DGOLibrary
       return;
 
     int StartAt = 0;
-    string StartName = "";
-
     while( true )
       {
       int Index = FindFirstTagIndex( StartAt, MainText );
@@ -427,52 +427,48 @@ namespace DGOLibrary
         }
 
       StartAt = Index + 1;
-      StartName = FindTagName( StartAt, MainText );
-      if( StartName.Length < 1 )
+      string TagName = FindTagName( StartAt, MainText );
+      if( TagName.Length < 1 )
         {
         string ShowS = "There was no tag name: " + MainText;
         CallingPage.AddStatusString( ShowS, 500 );
         continue;
         }
 
-      if( StartName.Length > 20 )
-        {
-        // CallingPage.AddStatusString( "StartName.Length > 20.", 500 );
-        // CallingPage.AddStatusString( StartName, 500 );
+      if( TagName.Length > 15 )
         continue;
-        }
 
-      if( !StartName.StartsWith( "h" ))
+      if( TagName[0] != 'h' )
         {
-        if( !IsAllLetters( StartName ))
+        if( !IsAllLetters( TagName ))
           {
           // CallingPage.AddStatusString( "Tag name is not all letters.", 500 );
-          // CallingPage.AddStatusString( StartName, 500 );
+          // CallingPage.AddStatusString( TagName, 500 );
           continue;
           }
         }
 
-      StartAt += StartName.Length;
-      if( StartName == "br/" )
+      StartAt += TagName.Length;
+      if( TagName == "br/" )
         continue;
 
-      if( StartName == "br" )
+      if( TagName == "br" )
         continue;
 
-      if( StartName == "fb" ) // Facebook's own tags.
+      if( TagName == "fb" ) // Facebook's own tags.
         continue;     // fb:comments-count:
 
       int TestEnd = -1;
-      if( (StartName == "img") ||
-          (StartName == "link") ||
-          (StartName == "hr"))
+      if( (TagName == "img") ||
+          (TagName == "link") ||
+          (TagName == "hr"))
         {
         TestEnd = FindIMGTypeTagEnd( StartAt, MainText );
         }
 
       if( TestEnd < 0 )
         {
-        if( StartName == "p" )
+        if( TagName == "p" )
           {
           TestEnd = FindParagraphTagEnd( StartAt, MainText );
           }
@@ -480,11 +476,11 @@ namespace DGOLibrary
 
       if( TestEnd < 0 )
         {
-        if( (StartName == "link") ||
-            (StartName == "meta") ||
-            (StartName == "param") ||
-            (StartName == "embed") ||
-            (StartName == "input"))
+        if( (TagName == "link") ||
+            (TagName == "meta") ||
+            (TagName == "param") ||
+            (TagName == "embed") ||
+            (TagName == "input"))
           {
           // CallingPage.AddStatusString( "Finding single tag end.", 500 );
           TestEnd = FindSingleTagEnd( StartAt, MainText );
@@ -497,29 +493,29 @@ namespace DGOLibrary
 
       if( TestEnd < 0 )
         {
-        if( IsFullTag( StartName ))
+        if( IsFullTag( TagName ))
           {
           // CallingPage.AddStatusString( "Finding full tag end.", 500 );
-          TestEnd = FindFullTagEnd( StartAt, StartName, MainText );
+          TestEnd = FindFullTagEnd( StartAt, TagName, MainText );
           }
         }
 
       if( TestEnd < 0 )
         {
-        if( StartName == "a" )
+        if( TagName == "a" )
           {
           TestEnd = FindSingleTagEnd( StartAt, MainText );
           if( TestEnd > 0 )
             {
             // CallingPage.AddStatusString( " ", 5 );
-            // CallingPage.AddStatusString( "A tag I don't want: " + StartName + ": " + GetTruncatedErrorText( StartAt, MainText, 500 ), 500 );
+            // CallingPage.AddStatusString( "A tag I don't want: " + TagName + ": " + GetTruncatedErrorText( StartAt, MainText, 500 ), 500 );
             StartAt = TestEnd; //  + 1;
             continue;
             }
           else
             {
             // CallingPage.AddStatusString( " ", 5 );
-            // CallingPage.AddStatusString( "Part 2: A tag I don't want: " + StartName + ": " + GetTruncatedErrorText( StartAt, MainText, 500 ), 500 );
+            // CallingPage.AddStatusString( "Part 2: A tag I don't want: " + TagName + ": " + GetTruncatedErrorText( StartAt, MainText, 500 ), 500 );
             TestEnd = FindIMGTypeTagEnd( StartAt, MainText );
             StartAt = TestEnd; //  + 1;
             continue;
@@ -535,7 +531,7 @@ namespace DGOLibrary
           TestEnd = FindIMGTypeTagEnd( StartAt, MainText );
           }
 
-        ShowUnknownTag( StartName, StartAt );
+        ShowUnknownTag( TagName, StartAt );
 
         if( TestEnd > 0 )
           StartAt = TestEnd;
@@ -546,7 +542,7 @@ namespace DGOLibrary
       if( TestEnd < 0 )
         {
         CallingPage.AddStatusString( " ", 5 );
-        CallingPage.AddStatusString( "Part 2: Unknown tag: " + StartName + ": " + GetTruncatedErrorText( StartAt, MainText, 5000 ), 5000 );
+        CallingPage.AddStatusString( "Part 2: Unknown tag: " + TagName + ": " + GetTruncatedErrorText( StartAt, MainText, 5000 ), 5000 );
         continue;
         }
 
@@ -554,31 +550,24 @@ namespace DGOLibrary
       // CallingPage.AddStatusString( "SubLength: " + SubLength.ToString(), 500 );
 
       string NewTagS = MainText.Substring( StartAt, SubLength );
-      NewTagS = NewTagS.Trim();
+      // Don't trim().
+      // NewTagS = NewTagS.Trim();
+        // CallingPage.AddStatusString( "NewTagS: " + NewTagS, 500 );
 
-      if( StartName == "p" )
+      if( TagName == "p" )
         {
         ParagraphTag PTag = new ParagraphTag( CallingPage, NewTagS, RelativeURLBase );
         PTag.ParseParagraph();
         }
 
-
-        // CallingPage.AddStatusString( "NewTagS: " + NewTagS, 500 );
-
-      if( StartName == "a" )
+      if( TagName == "a" )
         {
         LinkTag LTag = new LinkTag( CallingPage, NewTagS, RelativeURLBase );
         LTag.ParseLink();
         }
 
-      if( StartName == "p" )
-        {
-        // LinkTag LTag = new LinkTag( CallingPage, NewTagS, RelativeURLBase );
-        // LTag.ParseLink();
-        }
-
       // There are links in Paragraphs sometimes.
-      if( SubTagCanBeParsed( StartName ) )
+      if( !IgnoreTagForNow( TagName, "" ))
         {
         BasicTag TagToAdd = new BasicTag( CallingPage, NewTagS, RelativeURLBase );
         // AddContainedTag( TagToAdd );
@@ -597,235 +586,150 @@ namespace DGOLibrary
 
 
 
-  private void ShowUnknownTag( string StartName, int StartAt )
+  private void ShowUnknownTag( string TagName, int StartAt )
     {
-    // Stuff that needs work:
-
     string TestS = GetTruncatedErrorText( StartAt, MainText, 500 );
-    if( StartName == "a" )
+
+    if( IgnoreTagForNow( TagName, TestS ))
+      return;
+
+    if( TagName == "p" )
+      return;
+
+    CallingPage.AddStatusString( " ", 5 );
+    CallingPage.AddStatusString( "Unknown for tag: " + TagName + ": " + TestS, 500 );
+    }
+
+
+
+  private bool IgnoreTagForNow( string TagName, string TestS )
+    {
+    if( TagName.Length < 1 )
+      return true;
+
+    if( TagName == "span" )
+      return true;
+
+    if( TagName == "hl2" ) // HL2 Powerball.
+      return true;
+
+    if( TagName == "head" )
+      return true;
+
+    if( TagName == "dd" )
+      return true;
+
+    if( TagName == "td" )
+      return true;
+
+    if( TagName == "byttl" )   // Byline title apparently.
+      return true;
+
+    if( TagName == "b" )
+      return true;
+
+    if( TagName == "i" )
+      return true;
+
+    if( TagName == "li" )
+      return true;
+
+    if( TagName == "fecolormatrix" )
+      return true;
+
+   if( TagName == "ul" )
+      return true;
+
+    if( TagName == "fecomposite" )
+      return true;
+
+    if( TagName == "o" )
+      return true;
+
+    if( TagName == "gcse" )
+      return true;
+
+    if( TagName == "pbs" )
+      return true;
+
+    if( TagName == "fegaussianblur" )
+      return true;
+
+    if( TagName == "defs" )
+      return true;
+
+    if( TagName == "filter" )
+      return true;
+
+    if( TagName == "telerik" )
+      return true;
+
+    if( TagName == "area" )
+      return true;
+
+    if( TagName == "form" )
+      return true;
+
+    if( TagName == "input" )
+      return true;
+
+    if( TagName == "aspnetform" )
+      return true;
+
+    if( TagName == "filter" )
+      return true;
+
+    if( TagName == "defs" )
+      return true;
+
+    if( TagName == "svg" )
+      return true;
+
+    if( TagName == "cr" )
+      return true;
+
+    if( TagName == "object" )
+      return true;
+
+    if( TagName == "iframe" )
+      return true;
+
+    if( TagName == "embed" )
+      return true;
+
+    // h1, h2 ...
+    if( TagName[0] == 'h' )
+      {
+      if( TagName.Length == 2 )
+        return true;
+
+      }
+
+    if( TagName == "a" )
       {
       if( TestS.Contains( "thecloudscout.com" ))
-        return;
-
-      }
-
-    if( TestS.Contains( "civicplus.com" ))
-      return;
-
-    if( StartName == "form" )
-      {
-      // :  name="aspnetForm" 
-      return;
-      }
-
-    if( StartName == "telerik" )
-      {
-      // RadScriptBlock>
-      return;
-      }
-
-    if( StartName == "gcse" )
-      {
-      return;
-      }
-
-    if( StartName == "svg" )
-      {
-      return;
-      }
-
-    if( StartName == "defs" )
-      {
-      return;
-      }
-
-    if( StartName == "filter" )
-      {
-      return;
-      }
-
-    if( StartName == "o" )
-      {
-      return;
-      }
-
-    if( StartName == "pbs" )
-      {
-      return;
-      }
-
-    if( StartName == "head" )
-      {
-      // if( TestS.ToLower().Contains( "legacy.com" ))
-        return;
-
-      }
-
-    if( StartName == "iframe" )
-      {
-      if( TestS.ToLower().Contains( "washingtonpost.com/video/" ))
-        return;
-
-      }
-
-    // Mega Millions  Estimated jackpot
-    if( StartName == "hl2" ) // Like hL2.
-      return;
-
-    if( StartName == "byttl" )   // Byline title apparently.
-      return;
-
-    if( StartName == "dd" )
-      return;
-
-    if( StartName == "b" )
-      return;
-
-    if( StartName == "i" )
-      return;
-
-    if( StartName == "object" )
-      {
-      // if( TestS.ToLower().Contains( "legacy.com" ))
-        return;
-
-      }
-
-    if( StartName == "span" )
-      {
-      // if( TestS.ToLower().Contains( "legacy.com" ))
-        return;
-
-      }
-
-    if( TestS.ToLower().Contains( "obituaries" ))
-      return;
-
-    if( StartName == "li" )
-      {
-      // if( TestS.ToLower().Contains( "
-        return;
-
-      }
-
-    if( StartName == "ul" )
-      {
-      // if( TestS.ToLower().Contains( "
-        return;
-
-      }
-
-    // if( TestS.ToLower().Contains( "/images/footer-logo.png" ))
-      // return;
-
-    if( StartName == "cr" )
-      {
-      // class="other-editions">
-
-      // if( TestS.ToLower().Contains( "
-        return;
+        return true;
 
       }
 
     // ...</li>
-    if( StartName == "p" )
+    if( TagName == "p" )
       {
-      if( TestS.ToLower().Contains( "</li>" ))
-        return;
+      if( TestS.Contains( "</li>" ))
+        return true;
 
       }
 
-    // h1, h2 ...
-    if( StartName.StartsWith( "h" ))
-      {
-      if( StartName.Length == 2 )
-        return;
+    if( TestS.Contains( "civicplus.com" ))
+      return true;
 
-      }
+    if( TestS.Contains( "obituaries" ))
+      return true;
 
-    if( StartName == "fegaussianblur" )
-      return;
-
-    if( StartName == "fecolormatrix" )
-      return;
-
-    if( StartName == "fecomposite" )
-      return;
-
-
-    CallingPage.AddStatusString( " ", 5 );
-    CallingPage.AddStatusString( "Unknown for tag: " + StartName + ": " + TestS, 500 );
+    return false;
     }
 
 
-
-  private bool SubTagCanBeParsed( string TagName )
-    {
-    if( TagName == "a" )
-      return false;
-
-    if( TagName == "fecolormatrix" )
-      return false;
-
-    if( TagName == "fecomposite" )
-      return false;
-
-    if( TagName == "o" )
-      return false;
-
-    if( TagName == "gcse" )
-      return false;
-
-    if( TagName == "svg" )
-      return false;
-
-    if( TagName == "pbs" )
-      return false;
-
-    if( TagName == "fegaussianblur" )
-      return false;
-
-    if( TagName == "defs" )
-      return false;
-
-    if( TagName == "filter" )
-      return false;
-
-    if( TagName == "telerik" )
-      return false;
-
-    if( TagName == "form" )
-      return false;
-
-    if( TagName == "input" )
-      return false;
-
-    if( TagName == "aspnetform" )
-      return false;
-
-    if( TagName == "filter" )
-      return false;
-
-    if( TagName == "defs" )
-      return false;
-
-    if( TagName == "svg" )
-      return false;
-
-    if( TagName == "cr" )
-      return false;
-
-    if( TagName == "object" )
-      return false;
-
-    if( TagName == "iframe" )
-      return false;
-
-    if( TagName == "embed" )
-      return false;
-
-    return true;
-    }
 
 
   /*
