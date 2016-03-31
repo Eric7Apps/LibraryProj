@@ -98,6 +98,9 @@ namespace DGOLibrary
     if( Title.Contains( "Read the next article in" ))
       return;
 
+   if( Title.ToLower() == "...read more" )
+      return;
+
     Title = CleanAndSimplify.SimplifyCharacterCodes( Title );
 
     if( !Attributes.ToLower().Contains( "href=" ))
