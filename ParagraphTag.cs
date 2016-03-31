@@ -59,7 +59,25 @@ namespace DGOLibrary
         FullText += SplitS[Count] + " ";
 
       }
+    else
+      {
+      if( SplitS.Length == 0 )
+        return;
 
+      if( SplitS[0] == "class=\"caption\"" )
+        return;
+
+      if( SplitS[0] == "class=\"articletext\"" )
+        return;
+
+      if( SplitS[0].Contains( "=" ))
+        {
+        GetCallingPage().AddStatusString( " ", 500 );
+        GetCallingPage().AddStatusString( "SPlitS is 1 or zero in the Paragraph: ", 500 );
+        GetCallingPage().AddStatusString( FullText, 500 );
+        }
+      }
+    /*
     int TagStart = FindFirstTagIndex( 0, FullText );
     if( TagStart >= 0 )
       {
@@ -67,6 +85,7 @@ namespace DGOLibrary
       GetCallingPage().AddStatusString( "Tag in the Paragraph?: ", 500 );
       GetCallingPage().AddStatusString( FullText, 5000 );
       }
+      */
 
     FullText = FullText.Replace( "herald staff writer", " " );
     FullText = FullText.Replace( "durango herald", " " );
@@ -121,8 +140,7 @@ namespace DGOLibrary
     string SearchText = CleanAndSimplify.SimplifyCharacterCodes( FullText );
     GetCallingPage().AddToSearchableContents( SearchText );
 
-    ParseWords ParseW = new ParseWords();
-    SortedDictionary<string, int> WordsDictionary = ParseW.ParseText( FullText );
+    SortedDictionary<string, int> WordsDictionary = ParseText( FullText );
     if( WordsDictionary != null )
       GetCallingPage().AddWords( WordsDictionary );
 
@@ -132,6 +150,86 @@ namespace DGOLibrary
       GetCallingPage().AddStatusString( "Exception in LinkTag.ParseLink().", 500 );
       GetCallingPage().AddStatusString( Except.Message, 500 );
       }
+    }
+
+
+  internal SortedDictionary<string, int> ParseText( string InString )
+    {
+    InString = ReplaceForSplitWords( InString );
+    // InString = InString.Trim();
+
+    InString = InString.Replace( "capt.", "captain" );
+
+    // "Durango's "
+    InString = InString.Replace( "'s ", " " );
+    InString = InString.Replace( "'", " " );
+
+    InString = InString.Replace( "\r", " " );
+    InString = InString.Replace( "\"", " " );
+    InString = InString.Replace( "'", " " );
+    InString = InString.Replace( ":", " " );
+    InString = InString.Replace( ";", " " );
+    InString = InString.Replace( ".", " " );
+    InString = InString.Replace( ",", " " );
+    InString = InString.Replace( "-", " " );
+    InString = InString.Replace( "_", " " );
+    InString = InString.Replace( "!", " " );
+    InString = InString.Replace( "?", " " );
+    InString = InString.Replace( "(", " " );
+    InString = InString.Replace( ")", " " );
+    InString = InString.Replace( "[", " " );
+    InString = InString.Replace( "]", " " );
+    InString = InString.Replace( "{", " " );
+    InString = InString.Replace( "}", " " );
+    InString = InString.Replace( "<", " " );
+    InString = InString.Replace( ">", " " );
+    InString = InString.Replace( "|", " " );
+    InString = InString.Replace( "\\", " " );
+    InString = InString.Replace( "/", " " );
+
+    // InString = InString.Replace( "=", " " );
+
+    SortedDictionary<string, int> WordsDictionary = new SortedDictionary<string, int>();
+
+    string[] WordsArray = InString.Split( new Char[] { ' ' } );
+    for( int Count = 0; Count < WordsArray.Length; Count++ )
+      {
+      string Word = WordsArray[Count].Trim();
+      if( Word.Length < 3 )
+        continue;
+
+      if( Word == "the" )
+        continue;
+
+      WordsDictionary[Word] = 1;
+      }
+
+    return WordsDictionary;
+    }
+
+
+
+
+  internal string ReplaceForSplitWords( string InString )
+    {
+    // If you were searching for 'book' you'd find
+    // 'book' but not 'bookstore' or 'bookshop'.
+
+    string Result = InString;
+
+    // Put these in a file?
+
+    Result = Result.Replace( "bookstore", "book store" );
+    Result = Result.Replace( "bookshop", "book shop" );
+    Result = Result.Replace( "colostate", "colorado state" );
+    Result = Result.Replace( "puertorico", "puerto rico" );
+    Result = Result.Replace( "ragtimefestival", "ragtime festival" );
+    Result = Result.Replace( "realestate", "real estate" );
+    Result = Result.Replace( "realproperty", "real property" );
+    Result = Result.Replace( "runningclub", "running club" );
+    Result = Result.Replace( "worksite", "work site" );
+
+    return Result;
     }
 
 
