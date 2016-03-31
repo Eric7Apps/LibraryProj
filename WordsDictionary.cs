@@ -16,11 +16,11 @@ namespace DGOLibrary
   {
   private MainForm MForm;
   private SortedDictionary<string, int> MainWordsDictionary;
-  private SortedDictionary<string, string> ReplaceWordsDictionary;
+  // private SortedDictionary<string, string> ReplaceWordsDictionary;
   private SortedDictionary<string, int> ExcludedWordsDictionary;
   private string FileName = "";
   private string ExcludedFileName = "";
-
+  private SuffixForms SuffixForms1;
 
 
   private WordsDictionary()
@@ -36,14 +36,16 @@ namespace DGOLibrary
     FileName = MForm.GetDataDirectory() + "WordsDictionary.txt";
     ExcludedFileName = MForm.GetDataDirectory() + "ExcludedWordsDictionary.txt";
 
+    SuffixForms1 = new SuffixForms();
     MainWordsDictionary = new SortedDictionary<string, int>();
-    ReplaceWordsDictionary = new SortedDictionary<string, string>();
+    // ReplaceWordsDictionary = new SortedDictionary<string, string>();
     ExcludedWordsDictionary = new SortedDictionary<string, int>();
 
-    AddCommonReplacements();
+    // AddCommonReplacements();
     }
 
 
+  /*
   internal void IncrementWordCount( string InWord )
     {
     if( !MainWordsDictionary.ContainsKey( InWord ))
@@ -51,11 +53,10 @@ namespace DGOLibrary
 
     MainWordsDictionary[InWord] += 1;
     }
+    */
 
 
 
-  // This word form thing could get a _lot_ more
-  // complicated.
   internal string GetValidWordForm( string InWord )
     {
     try
@@ -78,15 +79,34 @@ namespace DGOLibrary
     if( WordIsExcluded( InWord ))
       return "";
 
-    if( MainWordsDictionary.ContainsKey( InWord ))
+    // if( MForm.MainWordsData.WordExists( InWord ) != MainWordsDictionary.ContainsKey( InWord ))
+      // throw( new Exception( "These can't disagree on words." ));
+
+    if( MForm.MainWordsData.WordExists( InWord ) )
+    // if( MainWordsDictionary.ContainsKey( InWord ))
       return InWord;
+
 
     // It doesn't get here if it's in the main dictionary.
-    InWord = ReplaceCommonWordForms( InWord );
-    if( MainWordsDictionary.ContainsKey( InWord ))
-      return InWord;
+    // InWord = ReplaceCommonWordForms( InWord );
+    // if( MainWordsDictionary.ContainsKey( InWord ))
+      // return InWord;
 
-    string FixedWord = FixSuffix( InWord );
+
+    // string FixedWord = FixSuffix( InWord );
+    string FixedWord = SuffixForms1.FixSuffix( InWord, MForm.MainWordsData.GetMainWordsIndex());
+    /*
+    if( FixedWord != FixedWord2 )
+      {
+      string ShowS = "FixedWord != FixedWord2.\r\n" +
+        "InWord: " + InWord + "\r\n" +
+        "FixedWord: " + FixedWord + "\r\n" +
+        "FixedWord2: " + FixedWord2 + "\r\n";
+
+      throw( new Exception( ShowS ));
+      }
+      */
+
     if( FixedWord.Length != 0 )
       {
       // MForm.ShowStatus( "To: " + FixedWord );
@@ -106,7 +126,7 @@ namespace DGOLibrary
     }
 
 
-
+  /*
   private string FixSuffix( string InWord )
     {
     int Test = 1;
@@ -159,10 +179,10 @@ namespace DGOLibrary
       return "";
       }
     }
+    */
 
 
-
-
+  /*
   private string FixSuffix1( string InWord )
     {
     int Test = 1;
@@ -229,9 +249,11 @@ namespace DGOLibrary
       return "";
       }
     }
+    */
 
 
 
+  /*
   private string FixSuffix2( string InWord )
     {
     int Test = 1;
@@ -387,10 +409,10 @@ namespace DGOLibrary
       return "";
       }
     }
+    */
 
 
-
-
+  /*
   private string FixSuffix3( string InWord )
     {
     int Test = 1;
@@ -454,14 +476,14 @@ namespace DGOLibrary
         return TestWord;
         }
 
-      /*
+      /////////
       string ETest = TestWord + "e";
       if( MainWordsDictionary.ContainsKey( ETest ))
         {
         // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
         return ETest;
         }
-        */
+        //////////
 
       if( TestWord.Length >= 4 )
         {
@@ -740,14 +762,14 @@ namespace DGOLibrary
         return TestWord;
         }
 
-      /*
+      /////////
       ETest = TestWord + "y";
       if( MainWordsDictionary.ContainsKey( ETest ))
         {
         // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
         return ETest;
         }
-        */
+        ///////
       }
 
     return "";
@@ -760,8 +782,10 @@ namespace DGOLibrary
       return "";
       }
     }
+    */
 
 
+  /*
   private string FixSuffix4( string InWord )
     {
     int Test = 1;
@@ -831,14 +855,14 @@ namespace DGOLibrary
         return TestWord;
         }
 
-      /*
+      ///////////
       string ETest = TestWord + "e";
       if( MainWordsDictionary.ContainsKey( ETest ))
         {
         // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
         return ETest;
         }
-        */
+        ///////////
       }
 
     if( (InWord[InWord.Length - 4] == 'a' ) &&
@@ -853,14 +877,14 @@ namespace DGOLibrary
         return TestWord;
         }
 
-      /*
+      ////////
       string ETest = TestWord + "e";
       if( MainWordsDictionary.ContainsKey( ETest ))
         {
         // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
         return ETest;
         }
-        */
+        ///////////
       }
 
     if( (InWord[InWord.Length - 4] == 'i' ) &&
@@ -875,14 +899,14 @@ namespace DGOLibrary
         return TestWord;
         }
 
-      /*
+      /////////
       string ETest = TestWord + "e";
       if( MainWordsDictionary.ContainsKey( ETest ))
         {
         // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
         return ETest;
         }
-        */
+        ///////////
       }
 
     if( (InWord[InWord.Length - 4] == 'i' ) &&
@@ -915,7 +939,7 @@ namespace DGOLibrary
       return "";
       }
     }
-
+    */
 
 
 
@@ -945,7 +969,7 @@ namespace DGOLibrary
 
 
 
-
+  /*
   // See the note above about how this is used.  It has
   // already been checked against the main words dictionary
   // and it's not in that.  So it's not replacing part
@@ -957,9 +981,10 @@ namespace DGOLibrary
 
     return ReplaceWordsDictionary[InWord];
     }
+    */
 
 
-
+  /*
   private void AddCommonReplacements()
     {
     ReplaceWordsDictionary["ariz"] = "arizona";
@@ -981,13 +1006,11 @@ namespace DGOLibrary
     ReplaceWordsDictionary["intro"] = "introduction";
     ReplaceWordsDictionary["mangement"] = "management";
     ReplaceWordsDictionary["margaritis"] ="margaritas";
+    ReplaceWordsDictionary["memorablia"] ="memorabilia";
     ReplaceWordsDictionary["moeny"] ="money";
     ReplaceWordsDictionary["outsude"] = "outside";
     ReplaceWordsDictionary["participaes"] = "participates";
     ReplaceWordsDictionary["partnerhip"] = "partnership";
-
-
-
     ReplaceWordsDictionary["perservation"] = "preservation";
     ReplaceWordsDictionary["recidivisim"] = "recidivism";
     ReplaceWordsDictionary["slowin"] = "slowing";
@@ -1009,6 +1032,7 @@ namespace DGOLibrary
     ReplaceWordsDictionary["nov"] = "november";
     // ReplaceWordsDictionary["dec"] = "december";
     }
+    */
 
 
   internal string FixUserInput( string UserInput )
