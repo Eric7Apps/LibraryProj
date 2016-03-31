@@ -178,7 +178,7 @@ namespace DGOLibrary
     // AddURLForm( "Durango Gov Places to Eat / Shop / Stay", "http://www.durangogov.org/Index.aspx?NID=295", true, false, "http://www.durangogov.org" );
     // AddURLForm( "Durango Gov Transportation", "http://www.durangogov.org/Index.aspx?NID=290", true, false, "http://www.durangogov.org" );
 
-    AddURLForm( "Durango Telegraph Main Page", "http://www.DurangoTelegraph.com/", true, false, "http://www.DurangoTelegraph.com" );
+    AddURLForm( "Durango Telegraph Main Page", "http://www.durangotelegraph.com/", true, false, "http://www.durangotelegraph.com" );
 
     }
 
@@ -374,7 +374,6 @@ namespace DGOLibrary
       ShowStatus( "Error: Could not write the status to the file." );
       // ShowStatus( FileName );
       ShowStatus( Except.Message );
-      return;
       }
     }
 
@@ -485,8 +484,8 @@ namespace DGOLibrary
         continue;
 
       // Start up the first one that hasn't already been started.
-      // ShowStatus( "Starting next in queue." );
-      GetURLArray[Count].StartHttp( true );
+      ShowStatus( "Starting next in queue." );
+      GetURLArray[Count].StartHttp( false );
       return; // Only start one.
       }
     }
