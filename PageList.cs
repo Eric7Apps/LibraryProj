@@ -225,7 +225,7 @@ namespace DGOLibrary
     // URL in the links it is adding to the
     // PageDictionary.  So while this is being called,
     // NextIndex is being incremented for every new link.
-    UsePage.UpdateFromFile( Title, URL, FileName, SetTime, RelativeURLBase );
+    UsePage.UpdateFromFile( Title, URL, FileName, SetTime, RelativeURLBase, true );
     // So at this point NextIndex has changed.
 
     }
@@ -369,24 +369,29 @@ namespace DGOLibrary
     ECTime StartTime = new ECTime();
     StartTime.SetToNow();
 
-    MForm.AllWords.ClearAll();
+    MForm.MainWordsData.ClearAllIntCollections();
+
+    ReadAllFilesToContent();
 
     int Loops = 0;
     foreach( KeyValuePair<string, Page> Kvp in PageDictionary )
       {
       Loops++;
-      if( (Loops & 0x7) == 0 )
+      if( (Loops & 0x7F) == 0 )
         {
         if( !MForm.CheckEvents())
           return;
 
+      if( MForm.GetIsClosing() )
+        return;
+
         }
 
       Page Page1 = Kvp.Value;
-      Page1.UpdateFromFile( Page1.GetTitle(), Page1.GetURL(), Page1.GetFileName(), false, Page1.GetRelativeURLBase() );
+      Page1.UpdateFromFile( Page1.GetTitle(), Page1.GetURL(), Page1.GetFileName(), false, Page1.GetRelativeURLBase(), false );
       }
 
-    MForm.AllWords.WriteToTextFile();
+    MForm.MainWordsData.WriteToTextFile();
     MForm.ShowStatus( " " );
     MForm.ShowStatus( "Finished indexing in: " + StartTime.GetSecondsToNow().ToString( "N0" ));
     }
@@ -398,10 +403,9 @@ namespace DGOLibrary
     }
 
 
-  /*
   internal void ReadAllFilesToContent()
     {
-    MForm.ShowStatus( "Start of ReadAllFiles()." );
+    MForm.ShowStatus( "Start of ReadAllFilesToContent()." );
     foreach( KeyValuePair<string, Page> Kvp in PageDictionary )
       {
       if( !MForm.CheckEvents())
@@ -412,13 +416,12 @@ namespace DGOLibrary
       if( ReadFileName.Length < 1 )
         continue;
 
-      string FileContents = Page1.ReadFromTextFile( ReadFileName );
-      Page1.MoveContentsToUTF8( FileContents );
+      Page1.ReadToFullFileContentsString( ReadFileName );
+      // Page1.MoveContentsToUTF8( FileContents );
       }
 
-    MForm.ShowStatus( "Finished ReadAllFiles()." );
+    MForm.ShowStatus( "Finished ReadAllFilesToContent()." );
     }
-    */
 
 
 
@@ -456,6 +459,19 @@ namespace DGOLibrary
       // link.  It's not from the title tag within the page.
       // It's not from the content of the page.
       string TitlePart = SendPage.GetTitle();
+      string BaseURL = SendPage.GetRelativeURLBase().ToLower();
+      if( BaseURL.Contains( "durangoherald.com" ))
+        TitlePart = "Herald) " + TitlePart;
+
+      if( BaseURL.Contains( "durangotelegraph.com" ))
+        TitlePart = "Telegraph) " + TitlePart;
+
+      if( BaseURL.Contains( "durangogov.org" ))
+        TitlePart = "Durango Gov) " + TitlePart;
+
+      if( BaseURL.Contains( "colorado.gov" ))
+        TitlePart = "Colorado Gov) " + TitlePart;
+
 
       // To sort it by title.
       // Sort it by time index instead?
@@ -521,12 +537,11 @@ namespace DGOLibrary
       if( !Contents.Contains( "carnegie" ))
         continue;
 
-      // if( !Contents.Contains( "something" ))
-        // continue;
-
       MForm.ShowStatus( " " );
       MForm.ShowStatus( " " );
+      MForm.ShowStatus( SendPage.GetFileName());
       MForm.ShowStatus( Contents );
+
       // This title is the original title from the original
       // link.  It's not from the title tag within the page.
       // It's not from the content of the page.
@@ -595,8 +610,8 @@ namespace DGOLibrary
     // basic example.
     string Word1 = "library";
     string Word2 = "carnegie";
-    IntegerCollection IntCol1 = MForm.AllWords.GetIntegerLinks( Word1 );
-    IntegerCollection IntCol2 = MForm.AllWords.GetIntegerLinks( Word2 );
+    IntegerCollection IntCol1 = MForm.MainWordsData.GetIntegerLinks( Word1 );
+    IntegerCollection IntCol2 = MForm.MainWordsData.GetIntegerLinks( Word2 );
 
     IntegerCollection IntColBoth = null;
 
