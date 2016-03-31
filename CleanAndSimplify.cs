@@ -45,7 +45,7 @@ namespace DGOLibrary
     // 39 is ASCII apostrophe.
     Result = Result.Replace( "&#39;", "'" );
 
-    Result = Result.Replace( "&#xad;", "" ); // hyphen for word wrap I think.
+    Result = Result.Replace( "&#xad;", " " ); // hyphen for word wrap I think.
 
     // Simplify characters for words dicionary.
     // à, á, â, ã, ä, å, æ
@@ -114,7 +114,7 @@ namespace DGOLibrary
     Result = Result.Replace( "&rsquo;", "'" );
     Result = Result.Replace( "&ndash;", "-" );
     Result = Result.Replace( "&mdash;", "-" );
-    Result = Result.Replace( "&shy;", "" ); // hyphen for word wrap?
+    Result = Result.Replace( "&shy;", " " ); // hyphen for word wrap?
     //    As in Resum&eacute;
     Result = Result.Replace( "&eacute;", "e" );
 
