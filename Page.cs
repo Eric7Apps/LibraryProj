@@ -22,6 +22,7 @@ namespace DGOLibrary
   private string FileName = "";
   private int Index = 0;
   private string SearchableContents = "";
+  private string FullFileContents = "";
   // private byte[] UTF8Contents;
   private string RelativeURLBase = "";
 
@@ -138,33 +139,21 @@ namespace DGOLibrary
 
 
 
-  internal void UpdateFromFile( string UseTitle, string UseURL, string InFileName, bool SetTime, string RelativeURL )
+  internal void UpdateFromFile( string UseTitle, string UseURL, string InFileName, bool SetTime, string RelativeURL, bool ReadFromFile )
     {
     try
     {
-    if( MForm.GetIsClosing() )
-      return;
-
     SearchableContents = "";
 
     if( InFileName.Length < 3 )
       {
-      MForm.ShowStatus( " " );
-      MForm.ShowStatus( "No file name specified for: " + Title );
+      // MForm.ShowStatus( " " );
+      // MForm.ShowStatus( "No file name specified for: " + Title );
       return;
       }
 
-    if( URL.Length > 0 )
-      {
-      if( URL != UseURL )
-        {
-        MForm.ShowStatus( " " );
-        MForm.ShowStatus( "Title: " + Title );
-        MForm.ShowStatus( "UseTitle: " + UseTitle );
-        MForm.ShowStatus( "The URL being updated is different from the original one: " + URL );
-        return;
-        }
-      }
+    // if( URL.Length > 0 )
+      // if( URL != UseURL )
 
     URL = UseURL;
     RelativeURLBase = RelativeURL;
@@ -181,7 +170,10 @@ namespace DGOLibrary
       Title = Utility.TruncateString( UseTitle, 500 );
       }
 
-    string FileContents = ReadFromTextFile( InFileName );
+    string FileContents = FullFileContents;
+    if( ReadFromFile )
+      FileContents = ReadFromTextFile( InFileName );
+
     if( FileContents == "" )
       return;
 
@@ -205,13 +197,16 @@ namespace DGOLibrary
       return;
       }
 
-    if( !FileContents.ToLower().Contains( "<html" ))
+    if( !FileContents.Contains( "<html" ))
       {
-      MForm.ShowStatus( "This is not an HTML file." );
-      MForm.ShowStatus( "Deleting File: " + InFileName );
-      File.Delete( InFileName );
-      FileContents = "";
-      return;
+      if( !FileContents.Contains( "<HTML" ))
+        {
+        MForm.ShowStatus( "This is not an HTML file." );
+        MForm.ShowStatus( "Deleting File: " + InFileName );
+        File.Delete( InFileName );
+        FileContents = "";
+        return;
+        }
       }
 
     // Notice that a main page like the ones added in
@@ -229,7 +224,8 @@ namespace DGOLibrary
     // GetCleanUnicodeString() was done in
     // ReadFromTextFile() for each line.
 
-    WriteToTextFile( FileContents );
+    if( ReadFromFile )
+      WriteToTextFile( FileContents );
 
     // MoveContentsToUTF8( FileContents );
 
@@ -239,6 +235,7 @@ namespace DGOLibrary
     if( SetTime )
       ContentsUpdateTime.SetToNow();
 
+    /*
     // MForm.ShowStatus( "Code Comments:" );
     string CommentLine = CleanContents.ToLower();
     CommentLine = CommentLine.Replace( "\r", " " );
@@ -265,6 +262,7 @@ namespace DGOLibrary
         // MForm.ShowStatus( Kvp.Key );
         }
       }
+      */
 
     CleanContents = Utility.RemovePatternFromStartToEnd( "<!--", "-->", CleanContents );
 
@@ -282,6 +280,12 @@ namespace DGOLibrary
       }
     }
 
+
+
+  internal void ReadToFullFileContentsString( string InFileName )
+    {
+    FullFileContents = ReadFromTextFile( InFileName );
+    }
 
 
 
@@ -549,10 +553,12 @@ namespace DGOLibrary
     string URL = GetURL();
     foreach( KeyValuePair<string, int> Kvp in WordsDictionary )
       {
-      MForm.AllWords.UpdateWord( Kvp.Key, URL );
+      MForm.MainWordsData.UpdateWord( Kvp.Key, URL );
+      // MForm.AllWords.UpdateWord( Kvp.Key, URL );
       // MForm.ShowStatus( Kvp.Key );
       }
     }
+
 
 
   internal void AddToSearchableContents( string InString )
