@@ -3,12 +3,9 @@
 // ericlibproj.blogspot.com
 
 using System;
-// using System.Collections.Generic;
 using System.Text;
-// using System.Threading.Tasks;
 
 
-// This has a ways to go.
 
 namespace DGOLibrary
 {
@@ -16,18 +13,16 @@ namespace DGOLibrary
   {
   private WordsData CallingWordsData;
   private WordsArrayRec[,,,] WordsArray;
-  private const int LetterAOffset = (int)'a';
+  private const int LetterAOffset = (int)'a' - 1; // See notes below.
   private const int WordsArraySize = 28;
 
-  private int NextIndex = 1;
+  // private int NextIndex = 1;
 
 
   public struct WordRec
     {
     public string WordTail;
     public IntegerCollection IndexCol;
-    public int Index; // For compression.
-    public int HowMany;
     }
 
   public struct WordsArrayRec
@@ -64,20 +59,34 @@ namespace DGOLibrary
     // Everything is lower case.
     // Almost all letters are ASCII letters between
     // 'a' and 'z'.
-    // z - a = 25
-    // a - a = 0
-    if( ('z' - 'a') > 25 )
-      throw( new Exception( "This can't happen." ));
-
+    // The space character is at zero, so 
+    if( ((int)'a' - LetterAOffset) != 1 )
+      throw( new Exception( "This can't happen with LetterAOffset." ));
 
     if( Letter == ' ' )
-      return 26;
+      return 0; // This way it puts it in sorted order.
 
     // Check WordsArraySize.
     if( (Letter < 'a') || (Letter > 'z'))
       return 27; // Put all non-ASCII characters here.
 
     return (int)Letter - LetterAOffset;
+    }
+
+
+
+  private char GetLetterFromIndex( int Index )
+    {
+    if( Index < 0 )
+      return '?'; 
+
+   if( Index >= 27 )
+      return '?'; 
+
+    if( Index == 0 )
+      return ' ';
+
+    return (char)(Index + LetterAOffset);
     }
 
 
@@ -105,12 +114,14 @@ namespace DGOLibrary
     }
 
 
+
   private string RemoveHead( string InString )
     {
     // This assumes the string is at least 5
     // characters long.
     return InString.Remove( 0, 4 );
     }
+
 
 
   internal bool WordExists( string Word )
@@ -191,9 +202,8 @@ namespace DGOLibrary
     WordRec Rec = new WordRec();
     Rec.WordTail = Tail;
     Rec.IndexCol = null; // IntegerCollection is empty.
-    Rec.HowMany = 1;
-    Rec.Index = NextIndex;
-    NextIndex++;
+    // Rec.Index = NextIndex;
+    // NextIndex++;
 
     WordsArray[Index0, Index1, Index2, Index3].WordRecArray[WordsArray[Index0, Index1, Index2, Index3].WordRecArrayLast] = Rec;
     WordsArray[Index0, Index1, Index2, Index3].WordRecArrayLast++;
@@ -211,54 +221,186 @@ namespace DGOLibrary
 
 
 
-  /*
+  internal IntegerCollection GetIntegerCollection( string WordToMatch )
+    {
+    try
+    {
+    WordToMatch = FixupWord( WordToMatch );
+    if( WordToMatch.Length == 0 )
+      return null;
+
+    int Index0 = GetLetterIndex( WordToMatch[0] );
+    int Index1 = GetLetterIndex( WordToMatch[1] );
+    int Index2 = GetLetterIndex( WordToMatch[2] );
+    int Index3 = GetLetterIndex( WordToMatch[3] );
+
+    int Last = WordsArray[Index0, Index1, Index2, Index3].WordRecArrayLast;
+    for( int Count = 0; Count < Last; Count++ )
+      {
+      string CheckWord = WordsArray[Index0, Index1, Index2, Index3].WordRecArray[Count].WordTail;
+      if( !( (Index0 > 26) || // Non-ASCII is 27.
+             (Index1 > 26) ||
+             (Index2 > 26) ||
+             (Index3 > 26)))
+        {
+        CheckWord = Char.ToString( GetLetterFromIndex( Index0 )) +
+               Char.ToString( GetLetterFromIndex( Index1 )) +
+               Char.ToString( GetLetterFromIndex( Index2 )) +
+               Char.ToString( GetLetterFromIndex( Index3 )) +
+               CheckWord;
+
+        }
+
+      if( CheckWord.Trim() == WordToMatch )
+        {
+        if( null == WordsArray[Index0, Index1, Index2, Index3].WordRecArray[Count].IndexCol )
+          {
+          WordsArray[Index0, Index1, Index2, Index3].WordRecArray[Count].IndexCol = new IntegerCollection();
+          }
+
+        return WordsArray[Index0, Index1, Index2, Index3].WordRecArray[Count].IndexCol;
+        }
+      }
+
+    return null;
+    }
+    catch( Exception Except )
+      {
+      ShowStatus( "Exception in WordsIndex.GetIntegerCollection():" );
+      ShowStatus( Except.Message );
+      return null;
+      }
+    }
+
+
+
+  internal void AddPageIndex( string Word, int PageIndex )
+    {
+    try
+    {
+    Word = FixupWord( Word );
+    if( Word.Length == 0 )
+      return;
+
+    if( !WordExists( Word ))
+      AddWord( Word );
+
+    // This will make a new one if need be.
+    IntegerCollection IntCol = GetIntegerCollection( Word );
+    if( IntCol == null )
+      return; // There was an error.
+
+
+    IntCol.AddInteger( PageIndex, true );
+
+    }
+    catch( Exception Except )
+      {
+      ShowStatus( "Exception in WordsIndex.AddPageIndex():" );
+      ShowStatus( Except.Message );
+      }
+    }
+
+
+
   internal string GetAllWordsString()
     {
     try
     {
     // Sort each array.
 
-    // Non-ASCII is 27.
-    for( int Count0 = 0; Count0 < WordsArraySize; Count0++ )
+    StringBuilder SBuilder = new StringBuilder();
+    for( int Index0 = 0; Index0 < WordsArraySize; Index0++ )
       {
-      for( int Count1 = 0; Count1 < WordsArraySize; Count1++ )
+      for( int Index1 = 0; Index1 < WordsArraySize; Index1++ )
         {
-        for( int Count2 = 0; Count2 < WordsArraySize; Count2++ )
+        for( int Index2 = 0; Index2 < WordsArraySize; Index2++ )
           {
-          for( int Count3 = 0; Count3 < WordsArraySize; Count3++ )
+          for( int Index3 = 0; Index3 < WordsArraySize; Index3++ )
             {
-            if( null == WordsArray[Count0, Count1, Count2, Count3].WordRecArray )
+            if( null == WordsArray[Index0, Index1, Index2, Index3].WordRecArray )
               continue;
 
-            int Last = WordsArray[Count0, Count1, Count2, Count3].WordRecArrayLast;
+            int Last = WordsArray[Index0, Index1, Index2, Index3].WordRecArrayLast;
+            for( int Count = 0; Count < Last; Count++ )
+              {
+              string Word = WordsArray[Index0, Index1, Index2, Index3].WordRecArray[Count].WordTail;
+              if( !( (Index0 > 26) || // Non-ASCII is 27.
+                     (Index1 > 26) ||
+                     (Index2 > 26) ||
+                     (Index3 > 26)))
+                {
+                Word = Char.ToString( GetLetterFromIndex( Index0 )) +
+                       Char.ToString( GetLetterFromIndex( Index1 )) +
+                       Char.ToString( GetLetterFromIndex( Index2 )) +
+                       Char.ToString( GetLetterFromIndex( Index3 )) +
+                       Word;
 
-    string Tail = Word;
-    if( !( (Index0 > 26) || // Non-ASCII is 27.
-           (Index1 > 26) ||
-           (Index2 > 26) ||
-           (Index3 > 26)))
-      {
-      Tail = RemoveHead( Word );
+                }
+
+              IntegerCollection IntCol = WordsArray[Index0, Index1, Index2, Index3].WordRecArray[Count].IndexCol;
+              string Line = "";
+              if( IntCol == null )
+                {
+                Line = Word.Trim() + "\t \r";
+                }
+              else
+                {
+                Line = Word.Trim() + "\t" +
+                  IntCol.ObjectToString() + "\r";
+
+                }
+
+              SBuilder.Append( Line );
+              }
+            }
+          }
+        }
       }
 
-    // Sorted for a binary search?
-    for( int Count = 0; Count < Last; Count++ )
-      {
-      if( Tail == WordsArray[Index0, Index1, Index2, Index3].WordRecArray[Count].WordTail )
-        return true;
-
-      }
-
-    return false;
+    return SBuilder.ToString();
     }
     catch( Exception Except )
       {
-      ShowStatus( "Exception in WordsIndex.WordExists():" );
+      ShowStatus( "Exception in WordsIndex.GetAllWordsString():" );
       ShowStatus( Except.Message );
-      return false;
+      return "";
       }
     }
-    */
+
+
+
+  internal void ClearAllIntCollections()
+    {
+    try
+    {
+    for( int Index0 = 0; Index0 < WordsArraySize; Index0++ )
+      {
+      for( int Index1 = 0; Index1 < WordsArraySize; Index1++ )
+        {
+        for( int Index2 = 0; Index2 < WordsArraySize; Index2++ )
+          {
+          for( int Index3 = 0; Index3 < WordsArraySize; Index3++ )
+            {
+            if( null == WordsArray[Index0, Index1, Index2, Index3].WordRecArray )
+              continue;
+
+            int Last = WordsArray[Index0, Index1, Index2, Index3].WordRecArrayLast;
+            for( int Count = 0; Count < Last; Count++ )
+              WordsArray[Index0, Index1, Index2, Index3].WordRecArray[Count].IndexCol = null;
+
+            }
+          }
+        }
+      }
+
+    }
+    catch( Exception Except )
+      {
+      ShowStatus( "Exception in WordsIndex.ClearAllIntCollections():" );
+      ShowStatus( Except.Message );
+      }
+    }
 
 
   }
