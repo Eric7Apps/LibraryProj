@@ -16,8 +16,7 @@ namespace DGOLibrary
   {
   private MainForm MForm;
   private WordsIndex MainWordsIndex;
-
-  // private string FileName = "";
+  private string FileName = "";
   // private string ExcludedFileName = "";
 
 
@@ -33,7 +32,7 @@ namespace DGOLibrary
 
     MainWordsIndex = new WordsIndex( this );
 
-    // FileName = MForm.GetDataDirectory() + "WordsDictionary.txt";
+    FileName = MForm.GetDataDirectory() + "WordsIndexData.txt";
     // ExcludedFileName = MForm.GetDataDirectory() + "ExcludedWordsDictionary.txt";
 
     // MainWordsDictionary = new SortedDictionary<string, int>();
@@ -53,10 +52,93 @@ namespace DGOLibrary
     }
 
 
+  internal WordsIndex GetMainWordsIndex()
+    {
+    return MainWordsIndex;
+    }
+
+
   internal void AddWord( string Word )
     {
     MainWordsIndex.AddWord( Word );
     }
+
+
+  internal bool WordExists( string Word )
+    {
+    return MainWordsIndex.WordExists( Word );
+    }
+
+
+  internal void ClearAllIntCollections()
+    {
+    MainWordsIndex.ClearAllIntCollections();
+    }
+
+
+  internal void UpdateWord( string Word, string URL )
+    {
+    if( Word == null )
+      return;
+
+    string FixedWord = MForm.WordsDictionary1.GetValidWordForm( Word );
+    if( FixedWord.Length == 0 )
+      return;
+
+    int PageIndex = MForm.PageList1.GetIndex( URL );
+    if( PageIndex < 0 )
+      return;
+
+    MainWordsIndex.AddPageIndex( Word, PageIndex );
+    }
+
+
+
+  internal IntegerCollection GetIntegerLinks( string Word )
+    {
+    if( Word == null )
+      return null;
+
+    string FixedWord = MForm.WordsDictionary1.GetValidWordForm( Word );
+    if( FixedWord.Length == 0 )
+      return null;
+
+    if( !MainWordsIndex.WordExists( FixedWord ))
+      return null;
+
+    return MainWordsIndex.GetIntegerCollection( FixedWord );
+    }
+
+
+
+  internal bool WriteToTextFile()
+    {
+    try
+    {
+    string AllWords = MainWordsIndex.GetAllWordsString();
+
+    string[] Words = AllWords.Split( new Char[] { '\r' } );
+
+    using( StreamWriter SWriter = new StreamWriter( FileName  )) 
+      {
+      for( int Count = 0; Count < Words.Length; Count++ )
+        {
+        SWriter.WriteLine( Words[Count] );
+        }
+
+      SWriter.WriteLine( " " );
+      }
+
+    return true;
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Could not write the Words Data to the file." );
+      MForm.ShowStatus( Except.Message );
+      return false;
+      }
+    }
+
 
 
 
