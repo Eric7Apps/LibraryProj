@@ -105,7 +105,7 @@ namespace DGOLibrary
 
     if( !Attributes.ToLower().Contains( "href=" ))
       {
-      GetCallingPage().AddStatusString(  "No link in: " + FullText, 500 );
+      // GetCallingPage().AddStatusString(  "No link in: " + FullText, 500 );
       return;
       }
 
