@@ -169,7 +169,7 @@ namespace DGOLibrary
     // AddURLForm( "Durango Gov Photo Gallery", "http://www.durangogov.org/gallery.aspx", true, false, "http://www.durangogov.org" );
     // AddURLForm( "Durango Gov Public Art", "http://www.durangogov.org/index.aspx?nid=327", true, false, "http://www.durangogov.org" );
     // AddURLForm( "Durango Gov Social Media", "http://www.durangogov.org/Index.aspx?NID=79", true, false, "http://www.durangogov.org" );
-    AddURLForm( "Durango Gov Durango's Voice", "http://www.durangogov.org/index.aspx?NID=712", true, false, "http://www.durangogov.org" );
+    // AddURLForm( "Durango Gov Durango's Voice", "http://www.durangogov.org/index.aspx?NID=712", true, false, "http://www.durangogov.org" );
     AddURLForm( "Durango Gov What's Happening", "http://www.durangogov.org/Index.aspx?NID=268", true, false, "http://www.durangogov.org" );
     AddURLForm( "Durango Gov City News", "http://www.durangogov.org/CivicAlerts.aspx", true, false, "http://www.durangogov.org" );
     AddURLForm( "Durango Gov Library", "http://www.durangogov.org/index.aspx?NID=220", true, false, "http://www.durangogov.org" );
@@ -282,7 +282,7 @@ namespace DGOLibrary
     if( ShowTitle )
       {
       ShowStatus( " " );
-      ShowStatus( "In Queue:" );
+      ShowStatus( "In Queue: " + GetURLArrayLast.ToString());
       ShowStatus( Title );
       ShowStatus( URL );
       }
@@ -484,7 +484,7 @@ namespace DGOLibrary
         continue;
 
       // Start up the first one that hasn't already been started.
-      ShowStatus( "Starting next in queue." );
+      // ShowStatus( "Starting next in queue." );
       GetURLArray[Count].StartHttp( false );
       return; // Only start one.
       }
@@ -512,7 +512,7 @@ namespace DGOLibrary
     FreeOldForms();
 
     // Play nice and don't send requests too often.
-    if( QueueTime.GetSecondsToNow() > 4.0 )
+    if( QueueTime.GetSecondsToNow() > 2.0 )
       {
       // ShowStatus( "Timer for next in queue." );
       StartNextInQueue();
