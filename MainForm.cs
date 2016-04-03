@@ -37,12 +37,12 @@ namespace DGOLibrary
   private bool Cancelled = false;
   internal GlobalProperties GlobalProps;
   internal PageList PageList1;
-  internal Words AllWords;
+  // internal Words AllWords;
   internal WordsDictionary WordsDictionary1;
   internal ScriptDictionary ScriptDictionary1;
   internal CodeCommentDictionary CodeCommentDictionary1;
   internal NetIPStatus NetStats;
-
+  internal WordsData MainWordsData;
 
 
 
@@ -59,11 +59,13 @@ namespace DGOLibrary
     NetStats = new NetIPStatus( this );
     NetStats.ReadFromFile();
 
+
     WordsDictionary1 = new WordsDictionary( this );
+    MainWordsData = new WordsData( this );
     ScriptDictionary1 = new ScriptDictionary( this );
     CodeCommentDictionary1 = new CodeCommentDictionary( this );
     PageList1 = new PageList( this );
-    AllWords = new Words( this );
+    // AllWords = new Words( this );
     WebFData = new WebFilesData( this );
 
     if( !CheckSingleInstance())
@@ -316,11 +318,24 @@ namespace DGOLibrary
       WebListenForm = null;
       }
 
+    // ShowStatus() won't show it when it's closing.
+    MainTextBox.AppendText( "Saving files.\r\n" ); 
     PageList1.WriteToTextFile();
-    AllWords.WriteToTextFile();
-    // WordsDictionary1.WriteToTextFile();
+    MainTextBox.AppendText( "Saved pages.\r\n" ); 
+    MainWordsData.WriteToTextFile();
+    MainTextBox.AppendText( "Saved word index file.\r\n" ); 
+
+    // Save counts.
+    WordsDictionary1.WriteToTextFile();
+    MainTextBox.AppendText( "Saved words dictionary.\r\n" ); 
+    
     ScriptDictionary1.WriteToTextFile();
+    MainTextBox.AppendText( "Saved script.\r\n" ); 
+
     CodeCommentDictionary1.WriteToTextFile();
+    MainTextBox.AppendText( "Saved code comments.\r\n" ); 
+
+
     // After getting what those others show.
     SaveStatusToFile();
     }
@@ -415,19 +430,24 @@ namespace DGOLibrary
     {
     StartupTimer.Stop();
 
-    ShowStatus( "Reading data..." );
-
+    ShowStatus( "Reading page list..." );
     // Make sure the PageList is loaded up before
     // GetURLMgrForm is started.
     PageList1.ReadFromTextFile();
 
+    ShowStatus( "Reading script data..." );
     ScriptDictionary1.ReadFromTextFile();
+
+    ShowStatus( "Reading code comments data..." );
     CodeCommentDictionary1.ReadFromTextFile();
+
+    ShowStatus( "Reading words dictionary data..." );
     WordsDictionary1.ReadFromTextFile();
     // Rewrite it so it's sorted and unique.
     WordsDictionary1.WriteToTextFile();
 
-    AllWords.ReadFromTextFile();
+    // ShowStatus( "Reading All Words data..." );
+    // AllWords.ReadFromTextFile();
 
     GetURLMgrForm = new GetURLManagerForm( this );
 
@@ -463,7 +483,7 @@ namespace DGOLibrary
     // ShowStatus( "Saving data files." );
     PageList1.WriteToTextFile();
     // WordsDictionary1.WriteToTextFile();
-    AllWords.WriteToTextFile();
+    MainWordsData.WriteToTextFile();
     ScriptDictionary1.WriteToTextFile();
     CodeCommentDictionary1.WriteToTextFile();
     // ShowStatus( "Finished saving data files." );
