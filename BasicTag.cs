@@ -201,20 +201,38 @@ namespace DGOLibrary
     }
 
 
+  protected bool IsSimpleTag( string TagName )
+    {
+    if( (TagName == "link") ||
+        // (TagName == "area") ||
+        (TagName == "meta") ||
+        (TagName == "param") ||
+        (TagName == "embed") ||
+        (TagName == "input"))
+      return true;
+
+    return false;
+    }
+
+
 
   protected bool IsFullTag( string TagName )
     {
     if( (TagName == "a") ||
         (TagName == "abbr") ||
+        (TagName == "acronym") ||
         (TagName == "address") ||
-        (TagName == "area") ||
+        (TagName == "applet") ||
+        // (TagName == "area") ||
         (TagName == "article") ||
         (TagName == "aside") ||
         (TagName == "audio") ||
         (TagName == "b") ||
         (TagName == "base") ||
-        (TagName == "big") ||
+        (TagName == "basefont") ||
         (TagName == "bdi") ||
+        (TagName == "bdo") ||
+        (TagName == "big") ||
         (TagName == "blockquote") ||
         (TagName == "body") ||
         (TagName == "button") ||
@@ -231,6 +249,7 @@ namespace DGOLibrary
         (TagName == "details") ||
         (TagName == "dfn") ||
         (TagName == "dialog") ||
+        (TagName == "dir") ||
         (TagName == "div") ||
         (TagName == "dl") ||
         (TagName == "dt") ||
@@ -257,16 +276,19 @@ namespace DGOLibrary
         (TagName == "i") ||
         (TagName == "iframe") ||
         (TagName == "ins") ||
+        // input
         (TagName == "kbd") ||
         (TagName == "keygen") ||
         (TagName == "label") ||
         (TagName == "legend") ||
         (TagName == "li") ||
+        // link
         (TagName == "main") ||
         (TagName == "map") ||
         (TagName == "mark") ||
         (TagName == "menu") ||
         (TagName == "menuitem") ||
+        // meta
         (TagName == "meter") ||
         (TagName == "nav") ||
         (TagName == "noframes") ||
@@ -276,6 +298,7 @@ namespace DGOLibrary
         (TagName == "optgroup") ||
         (TagName == "option") ||
         (TagName == "output") ||
+        // (TagName == "p") ||
         // (TagName == "param") ||
         (TagName == "pre") ||
         (TagName == "progress") ||
@@ -460,6 +483,7 @@ namespace DGOLibrary
 
       int TestEnd = -1;
       if( (TagName == "img") ||
+          (TagName == "area") ||
           (TagName == "link") ||
           (TagName == "hr"))
         {
@@ -476,11 +500,7 @@ namespace DGOLibrary
 
       if( TestEnd < 0 )
         {
-        if( (TagName == "link") ||
-            (TagName == "meta") ||
-            (TagName == "param") ||
-            (TagName == "embed") ||
-            (TagName == "input"))
+        if( IsSimpleTag( TagName ))
           {
           // CallingPage.AddStatusString( "Finding single tag end.", 500 );
           TestEnd = FindSingleTagEnd( StartAt, MainText );
@@ -567,7 +587,7 @@ namespace DGOLibrary
         }
 
       // There are links in Paragraphs sometimes.
-      if( !IgnoreTagForNow( TagName, "" ))
+      if( !DoNotParseTag( TagName ))
         {
         BasicTag TagToAdd = new BasicTag( CallingPage, NewTagS, RelativeURLBase );
         // AddContainedTag( TagToAdd );
@@ -588,30 +608,186 @@ namespace DGOLibrary
 
   private void ShowUnknownTag( string TagName, int StartAt )
     {
-    string TestS = GetTruncatedErrorText( StartAt, MainText, 500 );
+    if( TagName == "hl2" ) // HL2 Powerball.
+      return;
 
-    if( IgnoreTagForNow( TagName, TestS ))
+    if( TagName == "span" )
+      return;
+
+    if( TagName == "div" )
+      return;
+
+    if( TagName == "head" )
+      return;
+
+    if( TagName == "form" )
+      return;
+
+    if( TagName == "telerik" )
+      return;
+
+    if( TagName == "o" )
+      return;
+
+    if( TagName == "li" )
+      return;
+
+    if( TagName == "ul" )
+      return;
+
+    if( TagName == "byttl" )
+      return;
+
+    if( TagName == "iframe" )
+      return;
+
+    if( TagName == "h1" )
+      return;
+
+    if( TagName == "h2" )
+      return;
+
+    if( TagName == "h3" )
+      return;
+
+    if( TagName == "h4" )
+      return;
+
+    if( TagName == "h5" )
+      return;
+
+    if( TagName == "h6" )
+      return;
+
+    if( TagName == "cr" )
+      return;
+
+    if( TagName == "object" )
       return;
 
     if( TagName == "p" )
       return;
+
+    if( TagName == "dd" )
+      return;
+
+    // if( TagName == "area" )
+      // return;
+
+    if( TagName == "em" )
+      return;
+
+    if( TagName == "strong" )
+      return;
+
+    if( TagName == "tr" )
+      return;
+
+    if( TagName == "td" )
+      return;
+
+    if( TagName == "table" )
+      return;
+
+    if( TagName == "fecomposite" )
+      return;
+
+    if( TagName == "fecolormatrix" )
+      return;
+
+    if( TagName == "fegaussianblur" )
+      return;
+
+    if( TagName == "filter" )
+      return;
+
+    if( TagName == "defs" )
+      return;
+
+    if( TagName == "svg" )
+      return;
+
+    if( TagName == "gcse" )
+      return;
+
+    string TestS = GetTruncatedErrorText( StartAt, MainText, 500 );
+
+    // if( IgnoreTagForNow( TagName, TestS ))
+      // return;
+
+    // if( TagName == "p" )
+      // return;
 
     CallingPage.AddStatusString( " ", 5 );
     CallingPage.AddStatusString( "Unknown for tag: " + TagName + ": " + TestS, 500 );
     }
 
 
+  private bool DoNotParseTag( string TagName )
+    {
+    // Don't parse anchor tag because it's already parsed.
+    if( TagName == "a" )
+      return true;
 
+    if( TagName == "area" )
+      return true;
+
+    if( TagName == "filter" )
+      return true;
+
+    if( TagName == "defs" )
+      return true;
+
+    if( TagName == "svg" )
+      return true;
+
+    if( TagName == "gcse" )
+      return true;
+
+    if( TagName == "form" )
+      return true;
+
+    if( TagName == "input" )
+      return true;
+
+    // if( TagName == "aspnetform" )
+      // return true;
+
+    if( TagName == "filter" )
+      return true;
+
+    if( TagName == "defs" )
+      return true;
+
+    if( TagName == "svg" )
+      return true;
+
+    if( TagName == "cr" )
+      return true;
+
+    if( TagName == "object" )
+      return true;
+
+    if( TagName == "iframe" )
+      return true;
+
+    if( TagName == "embed" )
+      return true;
+
+    if( TagName == "o" )
+      return true;
+
+    return false;
+    }
+
+
+
+  /*
   private bool IgnoreTagForNow( string TagName, string TestS )
     {
-    if( TagName.Length < 1 )
-      return true;
+    // if( TagName == "span" )
+      // return true;
 
-    if( TagName == "span" )
-      return true;
-
-    if( TagName == "hl2" ) // HL2 Powerball.
-      return true;
 
     if( TagName == "head" )
       return true;
@@ -664,53 +840,6 @@ namespace DGOLibrary
     if( TagName == "telerik" )
       return true;
 
-    if( TagName == "area" )
-      return true;
-
-    if( TagName == "form" )
-      return true;
-
-    if( TagName == "input" )
-      return true;
-
-    if( TagName == "aspnetform" )
-      return true;
-
-    if( TagName == "filter" )
-      return true;
-
-    if( TagName == "defs" )
-      return true;
-
-    if( TagName == "svg" )
-      return true;
-
-    if( TagName == "cr" )
-      return true;
-
-    if( TagName == "object" )
-      return true;
-
-    if( TagName == "iframe" )
-      return true;
-
-    if( TagName == "embed" )
-      return true;
-
-    // h1, h2 ...
-    if( TagName[0] == 'h' )
-      {
-      if( TagName.Length == 2 )
-        return true;
-
-      }
-
-    if( TagName == "a" )
-      {
-      if( TestS.Contains( "thecloudscout.com" ))
-        return true;
-
-      }
 
     // ...</li>
     if( TagName == "p" )
@@ -728,7 +857,7 @@ namespace DGOLibrary
 
     return false;
     }
-
+    */
 
 
 
