@@ -235,34 +235,35 @@ namespace DGOLibrary
     if( SetTime )
       ContentsUpdateTime.SetToNow();
 
-    /*
-    // MForm.ShowStatus( "Code Comments:" );
-    string CommentLine = CleanContents.ToLower();
-    CommentLine = CommentLine.Replace( "\r", " " );
-    SortedDictionary<string, int> Lines = Utility.GetPatternsFromStartToEnd( "<!--", "-->", CommentLine );
-    if( Lines != null )
+    if( ReadFromFile )
       {
-      foreach( KeyValuePair<string, int> Kvp in Lines )
+      // MForm.ShowStatus( "Code Comments:" );
+      string CommentLine = CleanContents.ToLower();
+      CommentLine = CommentLine.Replace( "\r", " " );
+      SortedDictionary<string, int> Lines = Utility.GetPatternsFromStartToEnd( "<!--", "-->", CommentLine );
+      if( Lines != null )
         {
-        MForm.CodeCommentDictionary1.AddLine( Kvp.Key, RelativeURLBase );
-        // MForm.ShowStatus( Kvp.Key );
+        foreach( KeyValuePair<string, int> Kvp in Lines )
+          {
+          MForm.CodeCommentDictionary1.AddLine( Kvp.Key, RelativeURLBase );
+          // MForm.ShowStatus( Kvp.Key );
+          }
         }
-      }
 
-    // MForm.ShowStatus( "Script:" );
-    string ScriptLine = CleanContents.ToLower();
-    ScriptLine = ScriptLine.Replace( "\r", " " );
-    Lines = Utility.GetPatternsFromStartToEnd( "<script", "/script>", ScriptLine );
-    if( Lines != null )
-      {
-      foreach( KeyValuePair<string, int> Kvp in Lines )
+      // MForm.ShowStatus( "Script:" );
+      string ScriptLine = CleanContents.ToLower();
+      ScriptLine = ScriptLine.Replace( "\r", " " );
+      Lines = Utility.GetPatternsFromStartToEnd( "<script", "/script>", ScriptLine );
+      if( Lines != null )
         {
-        MForm.ScriptDictionary1.AddLine( Kvp.Key, RelativeURLBase );
-        // MForm.   AllWords.UpdateWord( Kvp.Key, URL );
-        // MForm.ShowStatus( Kvp.Key );
+        foreach( KeyValuePair<string, int> Kvp in Lines )
+          {
+          MForm.ScriptDictionary1.AddLine( Kvp.Key, RelativeURLBase );
+          // MForm.   AllWords.UpdateWord( Kvp.Key, URL );
+          // MForm.ShowStatus( Kvp.Key );
+          }
         }
       }
-      */
 
     CleanContents = Utility.RemovePatternFromStartToEnd( "<!--", "-->", CleanContents );
 
