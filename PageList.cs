@@ -393,7 +393,10 @@ namespace DGOLibrary
 
     MForm.MainWordsData.WriteToTextFile();
     MForm.ShowStatus( " " );
-    MForm.ShowStatus( "Finished indexing in: " + StartTime.GetSecondsToNow().ToString( "N0" ));
+    int Seconds = (int)StartTime.GetSecondsToNow();
+    int Minutes = Seconds / 60;
+    Seconds = Seconds % 60;
+    MForm.ShowStatus( "Finished indexing in: " + Minutes.ToString( "N0" ) + ":" + Seconds.ToString());
     }
     catch( Exception Except )
       {
@@ -406,10 +409,17 @@ namespace DGOLibrary
   internal void ReadAllFilesToContent()
     {
     MForm.ShowStatus( "Start of ReadAllFilesToContent()." );
+    int Loops = 0;
     foreach( KeyValuePair<string, Page> Kvp in PageDictionary )
       {
-      if( !MForm.CheckEvents())
-        return;
+      Loops++;
+      if( (Loops & 0x3FF) == 0 )
+        {
+        MForm.ShowStatus( "Files: " + Loops.ToString( "N0" ));
+        if( !MForm.CheckEvents())
+          return;
+
+        }
 
       Page Page1 = Kvp.Value;
       string ReadFileName = Page1.GetFileName();
