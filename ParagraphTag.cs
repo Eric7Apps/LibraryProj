@@ -64,6 +64,7 @@ namespace DGOLibrary
       if( SplitS.Length == 0 )
         return;
 
+      // If this string is all there is.
       if( SplitS[0] == "class=\"caption\"" )
         return;
 
@@ -72,20 +73,14 @@ namespace DGOLibrary
 
       if( SplitS[0].Contains( "=" ))
         {
-        GetCallingPage().AddStatusString( " ", 500 );
-        GetCallingPage().AddStatusString( "SPlitS is 1 or zero in the Paragraph: ", 500 );
-        GetCallingPage().AddStatusString( FullText, 500 );
+        if( !SplitS[0].Contains( "decolonizing" ))
+          {
+          GetCallingPage().AddStatusString( " ", 500 );
+          GetCallingPage().AddStatusString( "SPlitS is 1 or zero in the Paragraph: ", 500 );
+          GetCallingPage().AddStatusString( FullText, 500 );
+          }
         }
       }
-    /*
-    int TagStart = FindFirstTagIndex( 0, FullText );
-    if( TagStart >= 0 )
-      {
-      GetCallingPage().AddStatusString( " ", 500 );
-      GetCallingPage().AddStatusString( "Tag in the Paragraph?: ", 500 );
-      GetCallingPage().AddStatusString( FullText, 5000 );
-      }
-      */
 
     FullText = FullText.Replace( "herald staff writer", " " );
     FullText = FullText.Replace( "durango herald", " " );
@@ -95,6 +90,14 @@ namespace DGOLibrary
     FullText = FullText.Replace( "<br", " " );
     // FullText = FullText.Replace( "</i", " " );
     // FullText = FullText.Replace( "<i", " " );
+
+    int TagStart = FindFirstTagIndex( 0, FullText );
+    if( TagStart >= 0 )
+      {
+      GetCallingPage().AddStatusString( " ", 500 );
+      GetCallingPage().AddStatusString( "Tag in the Paragraph?: ", 500 );
+      GetCallingPage().AddStatusString( FullText, 5000 );
+      }
 
     // FullText = FullText.Replace( "<span class=\"abody\"", " " );
 
@@ -142,7 +145,7 @@ namespace DGOLibrary
 
     SortedDictionary<string, int> WordsDictionary = ParseText( FullText );
     if( WordsDictionary != null )
-      GetCallingPage().AddWords( WordsDictionary );
+      GetCallingPage().AddWords( WordsDictionary, GetCallingPage().GetFileName() );
 
     }
     catch( Exception Except )
@@ -153,12 +156,14 @@ namespace DGOLibrary
     }
 
 
+
   internal SortedDictionary<string, int> ParseText( string InString )
     {
-    InString = ReplaceForSplitWords( InString );
-    // InString = InString.Trim();
+    InString = WordFix.ReplaceForSplitWords( InString );
+    InString = WordFix.FixAbbreviations( InString );
 
-    InString = InString.Replace( "capt.", "captain" );
+    InString = InString.Replace( "’", " " );
+    InString = InString.Replace( "•", " " );
 
     // "Durango's "
     InString = InString.Replace( "'s ", " " );
@@ -175,6 +180,8 @@ namespace DGOLibrary
     InString = InString.Replace( "_", " " );
     InString = InString.Replace( "!", " " );
     InString = InString.Replace( "?", " " );
+    InString = InString.Replace( "&", " " );
+    // InString = InString.Replace( "@", " " );
     InString = InString.Replace( "(", " " );
     InString = InString.Replace( ")", " " );
     InString = InString.Replace( "[", " " );
@@ -210,27 +217,6 @@ namespace DGOLibrary
 
 
 
-  internal string ReplaceForSplitWords( string InString )
-    {
-    // If you were searching for 'book' you'd find
-    // 'book' but not 'bookstore' or 'bookshop'.
-
-    string Result = InString;
-
-    // Put these in a file?
-
-    Result = Result.Replace( "bookstore", "book store" );
-    Result = Result.Replace( "bookshop", "book shop" );
-    Result = Result.Replace( "colostate", "colorado state" );
-    Result = Result.Replace( "puertorico", "puerto rico" );
-    Result = Result.Replace( "ragtimefestival", "ragtime festival" );
-    Result = Result.Replace( "realestate", "real estate" );
-    Result = Result.Replace( "realproperty", "real property" );
-    Result = Result.Replace( "runningclub", "running club" );
-    Result = Result.Replace( "worksite", "work site" );
-
-    return Result;
-    }
 
 
 
