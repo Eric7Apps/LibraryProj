@@ -608,7 +608,21 @@ namespace DGOLibrary
 
   private void ShowUnknownTag( string TagName, int StartAt )
     {
+    // For tags that need work:
+
     if( TagName == "hl2" ) // HL2 Powerball.
+      return;
+
+    if( TagName == "pbs" )
+      return;
+
+    if( TagName == "html" )
+      return;
+
+    if( TagName == "b" )
+      return;
+
+    if( TagName == "body" )
       return;
 
     if( TagName == "span" )
@@ -728,6 +742,35 @@ namespace DGOLibrary
     // Don't parse anchor tag because it's already parsed.
     if( TagName == "a" )
       return true;
+
+    if( TagName == "td" )
+      {
+      // If a td tag contains class="cutline">
+      // or img src= 
+      // don't parse it.
+      /*
+      What about the paragraph tag?
+
+      <td><img src="/06-04-06/images/0406penn-
+
+      \Y2016\M4\D3\H10M47S53T94.txt
+
+      <!-- begin imagebox -->
+      <table width="612"  border="0" cellspacing="0"
+       cellpadding="2" align="center">
+      <tr>
+      <td><img src="/06-04-06/images/0406penn-cut1.htm"
+       border="0"></td>
+       </tr>
+       <tr>
+       <td class="cutline">ÿØÿàJFIFddÿìDuckyý?ÓQ>2¨?æYÏ8&/"Jl8?[P>¶Dç?ßÓú§«ækËm?
+       -Pa:Ð|¾´?±° ç?mX
+       ßÖ???§²yq²p?¨b¯eo??²_ßmh
+       t6>7£???dKÊ??Ì?>SbÚ?ÆâôÄy®;t4?Ý¯³?ï Â²ô²Ç­ºÃ¼
+       */
+
+      return true;
+      }
 
     if( TagName == "area" )
       return true;
