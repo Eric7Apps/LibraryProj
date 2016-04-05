@@ -369,7 +369,7 @@ namespace DGOLibrary
     {
     try
     {
-    using( StreamWriter SWriter = new StreamWriter( FileName  )) 
+    using( StreamWriter SWriter = new StreamWriter( FileName, false, Encoding.UTF8 ))
       {
       foreach( string Line in MainTextBox.Lines )
         {
