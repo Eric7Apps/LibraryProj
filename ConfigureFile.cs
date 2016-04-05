@@ -6,7 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Threading.Tasks;
+// using System.Threading.Tasks;
 using System.IO;
 
 
@@ -82,25 +82,24 @@ namespace DGOLibrary
       
     try
     {
-    string Line;
-    using( StreamReader SReader = new StreamReader( FileName  )) 
+    using( StreamReader SReader = new StreamReader( FileName, Encoding.UTF8 ))
       {
       while( SReader.Peek() >= 0 ) 
         {
-        Line = SReader.ReadLine();
+        string Line = SReader.ReadLine();
         if( Line == null )
           continue;
-          
+
         Line = Line.Trim();
         if( Line == "" )
           continue;
-          
+
         if( !Line.Contains( "\t" ))
           Line = AESEncrypt.DecryptString( Line );
 
         if( !Line.Contains( "\t" ))
           continue;
-          
+
         string[] SplitString = Line.Split( new Char[] { TabChar } );
         if( SplitString.Length < 2 )
           continue;
@@ -133,13 +132,11 @@ namespace DGOLibrary
 
 
 
-
-
   internal bool WriteToTextFile()
     {
     try
     {
-    using( StreamWriter SWriter = new StreamWriter( FileName  )) 
+    using( StreamWriter SWriter = new StreamWriter( FileName, false, Encoding.UTF8 ))
       {
       foreach( KeyValuePair<string, string> Kvp in CDictionary )
         {
