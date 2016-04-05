@@ -6,7 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Threading.Tasks;
+
 
 namespace DGOLibrary
 {
@@ -305,6 +305,105 @@ namespace DGOLibrary
       {
       return null;
       }
+    }
+
+
+  internal static bool IsALetter( char Letter )
+    {
+    // What exactly _is_ a letter?
+    // It's anything that's not listed here.
+    if( Char.IsDigit( Letter ))
+      return false;
+
+    if( Letter == '=' )
+      return false;
+
+    if( Letter == '•' )
+      return false;
+
+    if( Letter == '&' )
+      return false;
+
+    if( Letter == '@' )
+      return false;
+
+    if( Letter == '\r' )
+      return false;
+
+    if( Letter == '"' )
+      return false;
+
+    if( Letter == ':' )
+      return false;
+
+    if( Letter == ';' )
+      return false;
+
+    if( Letter == '.' )
+      return false;
+
+    if( Letter == ',' )
+      return false;
+
+    if( Letter == '-' )
+      return false;
+
+    if( Letter == '_' )
+      return false;
+
+    if( Letter == '!' )
+      return false;
+
+    if( Letter == '?' )
+      return false;
+
+    if( Letter == '&' )
+      return false;
+
+    if( Letter == '#' )
+      return false;
+
+    if( Letter == '*' )
+      return false;
+
+    if( Letter == '+' )
+      return false;
+
+
+    if( Letter == '(' )
+      return false;
+
+    if( Letter == ')' )
+      return false;
+
+    if( Letter == '[' )
+      return false;
+
+    if( Letter == ']' )
+      return false;
+
+    if( Letter == '{' )
+      return false;
+
+    if( Letter == '}' )
+      return false;
+
+    if( Letter == '<' )
+      return false;
+
+    if( Letter == '>' )
+      return false;
+
+    if( Letter == '|' )
+      return false;
+
+    if( Letter == '\\' )
+      return false;
+
+    if( Letter == '/' )
+      return false;
+
+    return true;
     }
 
 
