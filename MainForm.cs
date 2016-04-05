@@ -21,7 +21,7 @@ namespace DGOLibrary
 {
   public partial class MainForm : Form
   {
-  internal const string VersionDate = "3/29/2016";
+  internal const string VersionDate = "4/5/2016";
   internal const int VersionNumber = 09; // 0.9
   internal const string MessageBoxTitle = "Library Project";
   private System.Threading.Mutex SingleInstanceMutex = null;
@@ -325,9 +325,9 @@ namespace DGOLibrary
     MainWordsData.WriteToTextFile();
     MainTextBox.AppendText( "Saved word index file.\r\n" ); 
 
-    // Save counts.
-    WordsDictionary1.WriteToTextFile();
-    MainTextBox.AppendText( "Saved words dictionary.\r\n" ); 
+    // Counts aren't being used here anymore.
+    // WordsDictionary1.WriteToTextFile();
+    // MainTextBox.AppendText( "Saved words dictionary.\r\n" ); 
     
     ScriptDictionary1.WriteToTextFile();
     MainTextBox.AppendText( "Saved script.\r\n" ); 
@@ -363,7 +363,7 @@ namespace DGOLibrary
     {
     string FileName = GetDataDirectory() + "MainStatus.txt";
 
-    using( StreamWriter SWriter = new StreamWriter( FileName  )) 
+    using( StreamWriter SWriter = new StreamWriter( FileName, false, Encoding.UTF8 ))
       {
       foreach( string Line in MainTextBox.Lines )
         {
@@ -509,8 +509,8 @@ namespace DGOLibrary
       // ShowStatus( Count.ToString( "X2" ) + ") " + Char.ToString( (char)Count ));
 
      // &#147;
-    int GetHexValFromDecimal = 147;
-    ShowStatus( "Character: " + Char.ToString( (char)GetHexValFromDecimal ));
+    int GetVal = 0x201c;
+    ShowStatus( "Character: " + Char.ToString( (char)GetVal ));
 
     // ShowStatus( " " );
     // ShowStatus( "&#xad; " + Char.ToString( (char)0xad ));
