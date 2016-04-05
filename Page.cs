@@ -380,13 +380,30 @@ namespace DGOLibrary
       }
 
     StringBuilder SBuilder = new StringBuilder();
-    using( StreamReader SReader = new StreamReader( ReadFileName  ))
+
+    using( StreamReader SReader = new StreamReader( ReadFileName, Encoding.UTF8 ))
       {
       while( SReader.Peek() >= 0 )
         {
         string Line = SReader.ReadLine();
         if( Line == null )
           break;
+
+        // <meta http-equiv="content-type" 
+        // content="text/html; charset=utf-8" />
+        if( Line.Contains( "charset=" ))
+          {
+          // Not: <script type="text/javascript" charset="utf-8">
+          if( Line.Contains( "<meta http-equiv=\"content-type\"" ))
+            {
+            if( !Line.Contains( "charset=utf-8" ))
+              {
+              MForm.ShowStatus( " " );
+              MForm.ShowStatus( "Charset: " + Line );
+              MForm.ShowStatus( "File: " + ReadFileName );
+              }
+            }
+          }
 
         Line = Utility.GetCleanUnicodeString( Line, 1000000, true );
         if( Line.Length > 0 )
@@ -418,7 +435,7 @@ namespace DGOLibrary
 
     string[] Lines = FileContents.Split( new Char[] { '\r' } );
 
-    using ( StreamWriter SWriter = new StreamWriter( FileName  )) 
+    using ( StreamWriter SWriter = new StreamWriter( FileName, false, Encoding.UTF8 ))
       {
       for( int Count = 0; Count < Lines.Length; Count++ )
         {
@@ -546,7 +563,7 @@ namespace DGOLibrary
     */
 
 
-  internal void AddWords( SortedDictionary<string, int> WordsDictionary )
+  internal void AddWords( SortedDictionary<string, int> WordsDictionary, string InFile )
     {
     if( WordsDictionary == null )
       return;
@@ -554,7 +571,9 @@ namespace DGOLibrary
     string URL = GetURL();
     foreach( KeyValuePair<string, int> Kvp in WordsDictionary )
       {
-      MForm.MainWordsData.UpdateWord( Kvp.Key, URL );
+      string FixedWord = WordFix.FixWord( Kvp.Key );
+
+      MForm.MainWordsData.UpdateWord( FixedWord, URL, InFile );
       // MForm.AllWords.UpdateWord( Kvp.Key, URL );
       // MForm.ShowStatus( Kvp.Key );
       }
