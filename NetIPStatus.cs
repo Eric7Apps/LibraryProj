@@ -479,7 +479,7 @@ namespace DGOLibrary
 
     try
     {
-    using( StreamWriter SWriter = new StreamWriter( FileName  )) 
+    using( StreamWriter SWriter = new StreamWriter( FileName, false, Encoding.UTF8 ))
       {
       foreach( KeyValuePair<string, IPStatusRec> Kvp in IPsDictionary )
         {
@@ -532,9 +532,9 @@ namespace DGOLibrary
     try
     {
     string Line;
-    using( StreamReader SReader = new StreamReader( FileName  )) 
+    using( StreamReader SReader = new StreamReader( FileName, Encoding.UTF8 ))
       {
-      while( SReader.Peek() >= 0 ) 
+      while( SReader.Peek() >= 0 )
         {
         Line = SReader.ReadLine();
         if( Line == null )
