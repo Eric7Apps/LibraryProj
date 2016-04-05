@@ -209,6 +209,11 @@ namespace DGOLibrary
   // later.
   private bool TitleWasRecentlyAdded( string ToCheck )
     {
+    // // Let it add duplicate titles (but with different
+    // URLs) when it's low.
+    if( GetURLArrayLast < 20 )
+      return false; 
+
     ToCheck = ToCheck.ToLower();
     if( !TitlesDictionary.ContainsKey( ToCheck ))
       return false;
@@ -445,22 +450,6 @@ namespace DGOLibrary
 
     GetURLArrayLast = MoveTo;
     // ShowStatus( "After freeing old ones last is: " + GetURLArrayLast.ToString());
-
-    if( GetURLArrayLast == 0 )
-      {
-      // Check for new links again this way instead of
-      // using the new links timer?
-      // AddInitialLinks();
-
-      QueueTimer.Stop(); // For testing.
-
-      ShowStatus( " " );
-      ShowStatus( " " );
-      ShowStatus( " " );
-      ShowStatus( " " );
-      ShowStatus( " " );
-      ShowStatus( "The queue for getting new pages is empty." );
-      }
     }
     catch( Exception Except )
       {
@@ -502,6 +491,18 @@ namespace DGOLibrary
     {
     if( MForm.GetIsClosing())
       return;
+
+    if( GetURLArrayLast == 0 )
+      {
+      QueueTimer.Stop(); // For testing.
+
+      ShowStatus( " " );
+      ShowStatus( " " );
+      ShowStatus( " " );
+      ShowStatus( " " );
+      ShowStatus( " " );
+      ShowStatus( "The queue for getting new pages is empty." );
+      }
 
     try
     {
