@@ -103,18 +103,26 @@ namespace DGOLibrary
     }
 
 
-   /*
+
   // Keep this method private to this object.
   // LinkTag has something that does this too.
-  private bool IsBadLinkToAdd( string URL )
+  private bool LinkIsGood( string URL )
     {
     URL = URL.ToLower();
     if( URL.Contains( "/frontpage/" ))
-      return true;
+      return false;
 
-    return false;
+    if( URL.Contains( "/msxml2.xmlhttp/" ))
+      return false;
+
+    if( URL.Contains( "/rss/" ))
+       return false;
+
+    if( URL.Contains( "/taxonomy/" ))
+       return false;
+
+    return true;
     }
-    */
 
 
   internal int GetIndex( string URL )
@@ -174,8 +182,8 @@ namespace DGOLibrary
     if( URL == null )
       return;
 
-    // if( IsBadLinkToAdd( URL ))
-      // return;
+    if( !LinkIsGood( URL ))
+      return;
 
     if( Title == null )
       return;
@@ -245,8 +253,8 @@ namespace DGOLibrary
     if( "" != GetExistingURL( URL ))
       return;
 
-    // if( IsBadLinkToAdd( URL ))
-      // return;
+    if( !LinkIsGood( URL ))
+      return;
 
     string CheckURL = URL.ToLower();
     Page UsePage = new Page( MForm );
@@ -273,7 +281,7 @@ namespace DGOLibrary
     if( !File.Exists( FileName ))
       return false;
 
-    using( StreamReader SReader = new StreamReader( FileName  )) 
+    using( StreamReader SReader = new StreamReader( FileName, Encoding.UTF8 ))
       {
       while( SReader.Peek() >= 0 ) 
         {
@@ -288,8 +296,8 @@ namespace DGOLibrary
         if( !Page1.StringToObject( Line ))
           continue;
 
-        // if( IsBadLinkToAdd( Page1.GetURL() ))
-          // continue;
+        if( !LinkIsGood( Page1.GetURL() ))
+          continue;
 
         string CheckURL = Page1.GetURL().ToLower();
         if( "" != GetExistingURL( CheckURL ))
@@ -323,7 +331,7 @@ namespace DGOLibrary
     {
     try
     {
-    using( StreamWriter SWriter = new StreamWriter( FileName  )) 
+    using( StreamWriter SWriter = new StreamWriter( FileName, false, Encoding.UTF8 ))
       {
       foreach( KeyValuePair<string, Page> Kvp in PageDictionary )
         {
@@ -413,7 +421,7 @@ namespace DGOLibrary
     foreach( KeyValuePair<string, Page> Kvp in PageDictionary )
       {
       Loops++;
-      if( (Loops & 0x3FF) == 0 )
+      if( (Loops & 0x3F) == 0 )
         {
         MForm.ShowStatus( "Files: " + Loops.ToString( "N0" ));
         if( !MForm.CheckEvents())
