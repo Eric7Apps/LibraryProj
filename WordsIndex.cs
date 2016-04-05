@@ -80,7 +80,7 @@ namespace DGOLibrary
     if( Index < 0 )
       return '?'; 
 
-   if( Index >= 27 )
+   if( Index >= 28 )
       return '?'; 
 
     if( Index == 0 )
@@ -181,6 +181,9 @@ namespace DGOLibrary
 
     if( WordExists( Word ))
       return;
+
+    if( Word == "bartók" )
+      ShowStatus( "WordsIndex. bartók is being added." );
 
     int Index0 = GetLetterIndex( Word[0] );
     int Index1 = GetLetterIndex( Word[1] );
