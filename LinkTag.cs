@@ -274,11 +274,17 @@ namespace DGOLibrary
      if( TestURL.Contains( "durangoherald.com/#tab" ))
        return false;
 
+     if( TestURL.Contains( "/rss/" ))
+       return false;
+
+    if( TestURL.Contains( "/msxml2.xmlhttp/" ))
+      return false;
+
+     if( TestURL.Contains( "/taxonomy/" ))
+       return false;
+
      if( TestURL.Contains( "durangoherald.com" ))
        {
-       if( TestURL.Contains( "/taxonomy/" ))
-         return false;
-
        if( TestURL.Contains( "/frontpage/" ))
          return false;
 
