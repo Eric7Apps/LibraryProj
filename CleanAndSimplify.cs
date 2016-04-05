@@ -29,6 +29,13 @@ namespace DGOLibrary
 
     string Result = InString;
 
+    //       single quotes for a 'soft' opening
+    // A â€˜softâ€™ opening
+    // Where do those links come from?
+
+    // A â€˜softâ€™ opening
+    // http://www.DurangoTelegraph.com/index.cfm/archives/2009/november-26-2009/a-asoftae284a2-opening/
+
     // Replace some Unicode characters with ASCII.
     Result = Result.Replace( "”", "\"" );
     Result = Result.Replace( "’", "'" );
@@ -40,6 +47,10 @@ namespace DGOLibrary
     Result = Result.Replace( "&#x201d;", "\"" );
     Result = Result.Replace( "&#x2026;", "..." );
 
+    Result = Result.Replace( "&#8217;", "'" );
+    Result = Result.Replace( "&#8220;", "\"" );
+    Result = Result.Replace( "&#8221;", "\"" );
+
     Result = Result.Replace( "&#10050;", " " ); // Some kind of circular character for a bullet list.
 
     // 39 is ASCII apostrophe.
@@ -47,59 +58,47 @@ namespace DGOLibrary
 
     Result = Result.Replace( "&#xad;", " " ); // hyphen for word wrap I think.
 
-    // Simplify characters for words dicionary.
-    // à, á, â, ã, ä, å, æ
-    Result = Result.Replace( "&#xe0;", "a" );
-    Result = Result.Replace( "&#xe1;", "a" );
-    Result = Result.Replace( "&#xe2;", "a" );
-    Result = Result.Replace( "&#xe3;", "a" );
-    Result = Result.Replace( "&#xe4;", "a" );
-    Result = Result.Replace( "&#xe5;", "a" );
-    Result = Result.Replace( "&#xe6;", "ae" );
+    Result = Result.Replace( "&#xe0;", "à" );
+    Result = Result.Replace( "&#xe1;", "á" );
+    Result = Result.Replace( "&#xe2;", "â" );
+    Result = Result.Replace( "&#xe3;", "ã" );
+    Result = Result.Replace( "&#xe4;", "ä" );
+    Result = Result.Replace( "&#xe5;", "å" );
+    Result = Result.Replace( "&#xe6;", "æ" );
 
-    // ç
-    Result = Result.Replace( "&#xe7;", "c" );
+    Result = Result.Replace( "&#xe7;", "ç" );
 
-    // è, é, ê, ë
-    Result = Result.Replace( "&#xe8;", "e" );
-    Result = Result.Replace( "&#xe9;", "e" );
-    Result = Result.Replace( "&#xea;", "e" );
-    Result = Result.Replace( "&#xeb;", "e" );
+    Result = Result.Replace( "&#xe8;", "è" );
+    Result = Result.Replace( "&#xe9;", "é" );
+    Result = Result.Replace( "&#xea;", "ê" );
+    Result = Result.Replace( "&#xeb;", "ë" );
 
-    // ì, í, î, ï, 
-    Result = Result.Replace( "&#xec;", "i" );
-    Result = Result.Replace( "&#xed;", "i" );
-    Result = Result.Replace( "&#xee;", "i" );
-    Result = Result.Replace( "&#xef;", "i" );
+    Result = Result.Replace( "&#xec;", "ì" );
+    Result = Result.Replace( "&#xed;", "í" );
+    Result = Result.Replace( "&#xee;", "î" );
+    Result = Result.Replace( "&#xef;", "ï" );
 
-    // ð
-    Result = Result.Replace( "&#xf0;", "o" );
+    Result = Result.Replace( "&#xf0;", "ð" );
 
-    // ñ
-    Result = Result.Replace( "&#xf1;", "n" );
+    Result = Result.Replace( "&#xf1;", "ñ" );
 
-    // ò, ó, ô, õ, ö
-    Result = Result.Replace( "&#xf2;", "o" );
-    Result = Result.Replace( "&#xf3;", "o" );
-    Result = Result.Replace( "&#xf4;", "o" );
-    Result = Result.Replace( "&#xf5;", "o" );
-    Result = Result.Replace( "&#xf6;", "o" );
+    Result = Result.Replace( "&#xf2;", "ò" );
+    Result = Result.Replace( "&#xf3;", "ó" );
+    Result = Result.Replace( "&#xf4;", "ô" );
+    Result = Result.Replace( "&#xf5;", "õ" );
+    Result = Result.Replace( "&#xf6;", "ö" );
 
     // F7) ÷
     // F8) ø
 
-    // ù, ú, û, ü
+    Result = Result.Replace( "&#xf9;", "ù" );
+    Result = Result.Replace( "&#xfa;", "ú" );
+    Result = Result.Replace( "&#xfb;", "û" );
+    Result = Result.Replace( "&#xfc;", "ü" );
 
-    Result = Result.Replace( "&#xf9;", "u" );
-    Result = Result.Replace( "&#xfa;", "u" );
-    Result = Result.Replace( "&#xfb;", "u" );
-    Result = Result.Replace( "&#xfc;", "u" );
-
-    // ý, ÿ
     // FE) þ
-    Result = Result.Replace( "&#xfd;", "y" );
-    Result = Result.Replace( "&#xff;", "y" );
-
+    Result = Result.Replace( "&#xfd;", "ý" );
+    Result = Result.Replace( "&#xff;", "ÿ" );
 
     Result = Result.Replace( "&nbsp;", " " );
     Result = Result.Replace( "&quot;", "\"" );
@@ -116,7 +115,8 @@ namespace DGOLibrary
     Result = Result.Replace( "&mdash;", "-" );
     Result = Result.Replace( "&shy;", " " ); // hyphen for word wrap?
     //    As in Resum&eacute;
-    Result = Result.Replace( "&eacute;", "e" );
+    Result = Result.Replace( "&eacute;", "é" );
+
 
     /*
     A1) ¡
