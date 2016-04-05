@@ -46,7 +46,7 @@ namespace DGOLibrary
 
     try
     {
-    using( StreamReader SReader = new StreamReader( FileName  )) 
+    using( StreamReader SReader = new StreamReader( FileName, Encoding.UTF8 ))
       {
       while( SReader.Peek() >= 0 ) 
         {
@@ -56,6 +56,9 @@ namespace DGOLibrary
 
         Line = Line.Trim();
         if( Line == "" )
+          continue;
+
+        if( ContainsBadStuff( Line ))
           continue;
 
         string[] SplitS = Line.Split( new Char[] { '\t' } );
@@ -89,7 +92,7 @@ namespace DGOLibrary
     {
     try
     {
-    using( StreamWriter SWriter = new StreamWriter( FileName  )) 
+    using( StreamWriter SWriter = new StreamWriter( FileName, false, Encoding.UTF8 ))
       {
       foreach( KeyValuePair<string, string> Kvp in MainDictionary )
         {
@@ -111,11 +114,28 @@ namespace DGOLibrary
     }
 
 
+  internal bool ContainsBadStuff( string InString )
+    {
+    InString = InString.ToLower();
+    
+    if( InString.Contains( "telerik" ))
+      return true;
+
+    // It's making a separate script for every article.
+    if( InString.Contains( "/apps/pbcs.dll/article?" ))
+      return true;
+
+    return false;
+    }
 
 
   internal void AddLine( string Line, string URL )
     {
     Line = Line.Trim().ToLower();
+
+    if( ContainsBadStuff( Line ))
+      return;
+
     if( Line.Length > 0 )
       MainDictionary[Line] = URL;
 
