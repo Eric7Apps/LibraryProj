@@ -4,9 +4,7 @@
 
 
 using System;
-// using System.Collections.Generic;
 using System.Text;
-// using System.Threading.Tasks;
 using System.IO;
 
 
@@ -17,7 +15,6 @@ namespace DGOLibrary
   private MainForm MForm;
   private WordsIndex MainWordsIndex;
   private string FileName = "";
-  // private string ExcludedFileName = "";
 
 
   private WordsData()
@@ -33,13 +30,6 @@ namespace DGOLibrary
     MainWordsIndex = new WordsIndex( this );
 
     FileName = MForm.GetDataDirectory() + "WordsIndexData.txt";
-    // ExcludedFileName = MForm.GetDataDirectory() + "ExcludedWordsDictionary.txt";
-
-    // MainWordsDictionary = new SortedDictionary<string, int>();
-    // ReplaceWordsDictionary = new SortedDictionary<string, string>();
-    // ExcludedWordsDictionary = new SortedDictionary<string, int>();
-
-    // AddCommonReplacements();
     }
 
 
@@ -76,12 +66,12 @@ namespace DGOLibrary
     }
 
 
-  internal void UpdateWord( string Word, string URL )
+  internal void UpdateWord( string Word, string URL, string InFile )
     {
     if( Word == null )
       return;
 
-    string FixedWord = MForm.WordsDictionary1.GetValidWordForm( Word );
+    string FixedWord = MForm.WordsDictionary1.GetValidWordForm( Word, InFile );
     if( FixedWord.Length == 0 )
       return;
 
@@ -99,7 +89,7 @@ namespace DGOLibrary
     if( Word == null )
       return null;
 
-    string FixedWord = MForm.WordsDictionary1.GetValidWordForm( Word );
+    string FixedWord = MForm.WordsDictionary1.GetValidWordForm( Word, "None" );
     if( FixedWord.Length == 0 )
       return null;
 
@@ -119,7 +109,7 @@ namespace DGOLibrary
 
     string[] Words = AllWords.Split( new Char[] { '\r' } );
 
-    using( StreamWriter SWriter = new StreamWriter( FileName  )) 
+    using( StreamWriter SWriter = new StreamWriter( FileName, false, Encoding.UTF8 ))
       {
       for( int Count = 0; Count < Words.Length; Count++ )
         {
