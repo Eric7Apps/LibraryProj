@@ -44,6 +44,9 @@ namespace DGOLibrary
     FullText = Utility.RemovePatternFromStartToEnd( "<a", ">", FullText );
     FullText = FullText.Replace( "</a>", " " );
 
+    if( FullText.Contains( "abusiveuser" ))
+      GetCallingPage().AddStatusString( "abusiveuser: " + FullText, 1500 );
+
     FullText = RemoveDropCapPart( FullText );
 
     FullText = Utility.RemovePatternFromStartToEnd( "<span", ">", FullText );
@@ -71,12 +74,13 @@ namespace DGOLibrary
       if( SplitS[0] == "class=\"articletext\"" )
         return;
 
+
       if( SplitS[0].Contains( "=" ))
         {
         if( !SplitS[0].Contains( "decolonizing" ))
           {
           GetCallingPage().AddStatusString( " ", 500 );
-          GetCallingPage().AddStatusString( "SPlitS is 1 or zero in the Paragraph: ", 500 );
+          GetCallingPage().AddStatusString( "SplitS is 1 or zero in the Paragraph: ", 500 );
           GetCallingPage().AddStatusString( FullText, 500 );
           }
         }
@@ -86,18 +90,50 @@ namespace DGOLibrary
     FullText = FullText.Replace( "durango herald", " " );
     FullText = FullText.Replace( "<strong", " " );
     FullText = FullText.Replace( "</strong", " " );
+    FullText = FullText.Replace( "<center", " " );
+    FullText = FullText.Replace( "</center", " " );
     FullText = FullText.Replace( "<br/", " " );
     FullText = FullText.Replace( "<br", " " );
     // FullText = FullText.Replace( "</i", " " );
     // FullText = FullText.Replace( "<i", " " );
+    // FullText = FullText.Replace( "</b", " " );
+    // FullText = FullText.Replace( "<b", " " );
+    FullText = FullText.Replace( "</em", " " );
+    FullText = FullText.Replace( "<em", " " );
+    FullText = FullText.Replace( "</li", " " );
+    FullText = FullText.Replace( "<li", " " );
+    FullText = FullText.Replace( "<sup", " " );
+    FullText = FullText.Replace( "</sup", " " );
+    FullText = FullText.Replace( "<hr", " " );
 
     int TagStart = FindFirstTagIndex( 0, FullText );
+
+    if( FullText.Contains( "<byttl" ))
+      {
+      // by katy daigle<byttl associated press</byttl  
+      string Writer = Utility.TruncateString( FullText, TagStart );
+      // GetCallingPage().AddStatusString( "Writer: " + Writer, 5000 );
+      FullText = Writer;
+      }
+
+    /*
+    TagStart = FindFirstTagIndex( 0, FullText );
     if( TagStart >= 0 )
       {
       GetCallingPage().AddStatusString( " ", 500 );
       GetCallingPage().AddStatusString( "Tag in the Paragraph?: ", 500 );
       GetCallingPage().AddStatusString( FullText, 5000 );
       }
+      */
+
+    /*
+    if( FullText.Contains( "ocntina" ))
+      {
+      GetCallingPage().AddStatusString( " ", 500 );
+      GetCallingPage().AddStatusString( "ocntina: ", 500 );
+      GetCallingPage().AddStatusString( FullText, 1500 );
+      }
+      */
 
     // FullText = FullText.Replace( "<span class=\"abody\"", " " );
 
@@ -118,24 +154,6 @@ namespace DGOLibrary
     // <p class="articleText">
     // <span class="dropcap">W</span>alking into
 
-
-    /*
-    FullText = FullText.Replace( "style=\"text-indent:", " " );
-    FullText = FullText.Replace( "font-style:", " " );
-    FullText = FullText.Replace( "line-height:", " " );
-    FullText = FullText.Replace( "margin-bottom:", " " );
-    FullText = FullText.Replace( "text-decoration:", " " );
-    FullText = FullText.Replace( "align=\"left\"", " " );
-    FullText = FullText.Replace( "lang=\"en-US\"", " " );
-    InString = InString.Replace( "href=", " " );
-    InString = InString.Replace( "rel=", " " );
-    InString = InString.Replace( "target=", " " );
-    InString = InString.Replace( "subject=", " " );
-    InString = InString.Replace( "alt=", " " );
-    InString = InString.Replace( "src=", " " );
-    InString = InString.Replace( "class=", " " );
-    */
-
     // GetCallingPage().AddStatusString( " ", 500 );
     // GetCallingPage().AddStatusString( "Paragraph: ", 500 );
     // GetCallingPage().AddStatusString( FullText, 5000 );
@@ -143,7 +161,7 @@ namespace DGOLibrary
     string SearchText = CleanAndSimplify.SimplifyCharacterCodes( FullText );
     GetCallingPage().AddToSearchableContents( SearchText );
 
-    SortedDictionary<string, int> WordsDictionary = ParseText( FullText );
+    SortedDictionary<string, int> WordsDictionary = ParseText( SearchText );
     if( WordsDictionary != null )
       GetCallingPage().AddWords( WordsDictionary, GetCallingPage().GetFileName() );
 
@@ -164,6 +182,7 @@ namespace DGOLibrary
 
     InString = InString.Replace( "’", " " );
     InString = InString.Replace( "•", " " );
+    InString = InString.Replace( "—", " " );
 
     // "Durango's "
     InString = InString.Replace( "'s ", " " );
@@ -216,12 +235,42 @@ namespace DGOLibrary
 
 
 
-
-
-
-
   private bool ContainsBadStuff( string InString )
     {
+    if( InString.Contains( "<u print ad dimensions" ))
+      return true;
+
+    if( InString.Contains( "twitter.com" ))
+      return true;
+
+    if( InString.Contains( "onclick=" ))
+      return true;
+
+    if( InString.Contains( "<form" ))
+      return true;
+
+    // <HL2 from the Megamillions lottery bad tag.
+    if( InString.Contains( "<hl2" ))
+      return true;
+
+    if( InString.Contains( "<table" ))
+      return true;
+
+    if( InString.Contains( "<tr" ))
+      return true;
+
+    if( InString.Contains( "/img/3bull.png" ))
+      return true;
+
+    // It's either bad stuff or I don't want to deal
+    // with parsing this stuff yet.
+    if( InString.Contains( "<img" ))
+      return true;
+
+    // <meta content="word.document"
+    if( InString.Contains( "<meta" ))
+      return true;
+
     if( InString.Contains( "class=\"simpleblackborder" ))
       return true;
       
