@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Threading.Tasks;
+// using System.Threading.Tasks;
 using System.IO;
 
 
@@ -105,10 +105,14 @@ namespace DGOLibrary
 
 
   // Keep this method private to this object.
-  // LinkTag has something that does this too.
+  // LinkTag has something similar that does this too.
   private bool LinkIsGood( string URL )
     {
     URL = URL.ToLower();
+
+    if( URL.Contains( "/javascript/" ))
+      return false;
+
     if( URL.Contains( "/frontpage/" ))
       return false;
 
@@ -336,11 +340,17 @@ namespace DGOLibrary
       foreach( KeyValuePair<string, Page> Kvp in PageDictionary )
         {
         string Line = Kvp.Value.ObjectToString();
+
+        string URL = Kvp.Value.GetURL();
+        string TestURL = MForm.MainURLIndex.GetExistingURL( URL );
+        if( TestURL.Length == 0 )
+          MForm.ShowStatus( "Missing URL: " + URL );
+
         SWriter.WriteLine( Line );
         }
       }
 
-     // MForm.ShowStatus( "PageList wrote " + PageDictionary.Count.ToString( "N0" ) + " page objects to the file." );
+     MForm.ShowStatus( "PageList wrote " + PageDictionary.Count.ToString( "N0" ) + " page objects to the file." );
      return true;
     }
     catch( Exception Except )
@@ -351,23 +361,6 @@ namespace DGOLibrary
       }
     }
 
-
-  /*
-  internal void ShowTitles()
-    {
-
-    foreach( KeyValuePair<string, string> Kvp in TitlesDictionary )
-      {
-      if( !MForm.CheckEvents())
-        return;
-
-      MForm.ShowStatus( Kvp.Key );
-      }
-
-    // There are duplicate links because they fall
-    // under multiple categories.
-    }
-    */
 
 
   internal void IndexAll()
@@ -385,18 +378,19 @@ namespace DGOLibrary
     foreach( KeyValuePair<string, Page> Kvp in PageDictionary )
       {
       Loops++;
-      if( (Loops & 0x7F) == 0 )
+      if( (Loops & 0x1F) == 0 )
         {
         if( !MForm.CheckEvents())
           return;
 
-      if( MForm.GetIsClosing() )
-        return;
+        if( MForm.GetIsClosing() )
+          return;
 
         }
 
       Page Page1 = Kvp.Value;
       Page1.UpdateFromFile( Page1.GetTitle(), Page1.GetURL(), Page1.GetFileName(), false, Page1.GetRelativeURLBase(), false );
+      MForm.MainURLIndex.UpdatePageFromFile( Page1.GetTitle(), Page1.GetURL(), Page1.GetFileName(), false, Page1.GetRelativeURLBase(), false );
       }
 
     MForm.MainWordsData.WriteToTextFile();
@@ -552,8 +546,8 @@ namespace DGOLibrary
       if( !Contents.Contains( "library" ))
         continue;
 
-      if( !Contents.Contains( "carnegie" ))
-        continue;
+      // if( !Contents.Contains( "carnegie" ))
+        // continue;
 
       MForm.ShowStatus( " " );
       MForm.ShowStatus( " " );
