@@ -118,6 +118,26 @@ namespace DGOLibrary
     MForm.PageList1.AddEmptyPage( "SnowDown", "http://www.durangoherald.com/section/snowdown/", "http://www.durangoherald.com" );
     MForm.PageList1.AddEmptyPage( "View Multimedia", "http://www.durangoherald.com/section/video/", "http://www.durangoherald.com" );
 
+    ///////////////
+    // Ones that are in every page. Don't keep reading these:
+    MForm.MainURLIndex.AddEmptyPage( "Mobile", "http://www.durangoherald.com/section/mobile/", "http://www.durangoherald.com" );
+    MForm.MainURLIndex.AddEmptyPage( "Privacy policy", "http://www.durangoherald.com/section/privacypolicy/", "http://www.durangoherald.com" );
+    MForm.MainURLIndex.AddEmptyPage( "About Us", "http://www.durangoherald.com/section/aboutus/", "http://www.durangoherald.com" );
+    MForm.MainURLIndex.AddEmptyPage( "Subscribe", "http://www.durangoherald.com/section/subscribe/", "http://www.durangoherald.com" );
+    MForm.MainURLIndex.AddEmptyPage( "Terms of use", "http://www.durangoherald.com/section/termsofuse/", "http://www.durangoherald.com" );
+    MForm.MainURLIndex.AddEmptyPage( "Advertise", "http://www.durangoherald.com/section/advertise/", "http://www.durangoherald.com" );
+    MForm.MainURLIndex.AddEmptyPage( "Customer Service", "http://www.durangoherald.com/section/customer-service/", "http://www.durangoherald.com" );
+    MForm.MainURLIndex.AddEmptyPage( "Feedback", "http://www.durangoherald.com/section/feedback/", "http://www.durangoherald.com" );
+    MForm.MainURLIndex.AddEmptyPage( "All Guides", "http://www.durangoherald.com/section/newsstand/", "http://www.durangoherald.com" );
+    MForm.MainURLIndex.AddEmptyPage( "Suspend Delivery", "http://www.durangoherald.com/section/suspend-delivery/", "http://www.durangoherald.com" );
+    MForm.MainURLIndex.AddEmptyPage( "Address", "http://www.durangoherald.com/section/directions/", "http://www.durangoherald.com" );
+    MForm.MainURLIndex.AddEmptyPage( "News Tip", "http://www.durangoherald.com/section/newstip/", "http://www.durangoherald.com" );
+    MForm.MainURLIndex.AddEmptyPage( "RSS", "http://www.durangoherald.com/section/rss/", "http://www.durangoherald.com" );
+    MForm.MainURLIndex.AddEmptyPage( "Staff Listing", "http://www.durangoherald.com/section/contact/", "http://www.durangoherald.com" );
+    MForm.MainURLIndex.AddEmptyPage( "Submit an Obituary", "http://obituaries.durangoherald.com/obituaries/durangoherald/obituary-place-an-obituary.aspx", "http://www.durangoherald.com" );
+    MForm.MainURLIndex.AddEmptyPage( "SnowDown", "http://www.durangoherald.com/section/snowdown/", "http://www.durangoherald.com" );
+    MForm.MainURLIndex.AddEmptyPage( "View Multimedia", "http://www.durangoherald.com/section/video/", "http://www.durangoherald.com" );
+
 
    ////////////////////
     // It works with https.
@@ -156,27 +176,27 @@ namespace DGOLibrary
     /////////////
     AddURLForm( "Durango Gov Main Page", "http://www.durangogov.org/", true, false, "http://www.durangogov.org" );
     // AddURLForm( "Durango Gov View the new Facilities", "http://www.durangogov.org/Facilities", true, false, "http://www.durangogov.org" );
-    // AddURLForm( "Durango Gov Business", "http://www.durangogov.org/Index.aspx?NID=269", true, false, "http://www.durangogov.org" );
-    // AddURLForm( "Durango Gov Business Development", "http://www.durangogov.org/index.aspx?nid=857", true, false, "http://www.durangogov.org" );
-    // AddURLForm( "Durango Gov Business Directory", "http://www.durangogov.org/index.aspx?NID=842", true, false, "http://www.durangogov.org" );
-    // AddURLForm( "Durango Gov Central Business District", "http://www.durangogov.org/Index.aspx?NID=285", true, false, "http://www.durangogov.org" );
-    // AddURLForm( "Durango Gov Government Resources", "http://www.durangogov.org/Index.aspx?NID=271", true, false, "http://www.durangogov.org" );
-    // AddURLForm( "Durango Gov Our City", "http://www.durangogov.org/Index.aspx?NID=270", true, false, "http://www.durangogov.org" );
+    AddURLForm( "Durango Gov Business", "http://www.durangogov.org/Index.aspx?NID=269", true, false, "http://www.durangogov.org" );
+    AddURLForm( "Durango Gov Business Development", "http://www.durangogov.org/index.aspx?nid=857", true, false, "http://www.durangogov.org" );
+    AddURLForm( "Durango Gov Business Directory", "http://www.durangogov.org/index.aspx?NID=842", true, false, "http://www.durangogov.org" );
+    AddURLForm( "Durango Gov Central Business District", "http://www.durangogov.org/Index.aspx?NID=285", true, false, "http://www.durangogov.org" );
+    AddURLForm( "Durango Gov Government Resources", "http://www.durangogov.org/Index.aspx?NID=271", true, false, "http://www.durangogov.org" );
+    AddURLForm( "Durango Gov Our City", "http://www.durangogov.org/Index.aspx?NID=270", true, false, "http://www.durangogov.org" );
     AddURLForm( "Durango Gov City Council", "http://www.durangogov.org/index.aspx?NID=169", true, false, "http://www.durangogov.org" );
-    // AddURLForm( "Durango Gov Job Opportunities", "http://www.durangogov.org/index.aspx?NID=201", true, false, "http://www.durangogov.org" );
+    AddURLForm( "Durango Gov Job Opportunities", "http://www.durangogov.org/index.aspx?NID=201", true, false, "http://www.durangogov.org" );
     // AddURLForm( "Durango Gov History", "http://www.durangogov.org/Index.aspx?NID=274", true, false, "http://www.durangogov.org" );
     // AddURLForm( "Durango Gov History of the Charter", "http://www.durangogov.org/Index.aspx?NID=276", true, false, "http://www.durangogov.org" );
     // AddURLForm( "Durango Gov Photo Gallery", "http://www.durangogov.org/gallery.aspx", true, false, "http://www.durangogov.org" );
-    // AddURLForm( "Durango Gov Public Art", "http://www.durangogov.org/index.aspx?nid=327", true, false, "http://www.durangogov.org" );
-    // AddURLForm( "Durango Gov Social Media", "http://www.durangogov.org/Index.aspx?NID=79", true, false, "http://www.durangogov.org" );
-    // AddURLForm( "Durango Gov Durango's Voice", "http://www.durangogov.org/index.aspx?NID=712", true, false, "http://www.durangogov.org" );
+    AddURLForm( "Durango Gov Public Art", "http://www.durangogov.org/index.aspx?nid=327", true, false, "http://www.durangogov.org" );
+    AddURLForm( "Durango Gov Social Media", "http://www.durangogov.org/Index.aspx?NID=79", true, false, "http://www.durangogov.org" );
+    AddURLForm( "Durango Gov Durango's Voice", "http://www.durangogov.org/index.aspx?NID=712", true, false, "http://www.durangogov.org" );
     AddURLForm( "Durango Gov What's Happening", "http://www.durangogov.org/Index.aspx?NID=268", true, false, "http://www.durangogov.org" );
     AddURLForm( "Durango Gov City News", "http://www.durangogov.org/CivicAlerts.aspx", true, false, "http://www.durangogov.org" );
     AddURLForm( "Durango Gov Library", "http://www.durangogov.org/index.aspx?NID=220", true, false, "http://www.durangogov.org" );
-    // AddURLForm( "Durango Gov Meeting Calendar", "http://www.durangogov.org/index.aspx?NID=101", true, false, "http://www.durangogov.org" );
-    // AddURLForm( "Durango Gov Parks & Recreation", "http://www.durangogov.org/index.aspx?NID=222", true, false, "http://www.durangogov.org" );
-    // AddURLForm( "Durango Gov Places to Eat / Shop / Stay", "http://www.durangogov.org/Index.aspx?NID=295", true, false, "http://www.durangogov.org" );
-    // AddURLForm( "Durango Gov Transportation", "http://www.durangogov.org/Index.aspx?NID=290", true, false, "http://www.durangogov.org" );
+    AddURLForm( "Durango Gov Meeting Calendar", "http://www.durangogov.org/index.aspx?NID=101", true, false, "http://www.durangogov.org" );
+    AddURLForm( "Durango Gov Parks & Recreation", "http://www.durangogov.org/index.aspx?NID=222", true, false, "http://www.durangogov.org" );
+    AddURLForm( "Durango Gov Places to Eat / Shop / Stay", "http://www.durangogov.org/Index.aspx?NID=295", true, false, "http://www.durangogov.org" );
+    AddURLForm( "Durango Gov Transportation", "http://www.durangogov.org/Index.aspx?NID=290", true, false, "http://www.durangogov.org" );
 
     AddURLForm( "Durango Telegraph Main Page", "http://www.durangotelegraph.com/", true, false, "http://www.durangotelegraph.com" );
 
@@ -254,6 +274,7 @@ namespace DGOLibrary
       UpdateTitleDateTime( Title );
       // Add it if it's not already there.
       MForm.PageList1.AddEmptyPage( Title, URL, RelativeURLBase );
+      MForm.MainURLIndex.AddEmptyPage( Title, URL, RelativeURLBase );
       }
     else
       {
@@ -490,7 +511,16 @@ namespace DGOLibrary
   private void QueueTimer_Tick(object sender, EventArgs e)
     {
     if( MForm.GetIsClosing())
+      {
+      QueueTimer.Stop();
       return;
+      }
+
+    if( MForm.GetCancelled())
+      {
+      QueueTimer.Stop();
+      return;
+      }
 
     if( GetURLArrayLast == 0 )
       {
@@ -502,11 +532,9 @@ namespace DGOLibrary
       ShowStatus( " " );
       ShowStatus( " " );
       ShowStatus( "The queue for getting new pages is empty." );
+      MForm.ShowStatus( "The queue for getting new pages is empty." );
+      return;
       }
-
-    try
-    {
-    QueueTimer.Stop();
 
     try
     {
@@ -524,12 +552,6 @@ namespace DGOLibrary
       {
       ShowStatus( "Exception in QueueTimer_Tick():" );
       ShowStatus( Except.Message );
-      }
-
-    }
-    finally
-      {
-      QueueTimer.Start();
       }
     }
 
