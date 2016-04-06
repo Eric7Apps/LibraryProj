@@ -391,19 +391,6 @@ namespace DGOLibrary
 
         // <meta http-equiv="content-type" 
         // content="text/html; charset=utf-8" />
-        if( Line.Contains( "charset=" ))
-          {
-          // Not: <script type="text/javascript" charset="utf-8">
-          if( Line.Contains( "<meta http-equiv=\"content-type\"" ))
-            {
-            if( !Line.Contains( "charset=utf-8" ))
-              {
-              MForm.ShowStatus( " " );
-              MForm.ShowStatus( "Charset: " + Line );
-              MForm.ShowStatus( "File: " + ReadFileName );
-              }
-            }
-          }
 
         Line = Utility.GetCleanUnicodeString( Line, 1000000, true );
         if( Line.Length > 0 )
