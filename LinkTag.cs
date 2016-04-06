@@ -101,7 +101,8 @@ namespace DGOLibrary
    if( Title.ToLower() == "...read more" )
       return;
 
-    Title = CleanAndSimplify.SimplifyCharacterCodes( Title );
+    // ==========
+    // Title = CleanAndSimplify.SimplifyCharacterCodes( Title );
 
     if( !Attributes.ToLower().Contains( "href=" ))
       {
@@ -271,6 +272,9 @@ namespace DGOLibrary
      if( TestURL.ToLower().EndsWith( ".bat" ))
        return false;
 
+     if( TestURL.Contains( "http://www.durangogov.org/rss.aspx" ))
+       return false;
+
      if( TestURL.Contains( "durangoherald.com/#tab" ))
        return false;
 
@@ -307,8 +311,8 @@ namespace DGOLibrary
      // if( TestURL.StartsWith( "https://www.colorado.gov/" ))
        // return true;
 
-     // if( TestURL.StartsWith( "http://www.durangogov.org/" ))
-       // return true;
+     if( TestURL.StartsWith( "http://www.durangogov.org/" ))
+       return true;
 
      if( TestURL.StartsWith( "http://www.durangoherald.com/" ))
        return true;
