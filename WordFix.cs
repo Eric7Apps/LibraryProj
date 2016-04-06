@@ -15,7 +15,6 @@ using System.Text;
     // ReplaceWordsDictionary["jun"] = "june";
     // ReplaceWordsDictionary["jul"] = "july";
     ReplaceWordsDictionary["aug"] = "august";
-    ReplaceWordsDictionary["sept"] = "september";
     ReplaceWordsDictionary["oct"] = "october";
     ReplaceWordsDictionary["nov"] = "november";
     // ReplaceWordsDictionary["dec"] = "december";
@@ -67,9 +66,19 @@ namespace DGOLibrary
       return FixWordD( Word );
       }
 
+    if( Word[0] == 'e' )
+      {
+      return FixWordE( Word );
+      }
+
     if( Word[0] == 'f' )
       {
       return FixWordF( Word );
+      }
+
+    if( Word[0] == 'g' )
+      {
+      return FixWordG( Word );
       }
 
     if( Word[0] == 'i' )
@@ -137,6 +146,9 @@ namespace DGOLibrary
     if( Word == "beyonc" )
       return "beyoncé";
 
+    if( Word == "broadcaseter" )
+      return "broadcaster";
+ 
     if( Word == "broomfiled" )
       return "broomfield";
 
@@ -189,20 +201,40 @@ namespace DGOLibrary
     return Word;
     }
 
+  internal static string FixWordE( string Word )
+    {
+    if( Word == "entertainemnt" )
+      return "entertainment";
+
+    return Word;
+    }
 
   internal static string FixWordF( string Word )
     {
+    if( Word == "febuary" )
+      return "february";
+
+    if( Word == "febraury" )
+      return "february";
+
     if( Word == "fianc" )
       return "fiancé";
 
     if( Word == "fiance" )
       return "fiancé";
 
-    if( Word == "febuary" )
-      return "february";
-
     if( Word == "fla" )
       return "florida";
+
+    return Word;
+    }
+
+
+
+  internal static string FixWordG( string Word )
+    {
+    if( Word == "goernor" )
+      return "governor";
 
     return Word;
     }
@@ -232,6 +264,9 @@ namespace DGOLibrary
     if( Word == "memorablia" )
       return "memorabilia";
 
+    if( Word == "merecedes" )
+      return "mercedes";
+
     if( Word == "moeny" )
       return "money";
 
@@ -244,6 +279,9 @@ namespace DGOLibrary
     {
     if( Word == "outsude" )
       return "outside";
+
+    if( Word == "ocntina" ) // Yes really.  I checked it.
+      return "contain";
 
     return Word;
     }
@@ -274,10 +312,19 @@ namespace DGOLibrary
       return "risqué";
 
     if( Word == "resum" )
-      return "resumé";
+      return "résumé";
+
+    if( Word == "resumé" )
+      return "résumé";
 
     if( Word == "recidivisim" )
       return "recidivism";
+
+    if( Word == "reservior" )
+      return "reservoir";
+
+    if( Word == "returing" )
+      return "returning";
 
     return Word;
     }
@@ -290,6 +337,9 @@ namespace DGOLibrary
 
     if( Word == "sydrome" )
       return "syndrome";
+
+    if( Word == "sept" )
+      return "september";
 
     return Word;
     }
