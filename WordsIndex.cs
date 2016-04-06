@@ -406,6 +406,67 @@ namespace DGOLibrary
     }
 
 
+
+  internal string GetValidWordForm( string InWord, string InFile )
+    {
+    try
+    {
+    if( InWord == null )
+      return "";
+
+    InWord = InWord.Trim();
+
+    // as, at, be, by, do, go, he, in, is, it, no,
+    // of, on, or, so, to, tv, up, us...
+    if( InWord.Length < 3 )
+      return "";
+
+    if( !Utility.IsALetter( InWord[0] ))
+      {
+      // MForm.ShowStatus( "Not a letter: " + InWord );
+      return "";
+      }
+
+    InWord = InWord.ToLower();
+    if( ExcludedWords.IsExcluded( InWord ))
+      return "";
+
+    if( WordExists( InWord ) )
+      return InWord;
+
+    // It doesn't get here if it's in the main dictionary.
+    // InWord = ReplaceCommonWordForms( InWord );
+    // if( MainWordsDictionary.ContainsKey( InWord ))
+      // return InWord;
+
+    string FixedWord = SuffixForms.FixSuffix( InWord, this );
+
+    if( FixedWord.Length != 0 )
+      {
+      // MForm.ShowStatus( "To: " + FixedWord );
+      return FixedWord;
+      }
+
+    ShowStatus( "Word? " + InWord );
+    // if( ContainsNonASCII( InWord ))
+      // {
+      // if( !InWord.Contains( "fiancé" ))
+        // MForm.ShowStatus( "File: " + InFile );
+
+      // }
+
+    return "";
+
+    }
+    catch( Exception Except )
+      {
+      ShowStatus( "Exception in GetValidWordForm():" );
+      ShowStatus( Except.Message );
+      return "";
+      }
+    }
+
+
   }
 }
 
