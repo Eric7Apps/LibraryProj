@@ -42,11 +42,12 @@ namespace DGOLibrary
     }
 
 
+  /*
   internal WordsIndex GetMainWordsIndex()
     {
     return MainWordsIndex;
     }
-
+    */
 
   internal void AddWord( string Word )
     {
@@ -66,12 +67,13 @@ namespace DGOLibrary
     }
 
 
+
   internal void UpdateWord( string Word, string URL, string InFile )
     {
     if( Word == null )
       return;
 
-    string FixedWord = MForm.WordsDictionary1.GetValidWordForm( Word, InFile );
+    string FixedWord = MainWordsIndex.GetValidWordForm( Word, InFile );
     if( FixedWord.Length == 0 )
       return;
 
@@ -89,7 +91,7 @@ namespace DGOLibrary
     if( Word == null )
       return null;
 
-    string FixedWord = MForm.WordsDictionary1.GetValidWordForm( Word, "None" );
+    string FixedWord = MainWordsIndex.GetValidWordForm( Word, "None" );
     if( FixedWord.Length == 0 )
       return null;
 
