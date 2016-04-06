@@ -15,10 +15,7 @@ namespace DGOLibrary
   {
   private MainForm MForm;
   private SortedDictionary<string, int> MainWordsDictionary;
-  private SortedDictionary<string, int> ExcludedWordsDictionary;
   private string FileName = "";
-  private string ExcludedFileName = "";
-  private SuffixForms SuffixForms1;
 
 
   private WordsDictionary()
@@ -32,91 +29,17 @@ namespace DGOLibrary
     MForm = UseForm;
 
     FileName = MForm.GetDataDirectory() + "WordsDictionary.txt";
-    ExcludedFileName = MForm.GetDataDirectory() + "ExcludedWordsDictionary.txt";
 
-    SuffixForms1 = new SuffixForms();
     MainWordsDictionary = new SortedDictionary<string, int>();
-    ExcludedWordsDictionary = new SortedDictionary<string, int>();
     }
 
 
 
-  internal string GetValidWordForm( string InWord, string InFile )
-    {
-    try
-    {
-    if( InWord == null )
-      return "";
-
-    InWord = InWord.Trim();
-
-    // as, at, be, by, do, go, he, in, is, it, no,
-    // of, on, or, so, to, tv, up, us...
-    if( InWord.Length < 3 )
-      return "";
-
-    if( !Utility.IsALetter( InWord[0] ))
-      {
-      // MForm.ShowStatus( "Not a letter: " + InWord );
-      return "";
-      }
-
-    InWord = InWord.ToLower();
-    if( WordIsExcluded( InWord ))
-      return "";
-
-    if( MForm.MainWordsData.WordExists( InWord ) )
-      return InWord;
-
-    // It doesn't get here if it's in the main dictionary.
-    // InWord = ReplaceCommonWordForms( InWord );
-    // if( MainWordsDictionary.ContainsKey( InWord ))
-      // return InWord;
-
-    string FixedWord = SuffixForms1.FixSuffix( InWord, MForm.MainWordsData.GetMainWordsIndex());
-
-    if( FixedWord.Length != 0 )
-      {
-      // MForm.ShowStatus( "To: " + FixedWord );
-      return FixedWord;
-      }
-
-    MForm.ShowStatus( "Word? " + InWord );
-    /*
-    if( ContainsNonASCII( InWord ))
-      {
-      if( !InWord.Contains( "fiancé" ))
-        MForm.ShowStatus( "File: " + InFile );
-
-      }
-      */
-
-    return "";
-
-    }
-    catch( Exception Except )
-      {
-      MForm.ShowStatus( "Exception in GetValidWordForm():" );
-      MForm.ShowStatus( Except.Message );
-      return "";
-      }
-    }
-
-
-  private bool ContainsNonASCII( string Word )
-    {
-    for( int Count = 0; Count < Word.Length; Count++ )
-      {
-      if( Word[Count] > '~' )
-        return true;
-
-      }
-
-    return false;
-    }
 
 
 
+
+  /*
   private bool WordIsExcluded( string Word )
     {
     // This is mainly needed to help find new words
@@ -140,7 +63,7 @@ namespace DGOLibrary
 
     return false;
     }
-
+    */
 
 
   internal bool ReadFromTextFile()
@@ -153,9 +76,9 @@ namespace DGOLibrary
     try
     {
     // It has to read this first.
-    ReadExcludedFromTextFile();
+    // ReadExcludedFromTextFile();
     // Write them back to be sorted and unique.
-    WriteToExcludedWordsTextFile();
+    // WriteToExcludedWordsTextFile();
 
     using( StreamReader SReader = new StreamReader( FileName, Encoding.UTF8 )) 
       {
@@ -174,9 +97,9 @@ namespace DGOLibrary
           continue;
 
         string KeyWord = SplitS[0].Trim().ToLower();
-        if( WordIsExcluded( KeyWord ))
+        if( ExcludedWords.IsExcluded( KeyWord ))
           {
-          // if( KeyWord == "somthing or other" )
+          // if( KeyWord == "something or other" )
             // MForm.ShowStatus( " is excluded." );
 
           continue;
@@ -234,7 +157,7 @@ namespace DGOLibrary
 
 
 
-
+  /*
   private bool ReadExcludedFromTextFile()
     {
     ExcludedWordsDictionary.Clear();
@@ -279,9 +202,10 @@ namespace DGOLibrary
       return false;
       }
     }
+    */
 
 
-
+  /*
   internal bool WriteToExcludedWordsTextFile()
     {
     try
@@ -306,7 +230,7 @@ namespace DGOLibrary
       return false;
       }
     }
-
+    */
 
 
   }
