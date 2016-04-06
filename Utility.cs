@@ -185,22 +185,44 @@ namespace DGOLibrary
     }
 
 
+  internal static char AsciiLowerCase( char InChar )
+    {
+    // int AsciiDif = (int)'A' - (int)'a';
+    int AsciiDif = (int)'a' - (int)'A';
+    if( AsciiDif < 0 )
+      return '?';
+      // throw( new Exception( "AsciiDif < 0" ));
+
+    if( InChar < 'A' )
+      return InChar;
+
+    if( InChar > 'Z' )
+      return InChar;
+
+    return (char)((int)InChar + AsciiDif);
+    }
+
+
 
   internal static bool MatchesTestString( int Where, string InString, string MatchS )
     {
     try
     {
     int MatchLength = MatchS.Length;
-    if( InString.Length < MatchLength )
+    int InSLength = InString.Length;
+    if( InSLength < MatchLength )
       return false;
 
     for( int Count = 0; Count < MatchLength; Count++ )
       {
-      if( (Where + Count) >= InString.Length )
+      if( (Where + Count) >= InSLength )
         return false;
 
       // ToLower() so it matches something like <ScRipT
-      if( Char.ToLower( InString[Where + Count] ) != MatchS[Count] )
+      // if( Char.ToLower( InString[Where + Count] ) != MatchS[Count] )
+        // return false;
+
+      if( AsciiLowerCase( InString[Where + Count] ) != MatchS[Count] )
         return false;
 
       }
@@ -224,6 +246,7 @@ namespace DGOLibrary
     {
     StringBuilder SBuilder = new StringBuilder();
     bool IsInside = false;
+    int EndSLength = EndS.Length;
     for( int Count = 0; Count < InString.Length; Count++ )
       {
       // When this is looking for <span at the beginning
@@ -233,7 +256,7 @@ namespace DGOLibrary
 
       if( IsInside )
         {                  //      /script>
-        if( MatchesTestString( Count - EndS.Length, InString, EndS ))
+        if( MatchesTestString( Count - EndSLength, InString, EndS ))
           IsInside = false;
 
         }
@@ -404,6 +427,20 @@ namespace DGOLibrary
       return false;
 
     return true;
+    }
+
+
+
+  internal static bool ContainsNonASCII( string Word )
+    {
+    for( int Count = 0; Count < Word.Length; Count++ )
+      {
+      if( Word[Count] > '~' )
+        return true;
+
+      }
+
+    return false;
     }
 
 
