@@ -21,7 +21,7 @@ namespace DGOLibrary
 {
   public partial class MainForm : Form
   {
-  internal const string VersionDate = "4/5/2016";
+  internal const string VersionDate = "4/6/2016";
   internal const int VersionNumber = 09; // 0.9
   internal const string MessageBoxTitle = "Library Project";
   private System.Threading.Mutex SingleInstanceMutex = null;
@@ -37,12 +37,12 @@ namespace DGOLibrary
   private bool Cancelled = false;
   internal GlobalProperties GlobalProps;
   internal PageList PageList1;
-  // internal Words AllWords;
   internal WordsDictionary WordsDictionary1;
   internal ScriptDictionary ScriptDictionary1;
   internal CodeCommentDictionary CodeCommentDictionary1;
   internal NetIPStatus NetStats;
   internal WordsData MainWordsData;
+  internal URLIndex MainURLIndex;
 
 
 
@@ -59,13 +59,12 @@ namespace DGOLibrary
     NetStats = new NetIPStatus( this );
     NetStats.ReadFromFile();
 
-
     WordsDictionary1 = new WordsDictionary( this );
     MainWordsData = new WordsData( this );
     ScriptDictionary1 = new ScriptDictionary( this );
     CodeCommentDictionary1 = new CodeCommentDictionary( this );
     PageList1 = new PageList( this );
-    // AllWords = new Words( this );
+    MainURLIndex = new URLIndex( this );
     WebFData = new WebFilesData( this );
 
     if( !CheckSingleInstance())
@@ -107,7 +106,9 @@ namespace DGOLibrary
 
     // Colorado Gov:
     string URL = "https://www.colorado.gov/";
-    PageList1.UpdatePageFromFile( "Colorado Gov Main Page", URL, FileName, true, "https://www.colorado.gov" );
+    // PageList1.UpdatePageFromFile( "Colorado Gov Main Page", URL, FileName, true, "https://www.colorado.gov" );
+
+    MainURLIndex.UpdatePageFromFile( "Colorado Gov Main Page", URL, FileName, true, "https://www.colorado.gov", true );
     }
 
 
@@ -321,6 +322,8 @@ namespace DGOLibrary
     // ShowStatus() won't show it when it's closing.
     MainTextBox.AppendText( "Saving files.\r\n" ); 
     PageList1.WriteToTextFile();
+    MainURLIndex.WriteToTextFile();
+
     MainTextBox.AppendText( "Saved pages.\r\n" ); 
     MainWordsData.WriteToTextFile();
     MainTextBox.AppendText( "Saved word index file.\r\n" ); 
@@ -434,6 +437,7 @@ namespace DGOLibrary
     // Make sure the PageList is loaded up before
     // GetURLMgrForm is started.
     PageList1.ReadFromTextFile();
+    // ====== MainURLIndex.ReadFromTextFile();
 
     ShowStatus( "Reading script data..." );
     ScriptDictionary1.ReadFromTextFile();
@@ -464,8 +468,8 @@ namespace DGOLibrary
     // This calls CheckEvents().
     // PageList1.ReadAllFilesToContent();
 
-    CheckTimer.Interval = 15 * 60 * 1000;
-    CheckTimer.Start();
+    // CheckTimer.Interval = 15 * 60 * 1000;
+    // CheckTimer.Start();
     }
 
 
@@ -479,14 +483,35 @@ namespace DGOLibrary
 
   private void CheckTimer_Tick(object sender, EventArgs e)
     {
-    NetStats.SaveToFile();
+    /*
+    Save files periodically on a running server.
+
+    // Alternate which things get done each time.
+    AlternateCheckTimer++;
+    AlternateCheckTimer = AlternateCheckTimer & 0x7;
+
+    if( AlternateCheckTimer == 0 )
+      NetStats.SaveToFile();
+
     // ShowStatus( "Saving data files." );
-    PageList1.WriteToTextFile();
+    if( AlternateCheckTimer == 1 )
+      PageList1.WriteToTextFile();
+
     // WordsDictionary1.WriteToTextFile();
-    MainWordsData.WriteToTextFile();
-    ScriptDictionary1.WriteToTextFile();
-    CodeCommentDictionary1.WriteToTextFile();
+    if( AlternateCheckTimer == 2 )
+      MainWordsData.WriteToTextFile();
+
+    if( AlternateCheckTimer == 3 )
+      ScriptDictionary1.WriteToTextFile();
+
+    if( AlternateCheckTimer == 4 )
+      CodeCommentDictionary1.WriteToTextFile();
+
+    if( AlternateCheckTimer == 5 )
+      And so on...
+
     // ShowStatus( "Finished saving data files." );
+    */
     }
 
 
@@ -521,13 +546,6 @@ namespace DGOLibrary
   private void showUnicodeToolStripMenuItem_Click(object sender, EventArgs e)
     {
     MakeNonAsciiCharacters();
-    }
-
-
-
-  private void showTitlesToolStripMenuItem_Click(object sender, EventArgs e)
-    {
-    // PageList1.ShowTitles();
     }
 
 
