@@ -4,6 +4,7 @@
 
 using System;
 using System.Text;
+using System.IO;
 
 
 namespace DGOLibrary
@@ -46,26 +47,29 @@ namespace DGOLibrary
     MForm = UseForm;
     URLsRecArray = new URLsRec[URLsRecArrayLength];
     URLStringsArray = new string[1024];
-    FileName = MForm.GetDataDirectory() + "PageIndex.txt";
+    FileName = MForm.GetDataDirectory() + "URLIndex.txt";
     }
 
 
-  private int GetRandomishIndex( string URL )
+  private int GetRandomishIndex2( string URL )
     {
-    // Check: URLsRecArrayLength
+    string URLKey = URL.ToLower();
+
+    // Check: URLsRecArrayLength for the size of
+    // this index.
 
     // Get a basic randomish index.
     // A quick and easy (for now) hash function.
     int Sum = 0;
     int ExclusiveOR = 0;
-    for( int Count = 0; Count < URL.Length; Count++ )
+    for( int Count = 0; Count < URLKey.Length; Count++ )
       {
       // A sum would be the same as Exclusive OR
       // except that it has a carry bit.
-      Sum += (int)URL[Count];
+      Sum += (int)URLKey[Count];
 
       // No carry bit.
-      ExclusiveOR = ExclusiveOR ^ (int)URL[Count];
+      ExclusiveOR = ExclusiveOR ^ (int)URLKey[Count];
       } 
 
     int Index = Sum & 0xFF;
@@ -73,6 +77,64 @@ namespace DGOLibrary
     ExclusiveOR = ExclusiveOR | Sum;
     Index |= ExclusiveOR & 0xFF;
     return Index; // A 16 bit number.
+    }
+
+
+
+  internal Page GetPage( string URL )
+    {
+    try
+    {
+    if( URL == null )
+      return null;
+
+    if( URL.Length < 5 )
+      return null;
+
+    string ExistingURL = GetExistingURL( URL );
+    if( ExistingURL.Length == 0 )
+      {
+      MForm.ShowStatus( "There is no existing URL for GetPage()." );
+      MForm.ShowStatus( ExistingURL );
+      return null;
+      }
+
+    int Index = GetRandomishIndex2( ExistingURL );
+
+    if( URLsRecArray[Index].URLIndexArray ==  null )
+      {
+      MForm.ShowStatus( "The URLIndexArray was null for:" );
+      MForm.ShowStatus( ExistingURL );
+      return null;
+      }
+
+    string URLKey = ExistingURL.ToLower();
+    int Last = URLsRecArray[Index].URLIndexArrayLast;
+    for( int Count = 0; Count < Last; Count++ )
+      {
+      if( URLKey == URLsRecArray[Index].URLIndexArray[Count].URL.ToLower() )
+        {
+        Page Result =  URLsRecArray[Index].URLIndexArray[Count].PageForURL;
+        if( Result == null )
+          {
+          Result = new Page( MForm );
+          URLsRecArray[Index].URLIndexArray[Count].PageForURL = Result;
+          }
+
+        return Result;
+        }
+      }
+
+    MForm.ShowStatus( "Didn't find a matching URL for:" );
+    MForm.ShowStatus( ExistingURL );
+    return null;
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Exception in GetExistingPage():" );
+      MForm.ShowStatus( Except.Message );
+      return null;
+      }
     }
 
 
@@ -89,7 +151,6 @@ namespace DGOLibrary
 
     if( ExactURLExists( URL ))
       return URL;
-
 
     if( ExactURLExists( URL + "/" ))
       return URL + "/";
@@ -151,12 +212,12 @@ namespace DGOLibrary
     if( URL.Length < 5 )
       return false;
 
-    string URLKey = URL.ToLower();
-    int Index = GetRandomishIndex( URLKey );
+    int Index = GetRandomishIndex2( URL );
 
     if( URLsRecArray[Index].URLIndexArray ==  null )
       return false;
 
+    string URLKey = URL.ToLower();
     int Last = URLsRecArray[Index].URLIndexArrayLast;
     for( int Count = 0; Count < Last; Count++ )
       {
@@ -176,6 +237,28 @@ namespace DGOLibrary
     }
 
 
+  internal void AddEmptyPage( string Title, string URL, string RelativeURLBase )
+    {
+    try
+    {
+    if( "" != GetExistingURL( URL ))
+      return;
+
+    if( !LinkIsGood( URL ))
+      return;
+
+    Page PageToAdd = new Page( MForm );
+    PageToAdd.SetNewTitleAndURL( Title, URL, RelativeURLBase );
+    AddURL( URL, PageToAdd );
+
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Exception in AddEmptyPage():" );
+      MForm.ShowStatus( Except.Message );
+      }
+    }
+
 
   internal void AddURL( string URL, Page PageToAdd )
     {
@@ -183,7 +266,10 @@ namespace DGOLibrary
     {
     string Test = GetExistingURL( URL );
     if( Test.Length > 0 )
+      {
+      // MForm.ShowStatus( "The URL is already there in AddURL()." );
       return;
+      }
 
     URLIndexRec Rec = new URLIndexRec();
     Rec.URL = URL;
@@ -195,7 +281,7 @@ namespace DGOLibrary
     if( URLStringsArrayLast >= URLStringsArray.Length )
       Array.Resize( ref URLStringsArray, URLStringsArray.Length + 1024 );
 
-    int Index = GetRandomishIndex( Rec.URL );
+    int Index = GetRandomishIndex2( Rec.URL );
 
     if( URLsRecArray[Index].URLIndexArray ==  null )
       URLsRecArray[Index].URLIndexArray = new URLIndexRec[64];
@@ -215,18 +301,30 @@ namespace DGOLibrary
 
 
 
-   /*
   // Keep this method private to this object.
   // LinkTag has something that does this too.
-  private bool IsBadLinkToAdd( string URL )
+  private bool LinkIsGood( string URL )
     {
     URL = URL.ToLower();
-    if( URL.Contains( "/frontpage/" ))
-      return true;
 
-    return false;
+    if( URL.Contains( "/javascript/" ))
+      return false;
+
+    if( URL.Contains( "/frontpage/" ))
+      return false;
+
+    if( URL.Contains( "/msxml2.xmlhttp/" ))
+      return false;
+
+    if( URL.Contains( "/rss/" ))
+       return false;
+
+    if( URL.Contains( "/taxonomy/" ))
+       return false;
+
+    return true;
     }
-    */
+
 
 
   internal int GetIndex( string URL )
@@ -237,13 +335,13 @@ namespace DGOLibrary
     if( FixedURL.Length == 0 )
       return -1;
 
-    string URLKey = FixedURL.ToLower();
-    int Index = GetRandomishIndex( URLKey );
+    int Index = GetRandomishIndex2( FixedURL );
 
     if( URLsRecArray[Index].URLIndexArray ==  null )
       return -1;
 
     int Last = URLsRecArray[Index].URLIndexArrayLast;
+    string URLKey = FixedURL.ToLower();
     for( int Count = 0; Count < Last; Count++ )
       {
       if( URLKey == URLsRecArray[Index].URLIndexArray[Count].URL.ToLower() )
@@ -263,6 +361,110 @@ namespace DGOLibrary
 
 
 
+  internal void UpdatePageFromFile( string Title, string URL, string FileName, bool SetTime, string RelativeURLBase, bool ReadFromFile )
+    {
+    try
+    {
+    if( URL == null )
+      return;
+
+    if( Title == null )
+      return;
+
+    if( !LinkIsGood( URL ))
+      return;
+
+    if( URL.Length < 10 )
+      {
+      MForm.ShowStatus( "URL is too short in UpdatePageFromTempFile()." );
+      return;
+      }
+
+    // "Main Page"
+    if( Title.Length < 3 )
+      {
+      MForm.ShowStatus( "Title is too short in UpdatePageFromTempFile()." );
+      MForm.ShowStatus( "Title: " + Title );
+      return;
+      }
+
+    string ExistingURL = GetExistingURL( URL );
+    if( ExistingURL.Length == 0 )
+      {
+      AddURL( URL, null );
+      ExistingURL = URL;
+      }
+
+    Page UsePage = GetPage( ExistingURL );
+    if( UsePage == null )
+      {
+      MForm.ShowStatus( "There was an error getting the page for:" );
+      MForm.ShowStatus( ExistingURL );
+      return;
+      }
+
+    // Notice that if the URL aleady exists then
+    // the contents of that page are updated but
+    // the old contents are not saved.  So for example
+    // the main index page at www.durangoherald.com
+    // is updated but the old one is not saved.
+
+    // When this page gets parsed it will refer back
+    // to this URLIndex to get the indexes for every
+    // URL in the links it is adding.  So while this
+    // is being called, new URLs are being added.
+    UsePage.UpdateFromFile( Title, ExistingURL, FileName, SetTime, RelativeURLBase, ReadFromFile );
+
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Exception in URLIndex.UpdatePageFromFile():" );
+      MForm.ShowStatus( Except.Message );
+      }
+    }
+
+
+
+  internal bool WriteToTextFile()
+    {
+    try
+    {
+    int Written = 0;
+    using( StreamWriter SWriter = new StreamWriter( FileName, false, Encoding.UTF8 ))
+      {
+      for( int Index = 0; Index < URLsRecArrayLength; Index++ )
+        {
+        if( URLsRecArray[Index].URLIndexArray ==  null )
+          continue;
+
+        int Last = URLsRecArray[Index].URLIndexArrayLast;
+        for( int Count = 0; Count < Last; Count++ )
+          {
+          Page OnePage =  URLsRecArray[Index].URLIndexArray[Count].PageForURL;
+          if( OnePage == null )
+            continue;
+
+          Written++;
+          // string Line = Index.ToString() + ") " + OnePage.ObjectToString();
+          string Line = OnePage.ObjectToString();
+          SWriter.WriteLine( Line );
+          }
+        }
+      }
+
+    MForm.ShowStatus( "URLIndex wrote " + Written.ToString( "N0" ) + " page objects to the file." );
+    return true;
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Exception in URLIndex.WriteToTextFile():" );
+      MForm.ShowStatus( Except.Message );
+      return false;
+      }
+    }
+
+
   }
 }
+
 
