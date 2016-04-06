@@ -8,16 +8,13 @@ using System.Text;
 
 namespace DGOLibrary
 {
-  class SuffixForms
+  static class SuffixForms
   {
-  private WordsIndex MainWordsIndex;
 
 
 
-  internal string FixSuffix( string InWord, WordsIndex UseWordsIndex )
+  internal static string FixSuffix( string InWord, WordsIndex MainWordsIndex )
     {
-    MainWordsIndex = UseWordsIndex;
-
     try
     {
     string TestWord = "";
@@ -27,7 +24,7 @@ namespace DGOLibrary
 
     if( InWord.Length >= 4 )
       {
-      TestWord = FixSuffix1( InWord );
+      TestWord = FixSuffix1( InWord, MainWordsIndex );
       if( TestWord != "" )
         return TestWord;
 
@@ -35,7 +32,7 @@ namespace DGOLibrary
 
     if( InWord.Length >= 5 )
       {
-      TestWord = FixSuffix2( InWord );
+      TestWord = FixSuffix2( InWord, MainWordsIndex );
       if( TestWord != "" )
         return TestWord;
 
@@ -43,7 +40,7 @@ namespace DGOLibrary
 
     if( InWord.Length >= 6 )
       {
-      TestWord = FixSuffix3( InWord );
+      TestWord = FixSuffix3( InWord, MainWordsIndex );
       if( TestWord != "" )
         return TestWord;
 
@@ -51,7 +48,7 @@ namespace DGOLibrary
 
     if( InWord.Length >= 7 )
       {
-      TestWord = FixSuffix4( InWord );
+      TestWord = FixSuffix4( InWord, MainWordsIndex );
       if( TestWord != "" )
         return TestWord;
 
@@ -70,7 +67,7 @@ namespace DGOLibrary
 
 
 
-  private string FixSuffix1( string InWord )
+  private static string FixSuffix1( string InWord, WordsIndex MainWordsIndex )
     {
     try
     {
@@ -138,7 +135,7 @@ namespace DGOLibrary
 
 
 
-  private string FixSuffix2( string InWord )
+  private static string FixSuffix2( string InWord, WordsIndex MainWordsIndex )
     {
     try
     {
@@ -296,7 +293,7 @@ namespace DGOLibrary
 
 
 
-  private string FixSuffix3( string InWord )
+  private static string FixSuffix3( string InWord, WordsIndex MainWordsIndex )
     {
     try
     {
@@ -667,7 +664,7 @@ namespace DGOLibrary
 
 
 
-  private string FixSuffix4( string InWord )
+  private static string FixSuffix4( string InWord, WordsIndex MainWordsIndex )
     {
     try
     {
