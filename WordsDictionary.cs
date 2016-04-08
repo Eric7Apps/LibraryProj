@@ -35,37 +35,6 @@ namespace DGOLibrary
 
 
 
-
-
-
-
-  /*
-  private bool WordIsExcluded( string Word )
-    {
-    // This is mainly needed to help find new words
-    // that aren't yet in any dictionary.
-
-    if( Word == null ) // If it ever got a null.
-      return true;
-
-    if( Word.Length < 3 )
-      return true;
-
-    if( ExcludedWordsDictionary.ContainsKey( Word ))
-      return true;
-
-    for( int Count = 0; Count < Word.Length; Count++ )
-      {
-      if( !Utility.IsALetter( Word[Count] ))
-        return true;
-
-      }
-
-    return false;
-    }
-    */
-
-
   internal bool ReadFromTextFile()
     {
     MainWordsDictionary.Clear();
@@ -75,11 +44,6 @@ namespace DGOLibrary
 
     try
     {
-    // It has to read this first.
-    // ReadExcludedFromTextFile();
-    // Write them back to be sorted and unique.
-    // WriteToExcludedWordsTextFile();
-
     using( StreamReader SReader = new StreamReader( FileName, Encoding.UTF8 )) 
       {
       while( SReader.Peek() >= 0 ) 
@@ -155,82 +119,6 @@ namespace DGOLibrary
       }
     }
 
-
-
-  /*
-  private bool ReadExcludedFromTextFile()
-    {
-    ExcludedWordsDictionary.Clear();
-
-    if( !File.Exists( ExcludedFileName ))
-      return false;
-
-    try
-    {
-    using( StreamReader SReader = new StreamReader( ExcludedFileName, Encoding.UTF8 ))
-      {
-      while( SReader.Peek() >= 0 ) 
-        {
-        string Line = SReader.ReadLine();
-        if( Line == null )
-          continue;
-
-        Line = Line.Trim();
-        if( Line == "" )
-          continue;
-
-        string[] SplitS = Line.Split( new Char[] { '\t' } );
-        if( SplitS.Length < 1 )
-          continue;
-
-        string KeyWord = SplitS[0].Trim().ToLower();
-        ExcludedWordsDictionary[KeyWord] = 1;
-        }
-      }
-
-    MForm.ShowStatus( " " );
-    MForm.ShowStatus( "Excluded words Count: " + ExcludedWordsDictionary.Count.ToString( "N0" ));
-    MForm.ShowStatus( " " );
-
-    return true;
-
-    }
-    catch( Exception Except )
-      {
-      MForm.ShowStatus( "Could not read the file: \r\n" + FileName );
-      MForm.ShowStatus( Except.Message );
-      return false;
-      }
-    }
-    */
-
-
-  /*
-  internal bool WriteToExcludedWordsTextFile()
-    {
-    try
-    {
-    using( StreamWriter SWriter = new StreamWriter( ExcludedFileName, false, Encoding.UTF8 ))
-      {
-      foreach( KeyValuePair<string, int> Kvp in ExcludedWordsDictionary )
-        {
-        string Line = Kvp.Key; // + "\t" + Kvp.Value.ToString();
-        SWriter.WriteLine( Line );
-        }
-
-      SWriter.WriteLine( " " );
-      }
-
-    return true;
-    }
-    catch( Exception Except )
-      {
-      MForm.ShowStatus( "Could not write the excluded words dictionary data to the file." );
-      MForm.ShowStatus( Except.Message );
-      return false;
-      }
-    }
-    */
 
 
   }
