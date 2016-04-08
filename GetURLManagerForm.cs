@@ -99,25 +99,6 @@ namespace DGOLibrary
     AddURLForm( "Newsstand", "http://www.durangoherald.com/section/newsstand/", true, false, "http://www.durangoherald.com" );
     AddURLForm( "Gold King Mine Spill", "http://www.durangoherald.com/section/goldking/", true, false, "http://www.durangoherald.com" );
 
-    // Ones that are in every page. Don't keep reading these:
-    MForm.PageList1.AddEmptyPage( "Mobile", "http://www.durangoherald.com/section/mobile/", "http://www.durangoherald.com" );
-    MForm.PageList1.AddEmptyPage( "Privacy policy", "http://www.durangoherald.com/section/privacypolicy/", "http://www.durangoherald.com" );
-    MForm.PageList1.AddEmptyPage( "About Us", "http://www.durangoherald.com/section/aboutus/", "http://www.durangoherald.com" );
-    MForm.PageList1.AddEmptyPage( "Subscribe", "http://www.durangoherald.com/section/subscribe/", "http://www.durangoherald.com" );
-    MForm.PageList1.AddEmptyPage( "Terms of use", "http://www.durangoherald.com/section/termsofuse/", "http://www.durangoherald.com" );
-    MForm.PageList1.AddEmptyPage( "Advertise", "http://www.durangoherald.com/section/advertise/", "http://www.durangoherald.com" );
-    MForm.PageList1.AddEmptyPage( "Customer Service", "http://www.durangoherald.com/section/customer-service/", "http://www.durangoherald.com" );
-    MForm.PageList1.AddEmptyPage( "Feedback", "http://www.durangoherald.com/section/feedback/", "http://www.durangoherald.com" );
-    MForm.PageList1.AddEmptyPage( "All Guides", "http://www.durangoherald.com/section/newsstand/", "http://www.durangoherald.com" );
-    MForm.PageList1.AddEmptyPage( "Suspend Delivery", "http://www.durangoherald.com/section/suspend-delivery/", "http://www.durangoherald.com" );
-    MForm.PageList1.AddEmptyPage( "Address", "http://www.durangoherald.com/section/directions/", "http://www.durangoherald.com" );
-    MForm.PageList1.AddEmptyPage( "News Tip", "http://www.durangoherald.com/section/newstip/", "http://www.durangoherald.com" );
-    MForm.PageList1.AddEmptyPage( "RSS", "http://www.durangoherald.com/section/rss/", "http://www.durangoherald.com" );
-    MForm.PageList1.AddEmptyPage( "Staff Listing", "http://www.durangoherald.com/section/contact/", "http://www.durangoherald.com" );
-    MForm.PageList1.AddEmptyPage( "Submit an Obituary", "http://obituaries.durangoherald.com/obituaries/durangoherald/obituary-place-an-obituary.aspx", "http://www.durangoherald.com" );
-    MForm.PageList1.AddEmptyPage( "SnowDown", "http://www.durangoherald.com/section/snowdown/", "http://www.durangoherald.com" );
-    MForm.PageList1.AddEmptyPage( "View Multimedia", "http://www.durangoherald.com/section/video/", "http://www.durangoherald.com" );
-
     ///////////////
     // Ones that are in every page. Don't keep reading these:
     MForm.MainURLIndex.AddEmptyPage( "Mobile", "http://www.durangoherald.com/section/mobile/", "http://www.durangoherald.com" );
@@ -144,33 +125,33 @@ namespace DGOLibrary
     AddURLForm( "Colorado Gov Main Page", "https://www.colorado.gov/", true, false, "https://www.colorado.gov" );
     AddURLForm( "Colorado Gov State Agencies", "https://www.colorado.gov/state-agencies", true, false, "https://www.colorado.gov" );
     AddURLForm( "Colorado Gov Branches of Government", "https://www.colorado.gov/government-branches", true, false, "https://www.colorado.gov" );
-    // AddURLForm( "Colorado Gov Local Government", "https://www.colorado.gov/local-government", true, false, "https://www.colorado.gov" );
-    // AddURLForm( "Colorado Gov Businesses & Employers", "https://www.colorado.gov/businesses-employers", true, false, "https://www.colorado.gov" );
-    // AddURLForm( "Colorado Gov Resources", "https://www.colorado.gov/business-resources", true, false, "https://www.colorado.gov" );
-    // AddURLForm( "Colorado Gov Jobs & Training", "https://www.colorado.gov/jobs-training", true, false, "https://www.colorado.gov" );
-    // AddURLForm( "Colorado Gov Unemployment", "https://www.colorado.gov/unemployment", true, false, "https://www.colorado.gov" );
-    // AddURLForm( "Colorado Gov Professional Licenses", "https://www.colorado.gov/professional-licenses", true, false, "https://www.colorado.gov" );
-    // AddURLForm( "Colorado Gov K - 12 Education", "https://www.colorado.gov/k-12-education", true, false, "https://www.colorado.gov" );
-    // AddURLForm( "Colorado Gov Higher Education", "https://www.colorado.gov/higher-education", true, false, "https://www.colorado.gov" );
-    // AddURLForm( "Colorado Gov Family Resources", "https://www.colorado.gov/family-resources", true, false, "https://www.colorado.gov" );
-    // AddURLForm( "Colorado Gov Civic Resources", "https://www.colorado.gov/civic-resources", true, false, "https://www.colorado.gov" );
-    // AddURLForm( "Colorado Gov Outdoor Activities", "https://www.colorado.gov/outdoor-activities", true, false, "https://www.colorado.gov" );
-    // AddURLForm( "Colorado Gov Leisure Activities", "https://www.colorado.gov/leisure-activities", true, false, "https://www.colorado.gov" );
-    // AddURLForm( "Colorado Gov Colorado's History", "https://www.colorado.gov/colorado-history", true, false, "https://www.colorado.gov" );
-    // AddURLForm( "Colorado Gov State Information", "https://www.colorado.gov/state-information", true, false, "https://www.colorado.gov" );
-    // AddURLForm( "Colorado Gov Online Services", "https://www.colorado.gov/online-services", true, false, "https://www.colorado.gov" );
-    // AddURLForm( "Colorado Gov Explore All", "https://www.colorado.gov/cogov-now", true, false, "https://www.colorado.gov" );
-    // AddURLForm( "Colorado Gov DMV", "https://www.colorado.gov/search?tid=dmv", true, false, "https://www.colorado.gov" );
-    // AddURLForm( "Colorado Gov Drivers License", "https://www.colorado.gov/search?tid=drivers+license", true, false, "https://www.colorado.gov" );
-    // AddURLForm( "Colorado Gov Marijuana", "https://www.colorado.gov/search?tid=marijuana", true, false, "https://www.colorado.gov" );
+    AddURLForm( "Colorado Gov Local Government", "https://www.colorado.gov/local-government", true, false, "https://www.colorado.gov" );
+    AddURLForm( "Colorado Gov Businesses & Employers", "https://www.colorado.gov/businesses-employers", true, false, "https://www.colorado.gov" );
+    AddURLForm( "Colorado Gov Resources", "https://www.colorado.gov/business-resources", true, false, "https://www.colorado.gov" );
+    AddURLForm( "Colorado Gov Jobs & Training", "https://www.colorado.gov/jobs-training", true, false, "https://www.colorado.gov" );
+    AddURLForm( "Colorado Gov Unemployment", "https://www.colorado.gov/unemployment", true, false, "https://www.colorado.gov" );
+    AddURLForm( "Colorado Gov Professional Licenses", "https://www.colorado.gov/professional-licenses", true, false, "https://www.colorado.gov" );
+    AddURLForm( "Colorado Gov K - 12 Education", "https://www.colorado.gov/k-12-education", true, false, "https://www.colorado.gov" );
+    AddURLForm( "Colorado Gov Higher Education", "https://www.colorado.gov/higher-education", true, false, "https://www.colorado.gov" );
+    AddURLForm( "Colorado Gov Family Resources", "https://www.colorado.gov/family-resources", true, false, "https://www.colorado.gov" );
+    AddURLForm( "Colorado Gov Civic Resources", "https://www.colorado.gov/civic-resources", true, false, "https://www.colorado.gov" );
+    AddURLForm( "Colorado Gov Outdoor Activities", "https://www.colorado.gov/outdoor-activities", true, false, "https://www.colorado.gov" );
+    AddURLForm( "Colorado Gov Leisure Activities", "https://www.colorado.gov/leisure-activities", true, false, "https://www.colorado.gov" );
+    AddURLForm( "Colorado Gov Colorado's History", "https://www.colorado.gov/colorado-history", true, false, "https://www.colorado.gov" );
+    AddURLForm( "Colorado Gov State Information", "https://www.colorado.gov/state-information", true, false, "https://www.colorado.gov" );
+    AddURLForm( "Colorado Gov Online Services", "https://www.colorado.gov/online-services", true, false, "https://www.colorado.gov" );
+    AddURLForm( "Colorado Gov Explore All", "https://www.colorado.gov/cogov-now", true, false, "https://www.colorado.gov" );
+    AddURLForm( "Colorado Gov DMV", "https://www.colorado.gov/search?tid=dmv", true, false, "https://www.colorado.gov" );
+    AddURLForm( "Colorado Gov Drivers License", "https://www.colorado.gov/search?tid=drivers+license", true, false, "https://www.colorado.gov" );
+    AddURLForm( "Colorado Gov Marijuana", "https://www.colorado.gov/search?tid=marijuana", true, false, "https://www.colorado.gov" );
     // AddURLForm( "Colorado Gov Forms", "https://www.colorado.gov/search?tid=forms", true, false, "https://www.colorado.gov" );
-    // AddURLForm( "Colorado Gov DORA", "https://www.colorado.gov/search?tid=dora", true, false, "https://www.colorado.gov" );
-    // AddURLForm( "Colorado Gov Sales Tax", "https://www.colorado.gov/search?tid=sales+tax", true, false, "https://www.colorado.gov" );
-    // AddURLForm( "Colorado Gov Business License", "https://www.colorado.gov/search?tid=business+license", true, false, "https://www.colorado.gov" );
-    // AddURLForm( "Colorado Gov Revenue Online", "https://www.colorado.gov/search?tid=revenue+online", true, false, "https://www.colorado.gov" );
-    // AddURLForm( "Colorado Gov Medicaid", "https://www.colorado.gov/search?tid=medicaid", true, false, "https://www.colorado.gov" );
-    // AddURLForm( "Colorado Gov Transparency Online Project (TOPS)", "https://www.colorado.gov/apps/oit/transparency/index.html", true, false, "https://www.colorado.gov" );
-    // AddURLForm( "Colorado Gov Registered Services", "https://www.colorado.gov/registered-services", true, false, "https://www.colorado.gov" );
+    AddURLForm( "Colorado Gov DORA", "https://www.colorado.gov/search?tid=dora", true, false, "https://www.colorado.gov" );
+    AddURLForm( "Colorado Gov Sales Tax", "https://www.colorado.gov/search?tid=sales+tax", true, false, "https://www.colorado.gov" );
+    AddURLForm( "Colorado Gov Business License", "https://www.colorado.gov/search?tid=business+license", true, false, "https://www.colorado.gov" );
+    AddURLForm( "Colorado Gov Revenue Online", "https://www.colorado.gov/search?tid=revenue+online", true, false, "https://www.colorado.gov" );
+    AddURLForm( "Colorado Gov Medicaid", "https://www.colorado.gov/search?tid=medicaid", true, false, "https://www.colorado.gov" );
+    AddURLForm( "Colorado Gov Transparency Online Project (TOPS)", "https://www.colorado.gov/apps/oit/transparency/index.html", true, false, "https://www.colorado.gov" );
+    AddURLForm( "Colorado Gov Registered Services", "https://www.colorado.gov/registered-services", true, false, "https://www.colorado.gov" );
 
 
     /////////////
@@ -188,18 +169,25 @@ namespace DGOLibrary
     // AddURLForm( "Durango Gov History of the Charter", "http://www.durangogov.org/Index.aspx?NID=276", true, false, "http://www.durangogov.org" );
     // AddURLForm( "Durango Gov Photo Gallery", "http://www.durangogov.org/gallery.aspx", true, false, "http://www.durangogov.org" );
     AddURLForm( "Durango Gov Public Art", "http://www.durangogov.org/index.aspx?nid=327", true, false, "http://www.durangogov.org" );
-    AddURLForm( "Durango Gov Social Media", "http://www.durangogov.org/Index.aspx?NID=79", true, false, "http://www.durangogov.org" );
-    AddURLForm( "Durango Gov Durango's Voice", "http://www.durangogov.org/index.aspx?NID=712", true, false, "http://www.durangogov.org" );
-    AddURLForm( "Durango Gov What's Happening", "http://www.durangogov.org/Index.aspx?NID=268", true, false, "http://www.durangogov.org" );
+    // AddURLForm( "Durango Gov Social Media", "http://www.durangogov.org/Index.aspx?NID=79", true, false, "http://www.durangogov.org" );
+    // AddURLForm( "Durango Gov Durango's Voice", "http://www.durangogov.org/index.aspx?NID=712", true, false, "http://www.durangogov.org" );
+    // AddURLForm( "Durango Gov What's Happening", "http://www.durangogov.org/Index.aspx?NID=268", true, false, "http://www.durangogov.org" );
+
+    // Get the civic alerts, but take out Herald and
+    // Telegraph articles.
     AddURLForm( "Durango Gov City News", "http://www.durangogov.org/CivicAlerts.aspx", true, false, "http://www.durangogov.org" );
+
+    // Get the site map each time for new parts?
+    // http://www.durangogov.org/sitemap.aspx
+
     AddURLForm( "Durango Gov Library", "http://www.durangogov.org/index.aspx?NID=220", true, false, "http://www.durangogov.org" );
     AddURLForm( "Durango Gov Meeting Calendar", "http://www.durangogov.org/index.aspx?NID=101", true, false, "http://www.durangogov.org" );
     AddURLForm( "Durango Gov Parks & Recreation", "http://www.durangogov.org/index.aspx?NID=222", true, false, "http://www.durangogov.org" );
     AddURLForm( "Durango Gov Places to Eat / Shop / Stay", "http://www.durangogov.org/Index.aspx?NID=295", true, false, "http://www.durangogov.org" );
     AddURLForm( "Durango Gov Transportation", "http://www.durangogov.org/Index.aspx?NID=290", true, false, "http://www.durangogov.org" );
 
-    AddURLForm( "Durango Telegraph Main Page", "http://www.durangotelegraph.com/", true, false, "http://www.durangotelegraph.com" );
 
+    AddURLForm( "Durango Telegraph Main Page", "http://www.durangotelegraph.com/", true, false, "http://www.durangotelegraph.com" );
     }
 
 
@@ -273,7 +261,7 @@ namespace DGOLibrary
       {
       UpdateTitleDateTime( Title );
       // Add it if it's not already there.
-      MForm.PageList1.AddEmptyPage( Title, URL, RelativeURLBase );
+      // MForm.PageList1.AddEmptyPage( Title, URL, RelativeURLBase );
       MForm.MainURLIndex.AddEmptyPage( Title, URL, RelativeURLBase );
       }
     else
