@@ -60,8 +60,8 @@ namespace DGOLibrary
     // Almost all letters are ASCII letters between
     // 'a' and 'z'.
     // The space character is at zero, so 
-    if( ((int)'a' - LetterAOffset) != 1 )
-      throw( new Exception( "This can't happen with LetterAOffset." ));
+    // if( ((int)'a' - LetterAOffset) != 1 )
+      // throw( new Exception( "This can't happen with LetterAOffset." ));
 
     if( Letter == ' ' )
       return 0; // This way it puts it in sorted order.
@@ -182,9 +182,6 @@ namespace DGOLibrary
     if( WordExists( Word ))
       return;
 
-    if( Word == "bartók" )
-      ShowStatus( "WordsIndex. bartók is being added." );
-
     int Index0 = GetLetterIndex( Word[0] );
     int Index1 = GetLetterIndex( Word[1] );
     int Index2 = GetLetterIndex( Word[2] );
@@ -293,7 +290,6 @@ namespace DGOLibrary
     if( IntCol == null )
       return; // There was an error.
 
-
     IntCol.AddInteger( PageIndex, true );
 
     }
@@ -373,6 +369,65 @@ namespace DGOLibrary
 
 
 
+  internal string GetWordsAtZeroString()
+    {
+    try
+    {
+    StringBuilder SBuilder = new StringBuilder();
+    for( int Index0 = 0; Index0 < WordsArraySize; Index0++ )
+      {
+      for( int Index1 = 0; Index1 < WordsArraySize; Index1++ )
+        {
+        for( int Index2 = 0; Index2 < WordsArraySize; Index2++ )
+          {
+          for( int Index3 = 0; Index3 < WordsArraySize; Index3++ )
+            {
+            if( null == WordsArray[Index0, Index1, Index2, Index3].WordRecArray )
+              continue;
+
+            int Last = WordsArray[Index0, Index1, Index2, Index3].WordRecArrayLast;
+            for( int Count = 0; Count < Last; Count++ )
+              {
+              string Word = WordsArray[Index0, Index1, Index2, Index3].WordRecArray[Count].WordTail;
+              if( !( (Index0 > 26) || // Non-ASCII is 27.
+                     (Index1 > 26) ||
+                     (Index2 > 26) ||
+                     (Index3 > 26)))
+                {
+                Word = Char.ToString( GetLetterFromIndex( Index0 )) +
+                       Char.ToString( GetLetterFromIndex( Index1 )) +
+                       Char.ToString( GetLetterFromIndex( Index2 )) +
+                       Char.ToString( GetLetterFromIndex( Index3 )) +
+                       Word;
+
+                }
+
+              IntegerCollection IntCol = WordsArray[Index0, Index1, Index2, Index3].WordRecArray[Count].IndexCol;
+              string Line = "";
+              if( IntCol == null )
+                {
+                Line = Word.Trim() + "\r\n";
+                }
+
+              SBuilder.Append( Line );
+              }
+            }
+          }
+        }
+      }
+
+    return SBuilder.ToString();
+    }
+    catch( Exception Except )
+      {
+      ShowStatus( "Exception in WordsIndex.GetWordsAtZeroString():" );
+      ShowStatus( Except.Message );
+      return "";
+      }
+    }
+
+
+
   internal void ClearAllIntCollections()
     {
     try
@@ -411,25 +466,17 @@ namespace DGOLibrary
     {
     try
     {
-    if( InWord == null )
-      return "";
+    // if( InWord == null )
+      // return "";
 
-    InWord = InWord.Trim();
+    // InWord = InWord.Trim();
 
-    // as, at, be, by, do, go, he, in, is, it, no,
-    // of, on, or, so, to, tv, up, us...
-    if( InWord.Length < 3 )
-      return "";
+    // if( InWord.Length < 3 )
+      // return "";
 
-    if( !Utility.IsALetter( InWord[0] ))
-      {
-      // MForm.ShowStatus( "Not a letter: " + InWord );
-      return "";
-      }
-
-    InWord = InWord.ToLower();
-    if( ExcludedWords.IsExcluded( InWord ))
-      return "";
+    // InWord = InWord.ToLower();
+    // if( ExcludedWords.IsExcluded( InWord ))
+      // return "";
 
     if( WordExists( InWord ) )
       return InWord;
