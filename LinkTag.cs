@@ -176,7 +176,7 @@ namespace DGOLibrary
       LinkURL = GetRelativeURLBase() + LinkURL;
       // LinkURL = "http://www.durangoherald.com" + LinkURL;
 
-    if( !LinkIsGood( LinkURL, Title ))
+    if( !LinkIsGood( LinkURL, Title, GetRelativeURLBase() ))
       {
       // GetCallingPage().AddStatusString( "Not using URL: " + LinkURL, 500 );
       return;
@@ -258,73 +258,169 @@ namespace DGOLibrary
 
 
 
-   private bool LinkIsGood( string TestURL, string Title )
-     {
-     TestURL = TestURL.ToLower();
-     Title = Title.ToLower();
+  private bool LinkIsGood( string URL, string Title, string BaseURL )
+    {
+    string TestURL = URL.ToLower();
+    Title = Title.ToLower();
 
-     if( TestURL.ToLower().EndsWith( ".pdf" ))
-       return false;
+    /*
+    if( TestURL.Contains( "www.durangotelegraph" ))
+      {
+      if( !TestURL.Contains( ".cfm" ))
+        {
+        GetCallingPage().AddStatusString( " ", 100 );
+        GetCallingPage().AddStatusString( "Telegraph non cfm page: " + Title, 500 );
+        GetCallingPage().AddStatusString( "URL: " + URL, 500 );
+        }
+      } */
 
-     if( TestURL.ToLower().EndsWith( ".exe" ))
-       return false;
+    if( LinkIsBad( TestURL, Title, BaseURL ))
+      return false;
 
-     if( TestURL.ToLower().EndsWith( ".bat" ))
-       return false;
+    // Check to see if it's bad first.
 
-     if( TestURL.Contains( "http://www.durangogov.org/rss.aspx" ))
-       return false;
+    // Limit the scope of this project to only certain
+    // domain names.
 
-     if( TestURL.Contains( "durangoherald.com/#tab" ))
-       return false;
+    // if( TestURL.StartsWith( "https://www.colorado.gov/" ))
+      // return true;
 
-     if( TestURL.Contains( "/rss/" ))
-       return false;
+    if( TestURL.StartsWith( "http://www.durangogov.org/" ))
+      return true;
+
+    if( TestURL.StartsWith( "http://www.durangoherald.com/" ))
+      return true;
+
+    if( TestURL.StartsWith( "http://obituaries.durangoherald.com/" ))
+      return true;
+
+    if( TestURL.StartsWith( "http://www.durangotelegraph.com/" ))
+      return true;
+
+    return false;
+    }
+
+
+
+  internal static bool LinkIsBad( string URL, string Title, string BaseURL )
+    {
+    string TestURL = URL.ToLower();
+    Title = Title.ToLower();
+
+    if( TestURL.EndsWith( ".pdf" ))
+      return true;
+
+    if( TestURL.EndsWith( ".exe" ))
+      return true;
+
+    if( TestURL.EndsWith( ".bat" ))
+      return true;
+
+    // Part of Google's early success was because of
+    // their algorithm that showed that a site was
+    // popular if a lot of other site linked to it.
+    // But for now this is ignoring links from one
+    // domain to another.
+
+    // By the way, cross-site scripting is a common
+    // security problem.
+
+    // Don't do cross-site linking for now, like
+    // from Durango city gov to Durango Herald or 
+    // Telegraph.
+    // The Durango Gov page links to a page on the Herald
+    // or the Telegraph (the full link, not a relative
+    // link) but then that page has relative
+    // links in it like /section/COLUMNISTS07/something
+    // and so it applies the base URL of DurangoGov.org
+    // to make it:
+    // DurangoGov.org/section/COLUMNISTS07/something
+    // So don't get that full-link page in the first
+    // place.  Then it won't get the wrong relative
+    // links from that.
+
+    if( !TestURL.ToLower().StartsWith( BaseURL ))
+      return true;
+
+    /*
+    // All index.cfm?
+    // If it's not .cfm is it on the Telegraph?
+    // Does the Telegraph use a Cold Fusion (.cfm) server?
+    if( TestURL.Contains( "www.durangogov.org/index.cfm/" ))
+      return true;
+
+    // Is this on the Telegraph?
+    if( TestURL.Contains( "http://www.durangotelegraph.com/section/" ))
+      return true;
+
+    // And this?
+    if( TestURL.Contains( "http://www.durangotelegraph.com/article/" ))
+      return true;
+
+    // if( TestURL.Contains( "www.durangogov.org/index.cfm/archives/" ))
+      // return true;
+
+    // www.durangogov.org/section/COLUMNISTS07
+    if( TestURL.Contains( "www.durangogov.org/section/" ))
+      return true;
+
+    // News articles from the Herald.
+    if( TestURL.Contains( "www.durangogov.org/article/" ))
+      return true;
+
+    if( TestURL.Contains( "www.durangogov.org/archives/" ))
+      return true;
+
+    if( TestURL.Contains( "www.durangogov.org/contact/" ))
+      return true;
+
+    // News archives or archived civic alerts?
+    if( TestURL.Contains( "www.durangogov.org/civicalerts.aspx?arc=" ))
+      return true;
+
+    */
+
+    // if( TestURL.Contains( "/sitemap.aspx" ))
+      // return true;
+
+    if( TestURL.Contains( "/rss.aspx" ))
+      return true;
+
+    if( TestURL.Contains( "/myaccount.aspx?" ))
+      return true;
+
+    if( TestURL.Contains( "/myaccount?" ))
+      return true;
+
+    if( TestURL.Contains( "durangoherald.com/#tab" ))
+      return true;
+
+    if( TestURL.Contains( "/rss/" ))
+      return true;
 
     if( TestURL.Contains( "/msxml2.xmlhttp/" ))
-      return false;
+      return true;
 
-     if( TestURL.Contains( "/taxonomy/" ))
-       return false;
+    if( TestURL.Contains( "/taxonomy/" ))
+      return true;
 
-     if( TestURL.Contains( "durangoherald.com" ))
-       {
-       if( TestURL.Contains( "/frontpage/" ))
-         return false;
+    if( TestURL.Contains( "/frontpage/" ))
+      return true;
 
-       if( TestURL == "http://www.durangoherald.com/frontpage" )
-         return false;
+    if( TestURL == "http://www.durangoherald.com/frontpage" )
+      return true;
 
-       }
- 
+    if( TestURL == "http://www.durangogov.org/frontpage" )
+      return true;
+
     if( Title == "read more" )
-      return false;
+      return true;
 
-     if( TestURL.StartsWith( "http://www.durangoherald.com/section/maps" ))
-       return false;
+    if( TestURL.Contains( "/section/maps" ))
+      return true;
 
-     /////////////////
-     // Do checks for false above this point.
-     // Limit the scope of this project to only certain
-     // domain names.
-
-     // if( TestURL.StartsWith( "https://www.colorado.gov/" ))
-       // return true;
-
-     if( TestURL.StartsWith( "http://www.durangogov.org/" ))
-       return true;
-
-     if( TestURL.StartsWith( "http://www.durangoherald.com/" ))
-       return true;
-
-     if( TestURL.StartsWith( "http://obituaries.durangoherald.com/" ))
-       return true;
-
-     if( TestURL.StartsWith( "http://www.durangotelegraph.com/" ))
-       return true;
-
-     return false;
-     }
+    return false;
+    }
 
 
   }
