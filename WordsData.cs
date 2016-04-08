@@ -77,7 +77,8 @@ namespace DGOLibrary
     if( FixedWord.Length == 0 )
       return;
 
-    int PageIndex = MForm.PageList1.GetIndex( URL );
+    // int PageIndex = MForm.PageList1.GetIndex( URL );
+    int PageIndex = MForm.MainURLIndex.GetIndex( URL );
     if( PageIndex < 0 )
       return;
 
@@ -91,6 +92,8 @@ namespace DGOLibrary
     if( Word == null )
       return null;
 
+    //  The word should already be lower case and not
+    //  excluded and at least 3 characters.
     string FixedWord = MainWordsIndex.GetValidWordForm( Word, "None" );
     if( FixedWord.Length == 0 )
       return null;
@@ -132,6 +135,12 @@ namespace DGOLibrary
     }
 
 
+  internal void ShowWordsAtZero()
+    {
+    MForm.ShowStatus( " " );
+    MForm.ShowStatus( "Words at zero:" );
+    MForm.ShowStatus( MainWordsIndex.GetWordsAtZeroString());
+    }
 
 
   }
