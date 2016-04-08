@@ -4,6 +4,7 @@
 
 using System;
 using System.Text;
+using System.Collections.Generic;
 using System.IO;
 
 
@@ -51,7 +52,8 @@ namespace DGOLibrary
     }
 
 
-  private int GetRandomishIndex2( string URL )
+
+  private int GetRandomishIndex( string URL )
     {
     string URLKey = URL.ToLower();
 
@@ -74,7 +76,6 @@ namespace DGOLibrary
 
     int Index = Sum & 0xFF;
     Index <<= 8;
-    ExclusiveOR = ExclusiveOR | Sum;
     Index |= ExclusiveOR & 0xFF;
     return Index; // A 16 bit number.
     }
@@ -99,7 +100,7 @@ namespace DGOLibrary
       return null;
       }
 
-    int Index = GetRandomishIndex2( ExistingURL );
+    int Index = GetRandomishIndex( ExistingURL );
 
     if( URLsRecArray[Index].URLIndexArray ==  null )
       {
@@ -149,20 +150,31 @@ namespace DGOLibrary
     if( URL.Length < 5 )
       return "";
 
-    if( ExactURLExists( URL ))
+    // This checks with ToLower().
+    if( ExactURLExists2( URL ))
       return URL;
 
-    if( ExactURLExists( URL + "/" ))
+    if( ExactURLExists2( URL + "/" ))
       return URL + "/";
 
     string TestURL = URL;
     if( URL.EndsWith( "/" ))
       {
       TestURL = Utility.TruncateString( URL, URL.Length - 1 );
-      if( ExactURLExists( TestURL ))
+      if( ExactURLExists2( TestURL ))
         return TestURL;
 
       }
+
+    TestURL = URL;
+    if( URL.EndsWith( "?clear=True" ))
+      {
+      TestURL = Utility.TruncateString( URL, URL.Length - 11 );
+      if( ExactURLExists2( TestURL ))
+        return TestURL;
+
+      }
+
 
     // There are duplicate links because they fall
     // under multiple categories or because they are
@@ -202,17 +214,12 @@ namespace DGOLibrary
 
 
 
-  private bool ExactURLExists( string URL )
+  private bool ExactURLExists2( string URL )
     {
     try
     {
-    if( URL == null )
-      return false;
-
-    if( URL.Length < 5 )
-      return false;
-
-    int Index = GetRandomishIndex2( URL );
+    // This does ToLower().
+    int Index = GetRandomishIndex( URL );
 
     if( URLsRecArray[Index].URLIndexArray ==  null )
       return false;
@@ -237,6 +244,7 @@ namespace DGOLibrary
     }
 
 
+
   internal void AddEmptyPage( string Title, string URL, string RelativeURLBase )
     {
     try
@@ -244,7 +252,7 @@ namespace DGOLibrary
     if( "" != GetExistingURL( URL ))
       return;
 
-    if( !LinkIsGood( URL ))
+    if( LinkTag.LinkIsBad( URL, Title, RelativeURLBase ))
       return;
 
     Page PageToAdd = new Page( MForm );
@@ -281,7 +289,7 @@ namespace DGOLibrary
     if( URLStringsArrayLast >= URLStringsArray.Length )
       Array.Resize( ref URLStringsArray, URLStringsArray.Length + 1024 );
 
-    int Index = GetRandomishIndex2( Rec.URL );
+    int Index = GetRandomishIndex( Rec.URL );
 
     if( URLsRecArray[Index].URLIndexArray ==  null )
       URLsRecArray[Index].URLIndexArray = new URLIndexRec[64];
@@ -301,28 +309,25 @@ namespace DGOLibrary
 
 
 
-  // Keep this method private to this object.
-  // LinkTag has something that does this too.
-  private bool LinkIsGood( string URL )
+  private string GetURLFromIndex( int Where )
     {
-    URL = URL.ToLower();
+    if( Where < 0 )
+      {
+      MForm.ShowStatus( "Where < 0 in GetURLFromIndex()." );
+      return "";
+      }
 
-    if( URL.Contains( "/javascript/" ))
-      return false;
+    if( Where >= URLStringsArrayLast )
+      {
+      MForm.ShowStatus( "Where >= URLStringsArrayLast in GetURLFromIndex()." );
+      return "";
+      }
 
-    if( URL.Contains( "/frontpage/" ))
-      return false;
+    string Result = URLStringsArray[Where];
+    if( Result == null )
+      return "";
 
-    if( URL.Contains( "/msxml2.xmlhttp/" ))
-      return false;
-
-    if( URL.Contains( "/rss/" ))
-       return false;
-
-    if( URL.Contains( "/taxonomy/" ))
-       return false;
-
-    return true;
+    return Result;
     }
 
 
@@ -335,7 +340,7 @@ namespace DGOLibrary
     if( FixedURL.Length == 0 )
       return -1;
 
-    int Index = GetRandomishIndex2( FixedURL );
+    int Index = GetRandomishIndex( FixedURL );
 
     if( URLsRecArray[Index].URLIndexArray ==  null )
       return -1;
@@ -371,7 +376,7 @@ namespace DGOLibrary
     if( Title == null )
       return;
 
-    if( !LinkIsGood( URL ))
+    if( LinkTag.LinkIsBad( URL, Title, RelativeURLBase ))
       return;
 
     if( URL.Length < 10 )
@@ -380,11 +385,10 @@ namespace DGOLibrary
       return;
       }
 
-    // "Main Page"
     if( Title.Length < 3 )
       {
-      MForm.ShowStatus( "Title is too short in UpdatePageFromTempFile()." );
-      MForm.ShowStatus( "Title: " + Title );
+      // MForm.ShowStatus( "Title is too short in UpdatePageFromTempFile()." );
+      // MForm.ShowStatus( "Title: " + Title );
       return;
       }
 
@@ -395,6 +399,7 @@ namespace DGOLibrary
       ExistingURL = URL;
       }
 
+    // It will create an empty one if it doesn't have it.
     Page UsePage = GetPage( ExistingURL );
     if( UsePage == null )
       {
@@ -414,7 +419,6 @@ namespace DGOLibrary
     // URL in the links it is adding.  So while this
     // is being called, new URLs are being added.
     UsePage.UpdateFromFile( Title, ExistingURL, FileName, SetTime, RelativeURLBase, ReadFromFile );
-
     }
     catch( Exception Except )
       {
@@ -460,6 +464,610 @@ namespace DGOLibrary
       MForm.ShowStatus( "Exception in URLIndex.WriteToTextFile():" );
       MForm.ShowStatus( Except.Message );
       return false;
+      }
+    }
+
+
+
+  private void ClearAll()
+    {
+    try
+    {
+    for( int Index = 0; Index < URLsRecArrayLength; Index++ )
+      {
+      URLsRecArray[Index].URLIndexArray =  null;
+      URLsRecArray[Index].URLIndexArrayLast = 0;
+      }
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Exception in URLIndex.ClearAll():" );
+      MForm.ShowStatus( Except.Message );
+      }
+    }
+
+
+
+  internal bool ReadFromTextFile()
+    {
+    try
+    {
+    ClearAll();
+    if( !File.Exists( FileName ))
+      return false;
+
+    int HowMany = 0;
+    using( StreamReader SReader = new StreamReader( FileName, Encoding.UTF8 ))
+      {
+      while( SReader.Peek() >= 0 ) 
+        {
+        string Line = SReader.ReadLine();
+        if( Line == null )
+          continue;
+
+        if( !Line.Contains( "\t" ))
+          continue;
+
+        Page Page1 = new Page( MForm );
+        if( !Page1.StringToObject( Line ))
+          continue;
+
+        string CheckURL = Page1.GetURL();
+        if( LinkTag.LinkIsBad( CheckURL, Page1.GetTitle(), Page1.GetRelativeURLBase() ))
+          continue;
+
+        if( "" != GetExistingURL( CheckURL ))
+          continue;
+
+        HowMany++;
+        AddURL( CheckURL, Page1 );
+        }
+      }
+
+    MForm.ShowStatus( "Number of pages: " + HowMany.ToString( "N0" ));
+    int Total = GetTotalPages();
+    MForm.ShowStatus( "Total pages: " + Total.ToString( "N0" ));
+
+    return true;
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Could not read the URLIndex.txt file." );
+      MForm.ShowStatus( Except.Message );
+      return false;
+      }
+    }
+
+
+
+  internal int GetTotalPages()
+    {
+    try
+    {
+    int Total = 0;
+    for( int Index = 0; Index < URLsRecArrayLength; Index++ )
+      {
+      if( URLsRecArray[Index].URLIndexArray ==  null )
+        continue;
+
+      Total += URLsRecArray[Index].URLIndexArrayLast;
+      }
+
+    return Total;
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Exception in GetTotalPages():" );
+      MForm.ShowStatus( Except.Message );
+      return -1;
+      }
+    }
+
+
+
+  internal void ReadAllFilesToContent()
+    {
+    MForm.ShowStatus( "Start of ReadAllFilesToContent()." );
+    int Loops = 0;
+
+    for( int Index = 0; Index < URLsRecArrayLength; Index++ )
+      {
+      if( URLsRecArray[Index].URLIndexArray ==  null )
+        continue;
+
+      int Last = URLsRecArray[Index].URLIndexArrayLast;
+      for( int Count = 0; Count < Last; Count++ )
+        {
+        Loops++;
+        if( (Loops & 0x3F) == 0 )
+          {
+          MForm.ShowStatus( "Files: " + Loops.ToString( "N0" ));
+          if( !MForm.CheckEvents())
+            return;
+
+          }
+
+        Page Page1 =  URLsRecArray[Index].URLIndexArray[Count].PageForURL;
+        if( Page1 == null )
+          continue;
+
+        string ReadFileName = Page1.GetFileName();
+        if( ReadFileName.Length < 1 )
+          continue;
+
+        Page1.ReadToFullFileContentsString( ReadFileName );
+        // Page1.MoveContentsToUTF8( FileContents );
+        }
+      }
+
+    MForm.ShowStatus( "Finished ReadAllFilesToContent()." );
+    }
+
+
+
+  internal void IndexAll()
+    {
+    try
+    {
+    ECTime StartTime = new ECTime();
+    MForm.MainWordsData.ClearAllIntCollections();
+    ReadAllFilesToContent();
+
+    StartTime.SetToNow();
+
+    int Loops = 0;
+    for( int Index = 0; Index < URLsRecArrayLength; Index++ )
+      {
+      if( URLsRecArray[Index].URLIndexArray ==  null )
+        continue;
+
+      int Last = URLsRecArray[Index].URLIndexArrayLast;
+      for( int Count = 0; Count < Last; Count++ )
+        {
+        Loops++;
+        if( (Loops & 0x1F) == 0 )
+          {
+          // MForm.ShowStatus( "Files: " + Loops.ToString( "N0" ));
+          if( !MForm.CheckEvents())
+            return;
+
+          if( MForm.GetIsClosing() )
+            return;
+
+          }
+
+        Page Page1 =  URLsRecArray[Index].URLIndexArray[Count].PageForURL;
+        if( Page1 == null )
+          continue;
+
+        // Number of pages: 10,703
+        Page1.UpdateFromFile( Page1.GetTitle(), Page1.GetURL(), Page1.GetFileName(), false, Page1.GetRelativeURLBase(), true );
+        }
+      }
+
+    MForm.MainWordsData.WriteToTextFile();
+    MForm.ShowStatus( " " );
+    int Seconds = (int)StartTime.GetSecondsToNow();
+    int Minutes = Seconds / 60;
+    Seconds = Seconds % 60;
+    MForm.ShowStatus( "Finished indexing in: " + Minutes.ToString( "N0" ) + ":" + Seconds.ToString());
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Exception in URLIndex.IndexAll()." );
+      MForm.ShowStatus( Except.Message );
+      }
+    }
+
+
+
+  internal void ShowDuplicateFileNames()
+    {
+    // Running this more than once would clear triplicate
+    // file names, and quadruplicate, etc.
+    try
+    {
+    ECTime StartTime = new ECTime();
+    StartTime.SetToNow();
+
+    int HowMany = 0;
+    int Loops = 0;
+    for( int Index = 0; Index < URLsRecArrayLength; Index++ )
+      {
+      if( URLsRecArray[Index].URLIndexArray ==  null )
+        continue;
+
+      Loops++;
+      if( (Loops & 0x7F) == 0 )
+        {
+        MForm.ShowStatus( "Duplicate files check: " + Loops.ToString( "N0" ));
+        if( !MForm.CheckEvents())
+          return;
+
+        if( MForm.GetIsClosing() )
+          return;
+
+        }
+
+      for( int Index2 = Index; Index2 < URLsRecArrayLength; Index2++ )
+        {
+        if( URLsRecArray[Index2].URLIndexArray ==  null )
+          continue;
+
+        int Last = URLsRecArray[Index].URLIndexArrayLast;
+        int Last2 = URLsRecArray[Index2].URLIndexArrayLast;
+        for( int Count = 0; Count < Last; Count++ )
+          {
+          Page Page1 =  URLsRecArray[Index].URLIndexArray[Count].PageForURL;
+          if( Page1 == null )
+            {
+            MForm.ShowStatus( "Page was null." );
+            continue;
+            }
+
+          // If it's one of the empty pages that are 
+          // added in GetURLManagerForm.cs.
+          if( Page1.GetFileName() == "" )
+            continue;
+
+          for( int Count2 = 0; Count2 < Last2; Count2++ )
+            {
+            if( (Index == Index2) && (Count == Count2) )
+              continue;
+
+            Page Page2 =  URLsRecArray[Index2].URLIndexArray[Count2].PageForURL;
+            if( Page2 == null )
+              {
+              MForm.ShowStatus( "Page was null." );
+              continue;
+              }
+
+            if( Page2.GetFileName() == "" )
+              continue;
+
+            if( Page1.GetFileName() == Page2.GetFileName())
+              {
+              // Page1.ClearFileName();
+              // Page2.ClearFileName();
+              HowMany++;
+              MForm.ShowStatus( " " );
+              MForm.ShowStatus( "Title 1: " + Page1.GetTitle() );
+              MForm.ShowStatus( "Duplicate Title 2: " + Page2.GetTitle() );
+              MForm.ShowStatus( "File name: " + Page1.GetFileName() );
+              }
+            }
+          }
+        }
+      }
+
+    MForm.ShowStatus( "Finished checking duplicates.");
+    MForm.ShowStatus( "HowMany: " + HowMany.ToString( "N0" ));
+
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Exception in URLIndex.ShowDuplicateFileNames()." );
+      MForm.ShowStatus( Except.Message );
+      }
+    }
+
+
+
+  private string GetTitlePart( string Title, string BaseURL )
+    {
+    if( BaseURL.Contains( "durangoherald.com" ))
+      return "Herald) " + Title;
+
+    if( BaseURL.Contains( "durangotelegraph.com" ))
+      return "Telegraph) " + Title;
+
+    if( BaseURL.Contains( "durangogov.org" ))
+      return "Durango Gov) " + Title;
+
+    if( BaseURL.Contains( "colorado.gov" ))
+      return "Colorado Gov) " + Title;
+
+    return Title;
+    }
+
+
+
+  internal byte[] Get24HoursPage()
+    {
+    try
+    {
+    // http://127.0.0.1/get24hours.htm
+
+    StringBuilder SBuilder = new StringBuilder();
+
+    // Obviously you could get parts of pages like
+    // this from files or something, but this is just
+    // a very basic example with no style sheets or
+    // anything like that in it.
+    SBuilder.Append( "<!DOCTYPE html>\r\n" );
+    SBuilder.Append( "<html>\r\n<head>\r\n" );
+
+    // charset=ISO-8859-1 is obsolete old 8 bit encoding.
+    // See below where it does UTF8Strings.StringToBytes().
+    SBuilder.Append( "<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />\r\n" );
+
+    SBuilder.Append( "<title>The Library Project</title>\r\n" );
+    SBuilder.Append( "<p><b>The Library Project.</b></p><br>\r\n" );
+
+    SortedDictionary<string, string> TitlesDictionary = new SortedDictionary<string, string>();
+
+    ECTime OldTime = new ECTime();
+    OldTime.SetToNow();
+    OldTime.AddSeconds( -(60 * 60 * 24) ); // 24 hours back.
+    ulong OldDateIndex = OldTime.GetIndex();
+
+    for( int Index = 0; Index < URLsRecArrayLength; Index++ )
+      {
+      if( URLsRecArray[Index].URLIndexArray ==  null )
+        continue;
+
+      int Last = URLsRecArray[Index].URLIndexArrayLast;
+      for( int Count = 0; Count < Last; Count++ )
+        {
+        Page SendPage =  URLsRecArray[Index].URLIndexArray[Count].PageForURL;
+        if( SendPage == null )
+          continue;
+
+        if( SendPage.GetContentsUpdateTimeIndex() < OldDateIndex )
+          continue;
+
+        // This title is the original title from the original
+        // link.  It's not from the title tag within the page.
+        // It's not from the content of the page.
+        string Title = SendPage.GetTitle();
+        string URL = SendPage.GetURL();
+        string BaseURL = SendPage.GetRelativeURLBase().ToLower();
+        Title = GetTitlePart( Title, BaseURL );
+
+        // To sort it by title.
+        // Sort it by time index instead?
+        string TagPart = "<p><a href=\"" + URL +
+          "\">" + Title +
+          "</a></p>\r\n";
+
+        // There are duplicated articles with the same title
+        // but different URLs.  They put the same article
+        // in several different sections.  This will only
+        // get the last one.  (As the iteratation is done
+        // here by the URL index.
+        TitlesDictionary[Title] = TagPart;
+        }
+      }
+
+    if( TitlesDictionary.Count > 0 )
+      {
+      foreach( KeyValuePair<string, string> Kvp in TitlesDictionary )
+        {
+        SBuilder.Append( Kvp.Value );
+        }
+      }
+    else
+      {
+      SBuilder.Append( "<p>Nothing was found.</p>\r\n" );
+      }
+
+    SBuilder.Append( "</body>\r\n</html>\r\n" );
+
+    // This could return null if there was a problem.
+    return UTF8Strings.StringToBytes( SBuilder.ToString());
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Exception in URLIndex.Get24HoursPage()." );
+      MForm.ShowStatus( Except.Message );
+      return null;
+      }
+    }
+
+
+
+
+  internal byte[] GetCrudeSearchPage()
+    {
+    try
+    {
+    // http://127.0.0.1/CrudeSearch.htm
+
+    StringBuilder SBuilder = new StringBuilder();
+
+    SBuilder.Append( "<!DOCTYPE html>\r\n" );
+    SBuilder.Append( "<html>\r\n<head>\r\n" );
+    // See below where it does UTF8Strings.StringToBytes().
+    SBuilder.Append( "<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />\r\n" );
+    SBuilder.Append( "<title>The Library Project</title>\r\n" );
+    SBuilder.Append( "<p><b>The Library Project.</b></p><br>\r\n" );
+
+    SortedDictionary<string, string> TitlesDictionary = new SortedDictionary<string, string>();
+
+    for( int Index = 0; Index < URLsRecArrayLength; Index++ )
+      {
+      if( URLsRecArray[Index].URLIndexArray ==  null )
+        continue;
+
+      int Last = URLsRecArray[Index].URLIndexArrayLast;
+      for( int Count = 0; Count < Last; Count++ )
+        {
+        Page SendPage =  URLsRecArray[Index].URLIndexArray[Count].PageForURL;
+        if( SendPage == null )
+          continue;
+
+        string Contents = SendPage.GetSearchableContents();
+
+        // Obviously you would pass in this word as a
+        // parameter for a search, but this is just a
+        // basic example.
+        if( !Contents.Contains( "library" ))
+          continue;
+
+        if( !Contents.Contains( "carnegie" ))
+          continue;
+
+        MForm.ShowStatus( " " );
+        MForm.ShowStatus( " " );
+        MForm.ShowStatus( SendPage.GetFileName());
+        MForm.ShowStatus( Contents );
+
+        // This title is the original title from the original
+        // link.  It's not from the title tag within the page.
+        // It's not from the content of the page.
+        string URL = SendPage.GetURL();
+        string BaseURL = SendPage.GetRelativeURLBase().ToLower();
+        string Title = SendPage.GetTitle();
+        Title = GetTitlePart( Title, BaseURL );
+
+        // To sort it by title.
+        // Sort it by time index instead?
+        string TagPart = "<p><a href=\"" + URL +
+          "\">" + Title +
+          "</a></p>\r\n";
+
+        TitlesDictionary[Title] = TagPart;
+        }
+      }
+
+    if( TitlesDictionary.Count > 0 )
+      {
+      foreach( KeyValuePair<string, string> Kvp in TitlesDictionary )
+        {
+        SBuilder.Append( Kvp.Value );
+        }
+      }
+    else
+      {
+      SBuilder.Append( "<p>Nothing was found.</p>\r\n" );
+      }
+
+    SBuilder.Append( "</body>\r\n</html>\r\n" );
+
+    // This could return null if there was a problem.
+    return UTF8Strings.StringToBytes( SBuilder.ToString());
+
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Exception in PageList.GetCrudeSearchPage()." );
+      MForm.ShowStatus( Except.Message );
+      return null;
+      }
+    }
+
+
+
+
+  internal byte[] GetIndexedSearchPage()
+    {
+    try
+    {
+    // http://127.0.0.1/IndexedSearch.htm
+
+    StringBuilder SBuilder = new StringBuilder();
+
+    SBuilder.Append( "<!DOCTYPE html>\r\n" );
+    SBuilder.Append( "<html>\r\n<head>\r\n" );
+    // See below where it does UTF8Strings.StringToBytes().
+    SBuilder.Append( "<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />\r\n" );
+    SBuilder.Append( "<title>The Library Project</title>\r\n" );
+    SBuilder.Append( "<p><b>The Library Project.</b></p><br>\r\n" );
+
+    SortedDictionary<string, string> TitlesDictionary = new SortedDictionary<string, string>();
+
+    // Obviously you would pass in these words as
+    // parameters for a search, but this is just a
+    // basic example.
+    string Word1 = "library";
+    string Word2 = "carnegie";
+    // The words should be checked for valid form before
+    // calling this:
+    IntegerCollection IntCol1 = MForm.MainWordsData.GetIntegerLinks( Word1 );
+    IntegerCollection IntCol2 = MForm.MainWordsData.GetIntegerLinks( Word2 );
+
+    IntegerCollection IntColBoth = null;
+
+    // This makes it search for one word if only
+    // one was found.
+    if( IntCol1 == null )
+      IntColBoth = IntCol2;
+
+    if( IntCol2 == null )
+      IntColBoth = IntCol1;
+
+    // If neither or both were null.
+    if( IntColBoth == null )
+      {
+      MForm.ShowStatus( "IntColBoth is null." );
+      // If either one is null then this will return an
+      // empty object.
+      IntColBoth = new IntegerCollection();
+      IntColBoth.LogicANDFromCollections( IntCol1, IntCol2 );
+      }
+
+    int[] IndexArray = IntColBoth.GetIndexArray();
+    if( IndexArray != null )
+      {
+      MForm.ShowStatus( "IndexArray.Length: " + IndexArray.Length.ToString());
+      for( int Count = 0; Count < IndexArray.Length; Count++ )
+        {
+        string URL = GetURLFromIndex( IndexArray[Count] );
+        if( URL.Length == 0 )
+          {
+          MForm.ShowStatus( "No URL at index: " + IndexArray[Count].ToString() );
+          continue;
+          }
+
+        Page SendPage = GetPage( URL );
+        if( SendPage == null )
+          {
+          MForm.ShowStatus( "The page was null for: " + URL );
+          continue;
+          }
+
+        // string URL = SendPage.GetURL();
+        string BaseURL = SendPage.GetRelativeURLBase().ToLower();
+        string Title = SendPage.GetTitle();
+        Title = GetTitlePart( Title, BaseURL );
+
+        // To sort it by title.
+        string TagPart = "<p><a href=\"" + URL +
+          "\">" + Title +
+          "</a></p>\r\n";
+
+        TitlesDictionary[Title] = TagPart;
+        }
+      }
+    else
+      {
+      MForm.ShowStatus( "IndexArray was null." );
+      }
+
+    if( TitlesDictionary.Count > 0 )
+      {
+      foreach( KeyValuePair<string, string> Kvp in TitlesDictionary )
+        {
+        SBuilder.Append( Kvp.Value );
+        }
+      }
+    else
+      {
+      MForm.ShowStatus( "TitlesDictionary was empty." );
+      SBuilder.Append( "<p>Nothing was found.</p>\r\n" );
+      }
+
+    SBuilder.Append( "</body>\r\n</html>\r\n" );
+    MForm.ShowStatus( "Done with indexed search." );
+
+    // This could return null if there was a problem.
+    return UTF8Strings.StringToBytes( SBuilder.ToString());
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Exception in PageList.GetIndexedSearchPage()." );
+      MForm.ShowStatus( Except.Message );
+      return null;
       }
     }
 
