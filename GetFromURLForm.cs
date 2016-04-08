@@ -313,8 +313,8 @@ namespace DGOLibrary
       return;
       }
 
-    if( MForm.PageList1 != null )
-      MForm.PageList1.UpdatePageFromFile( Title, URLToGet, FileName, true, RelativeURLBase );
+    // if( MForm.PageList1 != null )
+      // MForm.PageList1.UpdatePageFromFile( Title, URLToGet, FileName, true, RelativeURLBase );
 
     if( MForm.MainURLIndex != null )
       MForm.MainURLIndex.UpdatePageFromFile( Title, URLToGet, FileName, true, RelativeURLBase, true );
