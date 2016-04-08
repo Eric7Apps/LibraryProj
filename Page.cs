@@ -103,6 +103,14 @@ namespace DGOLibrary
     }
 
 
+  /*
+  internal void ClearFileName()
+    {
+    FileName = "";
+    }
+    */
+
+
   internal int GetIndex()
     {
     return Index;
@@ -139,11 +147,15 @@ namespace DGOLibrary
 
 
 
-  internal void UpdateFromFile( string UseTitle, string UseURL, string InFileName, bool SetTime, string RelativeURL, bool ReadFromFile )
+  internal void UpdateFromFile( string UseTitle, string UseURL, string InFileName, bool SetTime, string RelativeURL, bool ReadFromFile ) //, int UniqueNumber )
     {
     try
     {
     SearchableContents = "";
+
+    // MForm.ShowStatus( " " );
+    // MForm.ShowStatus( "UseTitle: " + UseTitle );
+    // MForm.ShowStatus( "Checking InFileName: " + InFileName );
 
     if( InFileName.Length < 3 )
       {
@@ -175,7 +187,8 @@ namespace DGOLibrary
       FileContents = ReadFromTextFile( InFileName );
 
     if( FileContents == "" )
-      return;
+      FileContents = ReadFromTextFile( InFileName );
+      // return;
 
     if( FileContents.StartsWith( "%PDF-" ))
       {
@@ -209,11 +222,23 @@ namespace DGOLibrary
         }
       }
 
+    // MForm.ShowStatus( "Checking original FileName: " + FileName );
+
     // Notice that a main page like the ones added in
     // GetURLManagerForm.cs will have a file name that has
     // the date when it was first created.
-    if( FileName.Length < 1 )
-      FileName = MakeNewFileName();
+    if( ReadFromFile )
+      {
+      if( FileName.Length < 1 )
+        FileName = MakeNewFileName(); // UniqueNumber );
+
+      }
+    else
+      {
+      if( FileName.Length < 1 )
+        FileName = InFileName;
+
+      }
 
     // MForm.ShowStatus( " " );
     // MForm.ShowStatus( " " );
@@ -292,7 +317,10 @@ namespace DGOLibrary
 
   internal void AddLink( string Title, string LinkURL )
     {
-    if( "" != MForm.PageList1.GetExistingURL( LinkURL ))
+    // if( "" != MForm.PageList1.GetExistingURL( LinkURL ))
+      // return;
+
+    if( "" != MForm.MainURLIndex.GetExistingURL( LinkURL ))
       return;
 
     // Get this new page:
@@ -302,7 +330,7 @@ namespace DGOLibrary
     }
 
 
-  private string MakeNewFileName()
+  private string MakeNewFileName() //  int UniqueNumber )
     {
     if( MForm.GetIsClosing())
       return "";
@@ -310,7 +338,7 @@ namespace DGOLibrary
     ECTime RightNow = new ECTime();
     RightNow.SetToNow();
 
-    string Path = MForm.GetPagesDirectory() +
+    string Path = MForm.GetPageFilesDirectory() +
       "Y" + RightNow.GetLocalYear().ToString() + "\\";
 
     MakeNewDirectory( Path ); // If it needs to create a new one.
@@ -326,10 +354,18 @@ namespace DGOLibrary
 
     FileS += "S" + RightNow.GetLocalSecond().ToString();
 
-    // Make it unique.  (But this would normally happen
-    // only once every 3 seconds or so, based on the
-    // timer event.)
-    ulong Ticks = ECTime.GetRandomishTickCount() & 0xFF;
+    // Make it unique.  But this would normally happen
+    // only once every 2 or 3 seconds or so, based on the
+    // timer event.
+
+    // "There are 10,000 ticks in a millisecond."
+
+    // It is improbable, but not guaranteed, that one of
+    // these 64K values will be duplicated during a
+    // particular second.  Duplicate file names are
+    // checked for though.
+    // UniqueNumber
+    ulong Ticks = ECTime.GetRandomishTickCount() & 0xFFFF;
     FileS += "T" + Ticks.ToString();
 
     // Using .txt instead of .htm because it's only
@@ -452,7 +488,7 @@ namespace DGOLibrary
            URL + "\t" +
            ContentsUpdateTime.GetIndex().ToString() + "\t" +
            FileName + "\t" +
-           Index.ToString() + "\t" +
+           // Index.ToString() + "\t" +
            RelativeURLBase;
 
     return Result;
@@ -466,7 +502,7 @@ namespace DGOLibrary
     {
     string[] SplitS = InString.Split( new Char[] { '\t' } );
 
-    if( SplitS.Length < 6 )
+    if( SplitS.Length < 5 )
       return false;
 
     Title = Utility.GetCleanUnicodeString( SplitS[0], 1000, true );
@@ -487,7 +523,7 @@ namespace DGOLibrary
 
     FileName = Utility.GetCleanUnicodeString( SplitS[3], 2000, true );
 
-    if( FileName.Length > 10 )
+    if( FileName.Length > 0 )
       {
       if( !File.Exists( FileName ))
         {
@@ -500,10 +536,32 @@ namespace DGOLibrary
         return false;
         }
       }
+    else
+      {
+      MForm.ShowStatus( " " );
+      MForm.ShowStatus( "There is no file for:" );
+      MForm.ShowStatus( Title );
+      MForm.ShowStatus( URL );
+      return false;
+      }
 
-    Index = Int32.Parse( SplitS[4] );
+    ///////////
+    // Index = Int32.Parse( SplitS[4] );
+    // RelativeURLBase = Utility.GetCleanUnicodeString( SplitS[5], 1000, true );
+    //////////
 
-    RelativeURLBase = Utility.GetCleanUnicodeString( SplitS[5], 1000, true );
+    RelativeURLBase = Utility.GetCleanUnicodeString( SplitS[4], 1000, true );
+    RelativeURLBase = RelativeURLBase.ToLower();
+
+    if( !URL.ToLower().StartsWith( RelativeURLBase ))
+      {
+      MForm.ShowStatus( " " );
+      MForm.ShowStatus( "URL base doesn't match." );
+      MForm.ShowStatus( Title );
+      MForm.ShowStatus( URL );
+      MForm.ShowStatus( RelativeURLBase );
+      return false;
+      }
 
     //   if( RelativeURLBase[RelativeURLBase.Length - 1] == '/' )
     //     RelativeURLBase = Utility.TruncateString( RelativeURLBase, RelativeURLBase.Length - 1 );
@@ -566,6 +624,11 @@ namespace DGOLibrary
       }
     }
 
+
+  internal void AddParaGraphWordCount( string Word )
+    {
+    MForm.AddParaGraphWordCount( Word );
+    }
 
 
   internal void AddToSearchableContents( string InString )
