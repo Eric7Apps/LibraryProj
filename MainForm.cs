@@ -21,7 +21,7 @@ namespace DGOLibrary
 {
   public partial class MainForm : Form
   {
-  internal const string VersionDate = "4/6/2016";
+  internal const string VersionDate = "4/7/2016";
   internal const int VersionNumber = 09; // 0.9
   internal const string MessageBoxTitle = "Library Project";
   private System.Threading.Mutex SingleInstanceMutex = null;
@@ -30,19 +30,21 @@ namespace DGOLibrary
   internal WebListenerForm WebListenForm;
   internal WebFilesData WebFData;
   private string TempFileDirectory = "";
-  private string PagesDirectory = "";
+  // private string PagesDirectory = "";
+  private string PageFilesDirectory = "";
   private string DataDirectory = "";
   private string WebPagesDirectory = "";
   private bool IsClosing = false;
   private bool Cancelled = false;
   internal GlobalProperties GlobalProps;
-  internal PageList PageList1;
+  // internal PageList PageList1;
   internal WordsDictionary WordsDictionary1;
   internal ScriptDictionary ScriptDictionary1;
   internal CodeCommentDictionary CodeCommentDictionary1;
   internal NetIPStatus NetStats;
   internal WordsData MainWordsData;
   internal URLIndex MainURLIndex;
+  internal FrequencyCounter ParagraphFreqCtr;
 
 
 
@@ -59,11 +61,13 @@ namespace DGOLibrary
     NetStats = new NetIPStatus( this );
     NetStats.ReadFromFile();
 
+    ParagraphFreqCtr = new FrequencyCounter( this );
+
     WordsDictionary1 = new WordsDictionary( this );
     MainWordsData = new WordsData( this );
     ScriptDictionary1 = new ScriptDictionary( this );
     CodeCommentDictionary1 = new CodeCommentDictionary( this );
-    PageList1 = new PageList( this );
+    // PageList1 = new PageList( this );
     MainURLIndex = new URLIndex( this );
     WebFData = new WebFilesData( this );
 
@@ -92,12 +96,18 @@ namespace DGOLibrary
     }
 
 
+  internal void AddParaGraphWordCount( string Word )
+    {
+    ParagraphFreqCtr.AddString( Word );
+    }
+
+
 
   private void testToolStripMenuItem_Click(object sender, EventArgs e)
     {
     // Herald page:
     // string URL = "http://www.durangoherald.com/";
-    string FileName = GetPagesDirectory() + "TestFile.txt";
+    string FileName = GetPageFilesDirectory() + "TestFile.txt";
     // PageList1.UpdatePageFromFile( "Main Page", URL, FileName, true, "http://www.durangoherald.com" );
 
     // Durango Gov:
@@ -125,17 +135,20 @@ namespace DGOLibrary
     {
     try
     {
-    TempFileDirectory ="c:\\DGOLibProject\\TempFiles\\";
-    // PagesDirectory = Application.StartupPath + "\\Pages\\";
-    PagesDirectory = "c:\\DGOLibProject\\Pages\\";
+    TempFileDirectory = "c:\\DGOLibProject\\TempFiles\\";
+    PageFilesDirectory = "c:\\DGOLibProject\\PageFiles\\";
+    // PagesDirectory = "c:\\DGOLibProject\\Pages\\";
     DataDirectory = Application.StartupPath + "\\Data\\";
     WebPagesDirectory = Application.StartupPath + "\\WebPages\\";
 
     if( !Directory.Exists( TempFileDirectory ))
       Directory.CreateDirectory( TempFileDirectory );
 
-    if( !Directory.Exists( PagesDirectory ))
-      Directory.CreateDirectory( PagesDirectory );
+    // if( !Directory.Exists( PagesDirectory ))
+      // Directory.CreateDirectory( PagesDirectory );
+
+    if( !Directory.Exists( PageFilesDirectory ))
+      Directory.CreateDirectory( PageFilesDirectory );
 
     if( !Directory.Exists( WebPagesDirectory ))
       Directory.CreateDirectory( WebPagesDirectory );
@@ -157,10 +170,16 @@ namespace DGOLibrary
     return TempFileDirectory;
     }
 
-
+  /*
   internal string GetPagesDirectory()
     {
     return PagesDirectory;
+    }
+    */
+
+  internal string GetPageFilesDirectory()
+    {
+    return PageFilesDirectory;
     }
 
 
@@ -321,7 +340,7 @@ namespace DGOLibrary
 
     // ShowStatus() won't show it when it's closing.
     MainTextBox.AppendText( "Saving files.\r\n" ); 
-    PageList1.WriteToTextFile();
+    // PageList1.WriteToTextFile();
     MainURLIndex.WriteToTextFile();
 
     MainTextBox.AppendText( "Saved pages.\r\n" ); 
@@ -433,11 +452,11 @@ namespace DGOLibrary
     {
     StartupTimer.Stop();
 
-    ShowStatus( "Reading page list..." );
+    ShowStatus( "Reading URL index data..." );
     // Make sure the PageList is loaded up before
     // GetURLMgrForm is started.
-    PageList1.ReadFromTextFile();
-    // ====== MainURLIndex.ReadFromTextFile();
+    // PageList1.ReadFromTextFile();
+    MainURLIndex.ReadFromTextFile();
 
     ShowStatus( "Reading script data..." );
     ScriptDictionary1.ReadFromTextFile();
@@ -552,7 +571,12 @@ namespace DGOLibrary
 
   private void indexAllToolStripMenuItem_Click(object sender, EventArgs e)
     {
-    PageList1.IndexAll();
+    // PageList1.IndexAll();
+    ParagraphFreqCtr.ClearAll();
+    MainURLIndex.IndexAll();
+    // ParagraphFreqCtr.SortByCount();
+    // ParagraphFreqCtr.ShowValues( 50 );
+    // MainWordsData.ShowWordsAtZero();
     }
 
 
@@ -583,6 +607,13 @@ namespace DGOLibrary
     WebListenForm.Show();
     WebListenForm.WindowState = FormWindowState.Normal;
     WebListenForm.BringToFront();
+    }
+
+
+
+  private void showDuplicateFileNamesToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+    MainURLIndex.ShowDuplicateFileNames();
     }
 
 
