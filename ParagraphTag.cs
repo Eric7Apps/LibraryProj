@@ -224,7 +224,19 @@ namespace DGOLibrary
       if( Word.Length < 3 )
         continue;
 
+      // GetCallingPage().AddParaGraphWordCount( Word );
+
       if( Word == "the" )
+        continue;
+
+      if( Word == "and" )
+        continue;
+
+      // if( Word == "for" )
+        // continue;
+
+       // What are the most frequent excluded words?
+      if( ExcludedWords.IsExcluded( Word ))
         continue;
 
       WordsDictionary[Word] = 1;
