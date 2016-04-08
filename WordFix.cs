@@ -301,6 +301,9 @@ namespace DGOLibrary
     if( Word == "perservation" )
       return "preservation";
 
+    if( Word == "pparenthood" )
+      return "parenthood";
+
     return Word;
     }
 
@@ -391,11 +394,12 @@ namespace DGOLibrary
     Result = Result.Replace( "bookstore", "book store" );
     Result = Result.Replace( "bookshop", "book shop" );
     Result = Result.Replace( "colostate", "colorado state" );
+    Result = Result.Replace( "continuinged", "continue educate" );
     Result = Result.Replace( "puertorico", "puerto rico" );
     Result = Result.Replace( "ragtimefestival", "ragtime festival" );
     Result = Result.Replace( "realestate", "real estate" );
     Result = Result.Replace( "realproperty", "real property" );
-    Result = Result.Replace( "runningclub", "running club" );
+    Result = Result.Replace( "runningclub", "run club" );
     Result = Result.Replace( "worksite", "work site" );
 
     return Result;
