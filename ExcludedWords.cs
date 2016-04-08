@@ -9,24 +9,52 @@ namespace DGOLibrary
 {
   static class ExcludedWords
   {
-  private const string OneBigString = ";about;" +
-    "adview;along;also;alt;andeconomic;andthe;" +
-    "anoth;arent;askthediver;aspx;assis;asthe;" +
-    "bangin;bcimedia;bigstory;boardssuperintendent;" +
-    "both;breake;bumpin;came;cant;cmyk;comherald;" +
-    "compa;corinnef;could;couldn;couldnt;departmentof;" +
-    "didn;does;doesn;doesnt;duangoherald;durangherald;" +
-    "durango;durangoccl;durangoherald;durangoherlad;" +
-    "durangoherld;durnagoherald;each;entr;eps;" +
-    "eventsubmit;extracur;exup;fers;filelist;foaf;" +
-    "foar;forthe;from;gmail;goes;going;gvexyvg;" +
-    "haba;half;have;havent;having;havingsufficient;" +
-    "hellip;hermannclarence;homepage;html;http;" +
-    "https;iain;ignaciosuperintendent;inamerican;" +
-    "incentiveto;into;isbecause;isnt;istockphoto;" +
-    "itis;ject;jliff;jmac;jpeg;labdr;ldquo;lsquo;" +
-    "made;marqua;mbssllp;mdash;ment;more;morp;"+
-    "mtnx;navadvertisewithus;navarchives;" +
+  // Highest frequency is listed first in sorted order.
+  // 'the' and 'and' are already checked.
+  private const string QuickString = ";for;that;said;" +
+    "with;was;from;are;have;but;has;durango;this;" +
+    "will;they;his;not;about;who;all;you;she;more;" +
+    "their;one;been;were;would;out;can;her;had;" +
+    "when;year;there;after;which;two;also;";
+
+  private const string OneBigString = "time;" +
+    "2016;into;what;its;years;than;some;just;our;" +
+    "over;last;like;because;them;com;through;" +
+    "how;could;get;only;where;while;many;may;" +
+    "during;before;those;most;back;any;him;off;going;" +
+    "much;since;even;being;then;use;these;still;" +
+    "says;both;such;another;did;say;very;" +
+    "uses;take;along;goes;time;gets;made;half;" +
+    "wouldn;didn;take;takes;mostly;used;along;" +
+    "backed;does;lasted;having;came;doesn;" +
+    "things;your;thus;thing;overly;took;wasn;" +
+    "liked;each;went;likes;ones;hadn;using;yours;" +
+    "couldn;wasnt;wont;ours;hasn;backes;" +
+    "theirs;thats;havent;backing;swcenter;isnt;" +
+    "doesnt;weve;theyll;shes;couldnt;aspx;" +
+    "wouldnt;youre;arent;theyve;cant;whats;" +
+    "lasts;ject;anoth;" +
+    "departmentof;inamerican;uniquequalities;" +
+    "officialcoordinating;toincorporate;asthe;" +
+    "performancegoals;" +
+    "isbecause;returningfrom;scommission;" +
+    "havingsufficient;incentiveto;westerncommunities;" +
+    "itis;orbust;touristsran;andeconomic;stillhave;" +
+    "reservoirdylan;swscene;comherald;assis;ment;" +
+    "evenly;hellip;syijxs;lastly;backs;liking;" +
+    "ongoingdiscussions;bigstory;thedurangoherald;" +
+    "bangin;whos;youve;theywill;thatwould;hers;" +
+    "tsked;throughs;breake;cmyk;jpeg;" +
+    "retiringsuperintendent;ignaciosuperintendent;" +
+    "boardssuperintendent;gvexyvg;bumpin;jmac;" +
+    "ouml;schild;ppinclude;vapolitics;" +
+    "anothers;thatwould;throughs;gvexyvg;" +
+    "hermannclarence;" +
+    "valueclosing;adview;andthe;durangoherald;" +
+    "durangoherlad;durangoherld;durnagoherald;" +
+    "homepage;html;http;https;iain;eventsubmit;" +
+    "extracur;exup;fers;filelist;foaf;foar;forthe;" +
+    "istockphoto;navadvertisewithus;navarchives;" +
     "navaskthedivertrevorrovert;navchechitout;" +
     "navclassifiedads;navclassifieds;navcontact;" +
     "navdayinthelifespringbling;" +
@@ -41,37 +69,16 @@ namespace DGOLibrary
     "navsoapbox;navsubscriptions;navthumbinit;" +
     "navtopshelfabirthdayrantandloggerseason;" +
     "navwordonthestreet;nbsp;ndash;newsearch;" +
-    "newsmemory;newsnow;nocache;ntilde;" +
-    "officialcoordinating;ongoingdiscussions;" +
-    "only;orbust;ouml;pdf;performancegoals;" +
-    "phpadsnew;placename;placetype;ppinclude;" +
-    "progid;quot;rbmve;rdquo;reservoirdylan;" +
-    "retiringsuperintendent;returningfrom;" +
-    "rgb;ricekw;rsquo;said;say;says;sboos;" +
-    "schemas;schild;schowlater;scommission;" +
-    "searchform;skyscraperad;smarttags;" +
-    "smarttagtype;soapboxheder;some;" +
-    "southwestcolors;stillhave;such;svad;" +
-    "swcenter;swscene;syijxs;take;takes;tgivon;" +
-    "than;that;thats;thatwould;thedurangoherald;" +
-    "their;theirs;them;then;thepole;there;these;" +
-    "theyll;theyve;theywill;thing;things;this;" +
-    "those;through;throughs;thus;tif;time;" +
-    "toincorporate;took;touristsran;tsked;" +
-    "uniquequalities;uoregon;used;using;" +
-    "valueclosing;vapolitics;very;wasnt;went;" +
-    "were;westerncommunities;weve;what;whats;" +
-    "when;where;which;while;will;with;wont;would;" +
-    "wouldn;wouldnt;wretac;your;youre;yours;youve;";
+    "newsmemory;newsnow;nocache;ntilde;";
 
- 
+
 
   internal static bool IsExcluded( string Word )
     {
-    if( Word == null ) // If it ever got a null.
-      return true;
+    // if( Word == null ) // If it ever got a null.
+      // return true;
 
-    if( Word.Length < 3 )
+    if( QuickString.Contains( ";" + Word + ";" ))
       return true;
 
     if( OneBigString.Contains( ";" + Word + ";" ))
@@ -86,6 +93,7 @@ namespace DGOLibrary
 
     return false;
     }
+
 
 
 
