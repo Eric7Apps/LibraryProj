@@ -1,3 +1,9 @@
+/*
+
+// This is obsolete and not used anymore.
+// URLIndex.cs is used for this.
+
+
 // Programming by Eric Chauvin.
 // Notes on this source code are at:
 // ericlibproj.blogspot.com
@@ -330,7 +336,8 @@ namespace DGOLibrary
     }
 
 
-
+  //////////
+  Don't write to it now.
   internal bool WriteToTextFile()
     {
     try
@@ -360,19 +367,19 @@ namespace DGOLibrary
       return false;
       }
     }
-
-
+    ////////
 
   internal void IndexAll()
     {
     try
     {
     ECTime StartTime = new ECTime();
-    StartTime.SetToNow();
 
     MForm.MainWordsData.ClearAllIntCollections();
 
     ReadAllFilesToContent();
+
+    StartTime.SetToNow();
 
     int Loops = 0;
     foreach( KeyValuePair<string, Page> Kvp in PageDictionary )
@@ -390,7 +397,7 @@ namespace DGOLibrary
 
       Page Page1 = Kvp.Value;
       Page1.UpdateFromFile( Page1.GetTitle(), Page1.GetURL(), Page1.GetFileName(), false, Page1.GetRelativeURLBase(), false );
-      MForm.MainURLIndex.UpdatePageFromFile( Page1.GetTitle(), Page1.GetURL(), Page1.GetFileName(), false, Page1.GetRelativeURLBase(), false );
+      MForm.MainURLIndex.UpdatePageFromFile( Page1.GetTitle(), Page1.GetURL(), Page1.GetFileName(), true, Page1.GetRelativeURLBase(), false );
       }
 
     MForm.MainWordsData.WriteToTextFile();
@@ -437,6 +444,7 @@ namespace DGOLibrary
 
 
 
+  /////////
   internal byte[] Get24HoursPage()
     {
     try
@@ -451,6 +459,9 @@ namespace DGOLibrary
     // anything like that in it.
     SBuilder.Append( "<!DOCTYPE html>\r\n" );
     SBuilder.Append( "<html>\r\n<head>\r\n" );
+
+    ==== <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
     SBuilder.Append( "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\" />\r\n" );
     SBuilder.Append( "<title>The Library Project</title>\r\n" );
     SBuilder.Append( "<p><b>The Library Project.</b></p><br>\r\n" );
@@ -711,10 +722,12 @@ namespace DGOLibrary
       return null;
       }
     }
-
+    / //////////
 
 
 
   }
 }
+
+*/
 
