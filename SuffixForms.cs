@@ -54,6 +54,22 @@ namespace DGOLibrary
 
       }
 
+    if( InWord.Length >= 8 )
+      {
+      TestWord = FixSuffix5( InWord, MainWordsIndex );
+      if( TestWord != "" )
+        return TestWord;
+
+      }
+
+    if( InWord.Length >= 9 )
+      {
+      TestWord = FixSuffix6( InWord, MainWordsIndex );
+      if( TestWord != "" )
+        return TestWord;
+
+      }
+
     return "";
     }
     catch( Exception Except )
@@ -697,6 +713,13 @@ namespace DGOLibrary
         // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
         return TestWord;
         }
+
+      string ETest = TestWord + "e";
+      if( MainWordsIndex.WordExists( ETest ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
+        return ETest;
+        }
       }
 
     if( (InWord[InWord.Length - 4] == 't' ) &&
@@ -787,6 +810,28 @@ namespace DGOLibrary
       }
 
     if( (InWord[InWord.Length - 4] == 'i' ) &&
+        (InWord[InWord.Length - 3] == 'o' ) &&
+        (InWord[InWord.Length - 2] == 'n' ) &&
+        (InWord[InWord.Length - 1] == 's' ))
+      {
+      TestWord = Utility.TruncateString( InWord, InWord.Length - 4 );
+      if( MainWordsIndex.WordExists( TestWord ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+        return TestWord;
+        }
+
+      /*
+      string ETest = TestWord + "e";
+      if( MainWordsDictionary.ContainsKey( ETest ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
+        return ETest;
+        }
+        */
+      }
+
+    if( (InWord[InWord.Length - 4] == 'i' ) &&
         (InWord[InWord.Length - 3] == 'e' ) &&
         (InWord[InWord.Length - 2] == 's' ) &&
         (InWord[InWord.Length - 1] == 't' ))
@@ -811,6 +856,93 @@ namespace DGOLibrary
     catch( Exception Except )
       {
       string ShowS = "Exception in FixSuffix4():\r\n" +
+        Except.Message;
+
+      throw( new Exception( ShowS ));
+      }
+    }
+
+
+
+  private static string FixSuffix5( string InWord, WordsIndex MainWordsIndex )
+    {
+    try
+    {
+    string TestWord = "";
+
+    if( InWord.Length < 8 )
+      return InWord;
+
+    if( (InWord[InWord.Length - 5] == 'i' ) &&
+        (InWord[InWord.Length - 4] == 'n' ) &&
+        (InWord[InWord.Length - 3] == 'g' ) &&
+        (InWord[InWord.Length - 2] == 'l' ) &&
+        (InWord[InWord.Length - 1] == 'y' ))
+      {
+      TestWord = Utility.TruncateString( InWord, InWord.Length - 5 );
+      if( MainWordsIndex.WordExists( TestWord ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+        return TestWord;
+        }
+
+      string ETest = TestWord + "e";
+      if( MainWordsIndex.WordExists( ETest ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
+        return ETest;
+        }
+      }
+
+    return "";
+    }
+    catch( Exception Except )
+      {
+      string ShowS = "Exception in FixSuffix5():\r\n" +
+        Except.Message;
+
+      throw( new Exception( ShowS ));
+      }
+    }
+
+
+
+  private static string FixSuffix6( string InWord, WordsIndex MainWordsIndex )
+    {
+    try
+    {
+    string TestWord = "";
+
+    if( InWord.Length < 9 )
+      return InWord;
+
+    if( (InWord[InWord.Length - 6] == 'i' ) &&
+        (InWord[InWord.Length - 5] == 'a' ) &&
+        (InWord[InWord.Length - 4] == 'l' ) &&
+        (InWord[InWord.Length - 3] == 'i' ) &&
+        (InWord[InWord.Length - 2] == 's' ) &&
+        (InWord[InWord.Length - 1] == 'm' ))
+      {
+      TestWord = Utility.TruncateString( InWord, InWord.Length - 6 );
+      if( MainWordsIndex.WordExists( TestWord ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + TestWord );
+        return TestWord;
+        }
+
+      string ETest = TestWord + "e";
+      if( MainWordsIndex.WordExists( ETest ))
+        {
+        // MForm.ShowStatus( "Changed From: " + InWord + "  To: " + ETest );
+        return ETest;
+        }
+      }
+
+    return "";
+    }
+    catch( Exception Except )
+      {
+      string ShowS = "Exception in FixSuffix5():\r\n" +
         Except.Message;
 
       throw( new Exception( ShowS ));
