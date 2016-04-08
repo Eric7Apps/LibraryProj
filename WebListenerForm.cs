@@ -579,8 +579,7 @@ namespace DGOLibrary
           return;
 
         // MForm.NetStats.AddTo...
-
-        byte[] ToSendBuf = MForm.PageList1.Get24HoursPage();
+        byte[] ToSendBuf = MForm.MainURLIndex.Get24HoursPage();
         if( ToSendBuf != null )
           Clients[Count].SendGenericWebResponse( ToSendBuf, RightNow.GetIndex(), UniqueEntityTag, "text/html" );
 
@@ -596,8 +595,7 @@ namespace DGOLibrary
           return;
 
         // MForm.NetStats.AddTo...
-
-        byte[] ToSendBuf = MForm.PageList1.GetCrudeSearchPage();
+        byte[] ToSendBuf = MForm.MainURLIndex.GetCrudeSearchPage();
         if( ToSendBuf != null )
           Clients[Count].SendGenericWebResponse( ToSendBuf, RightNow.GetIndex(), UniqueEntityTag, "text/html" );
 
@@ -613,8 +611,7 @@ namespace DGOLibrary
           return;
 
         // MForm.NetStats.AddTo...
-
-        byte[] ToSendBuf = MForm.PageList1.GetIndexedSearchPage();
+        byte[] ToSendBuf = MForm.MainURLIndex.GetIndexedSearchPage();
         if( ToSendBuf != null )
           Clients[Count].SendGenericWebResponse( ToSendBuf, RightNow.GetIndex(), UniqueEntityTag, "text/html" );
 
