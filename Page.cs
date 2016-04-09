@@ -190,10 +190,32 @@ namespace DGOLibrary
       FileContents = ReadFromTextFile( InFileName );
       // return;
 
+
+    if( FileContents.Contains( "The requested page could not be found." ))
+      {
+      MForm.ShowStatus( "This link is bad. (404)" );
+      MForm.ShowStatus( "URL is: " + URL );
+      // MForm.ShowStatus( "Deleting File: " + InFileName );
+      File.Delete( InFileName );
+      FileContents = "";
+      return;
+      }
+
+    if( FileContents.Contains( "sorry, but there is not a web page matching your entry." ))
+      {
+      MForm.ShowStatus( "This link is bad. (404)" );
+      MForm.ShowStatus( "URL is: " + URL );
+      // MForm.ShowStatus( "Deleting File: " + InFileName );
+      File.Delete( InFileName );
+      FileContents = "";
+      return;
+      }
+
     if( FileContents.StartsWith( "%PDF-" ))
       {
       MForm.ShowStatus( "This is a PDF file." );
-      MForm.ShowStatus( "Deleting File: " + InFileName );
+      MForm.ShowStatus( "URL is: " + URL );
+      // MForm.ShowStatus( "Deleting File: " + InFileName );
       File.Delete( InFileName );
       FileContents = "";
       return;
@@ -204,7 +226,7 @@ namespace DGOLibrary
       // Obviously this is not running on a real server
       // when this happens.
       MForm.ShowStatus( "Cancelled because WiFi access needs OK." );
-      MForm.ShowStatus( "Deleting File: " + InFileName );
+      // MForm.ShowStatus( "Deleting File: " + InFileName );
       File.Delete( InFileName );
       MForm.SetCancelled();
       return;
@@ -215,7 +237,7 @@ namespace DGOLibrary
       if( !FileContents.Contains( "<HTML" ))
         {
         MForm.ShowStatus( "This is not an HTML file." );
-        MForm.ShowStatus( "Deleting File: " + InFileName );
+        // MForm.ShowStatus( "Deleting File: " + InFileName );
         File.Delete( InFileName );
         FileContents = "";
         return;
