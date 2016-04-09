@@ -180,6 +180,17 @@ namespace DGOLibrary
     InString = WordFix.ReplaceForSplitWords( InString );
     InString = WordFix.FixAbbreviations( InString );
 
+    // if( Utility.ContainsNonASCII( InWord ))
+    //   ShowStatus( "Of colorado is non ascii." );
+
+    // int WhatChar = Utility.GetFirstNonASCII( InWord );
+    // ShowStatus( "WhatChar is: " + WhatChar.ToString() );
+    //    160
+
+    char NotASpace = (char)160;
+    string NotSpace = Char.ToString( NotASpace );
+    InString = InString.Replace( NotSpace, " " );
+
     InString = InString.Replace( "’", " " );
     InString = InString.Replace( "•", " " );
     InString = InString.Replace( "—", " " );
