@@ -26,17 +26,17 @@ namespace DGOLibrary
     "says;both;such;another;did;say;very;" +
     "uses;take;along;goes;time;gets;made;half;" +
     "wouldn;didn;take;takes;mostly;used;along;" +
-    "backed;does;lasted;having;came;doesn;" +
+    "backed;does;lasted;having;came;doesn;isn;" +
     "things;your;thus;thing;overly;took;wasn;" +
     "liked;each;went;likes;ones;hadn;using;yours;" +
-    "couldn;wasnt;wont;ours;hasn;backes;" +
-    "theirs;thats;havent;backing;swcenter;isnt;" +
-    "doesnt;weve;theyll;shes;couldnt;aspx;" +
+    "couldn;wasnt;wont;ours;hasn;backes;gov;liv;" +
+    "theirs;thats;havent;backing;swcenter;isnt;ain;" +
+    "doesnt;weve;theyll;shes;couldnt;aspx;edu;" +
     "wouldnt;youre;arent;theyve;cant;whats;" +
-    "lasts;ject;anoth;" +
+    "lasts;ject;anoth;ons;iam;bri;nia;" +
     "departmentof;inamerican;uniquequalities;" +
     "officialcoordinating;toincorporate;asthe;" +
-    "performancegoals;" +
+    "performancegoals;org;www;aed;iat;" +
     "isbecause;returningfrom;scommission;" +
     "havingsufficient;incentiveto;westerncommunities;" +
     "itis;orbust;touristsran;andeconomic;stillhave;" +
@@ -69,7 +69,7 @@ namespace DGOLibrary
     "navsoapbox;navsubscriptions;navthumbinit;" +
     "navtopshelfabirthdayrantandloggerseason;" +
     "navwordonthestreet;nbsp;ndash;newsearch;" +
-    "newsmemory;newsnow;nocache;ntilde;";
+    "newsmemory;newsnow;nocache;ntilde;mstfp;";
 
 
 
