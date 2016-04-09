@@ -444,6 +444,21 @@ namespace DGOLibrary
     }
 
 
+  internal static int GetFirstNonASCII( string Word )
+    {
+    for( int Count = 0; Count < Word.Length; Count++ )
+      {
+      if( Word[Count] > '~' )
+        {
+        int Result = Word[Count];
+        return Result;
+        }
+      }
+
+    return -1;
+    }
+
+
   }
 }
 
