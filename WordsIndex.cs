@@ -21,7 +21,7 @@ namespace DGOLibrary
 
   public struct WordRec
     {
-    public string WordTail;
+    public string Word;
     public IntegerCollection IndexCol;
     }
 
@@ -96,6 +96,8 @@ namespace DGOLibrary
     if( Word == null )
       return "";
 
+    // It might get FixedUp() more than once, so trim
+    // it here each time.
     Word = Word.Trim().ToLower();
     int WLength = Word.Length;
 
@@ -111,15 +113,6 @@ namespace DGOLibrary
       return Word + " ";
 
     return Word;
-    }
-
-
-
-  private string RemoveHead( string InString )
-    {
-    // This assumes the string is at least 5
-    // characters long.
-    return InString.Remove( 0, 4 );
     }
 
 
@@ -142,19 +135,10 @@ namespace DGOLibrary
 
     int Last = WordsArray[Index0, Index1, Index2, Index3].WordRecArrayLast;
 
-    string Tail = Word;
-    if( !( (Index0 > 26) || // Non-ASCII is 27.
-           (Index1 > 26) ||
-           (Index2 > 26) ||
-           (Index3 > 26)))
-      {
-      Tail = RemoveHead( Word );
-      }
-
     // Sorted for a binary search?
     for( int Count = 0; Count < Last; Count++ )
       {
-      if( Tail == WordsArray[Index0, Index1, Index2, Index3].WordRecArray[Count].WordTail )
+      if( Word == WordsArray[Index0, Index1, Index2, Index3].WordRecArray[Count].Word )
         return true;
 
       }
@@ -190,17 +174,8 @@ namespace DGOLibrary
     if( null == WordsArray[Index0, Index1, Index2, Index3].WordRecArray )
       WordsArray[Index0, Index1, Index2, Index3].WordRecArray = new WordRec[8];
 
-    string Tail = Word;
-    if( !( (Index0 > 26) || // Non-ASCII is 27.
-           (Index1 > 26) ||
-           (Index2 > 26) ||
-           (Index3 > 26)))
-      {
-      Tail = RemoveHead( Word );
-      }
-
     WordRec Rec = new WordRec();
-    Rec.WordTail = Tail;
+    Rec.Word = Word;
     Rec.IndexCol = null; // IntegerCollection is empty.
     // Rec.Index = NextIndex;
     // NextIndex++;
@@ -235,23 +210,11 @@ namespace DGOLibrary
     int Index3 = GetLetterIndex( WordToMatch[3] );
 
     int Last = WordsArray[Index0, Index1, Index2, Index3].WordRecArrayLast;
+    string TrimMatch = WordToMatch.Trim();
     for( int Count = 0; Count < Last; Count++ )
       {
-      string CheckWord = WordsArray[Index0, Index1, Index2, Index3].WordRecArray[Count].WordTail;
-      if( !( (Index0 > 26) || // Non-ASCII is 27.
-             (Index1 > 26) ||
-             (Index2 > 26) ||
-             (Index3 > 26)))
-        {
-        CheckWord = Char.ToString( GetLetterFromIndex( Index0 )) +
-               Char.ToString( GetLetterFromIndex( Index1 )) +
-               Char.ToString( GetLetterFromIndex( Index2 )) +
-               Char.ToString( GetLetterFromIndex( Index3 )) +
-               CheckWord;
-
-        }
-
-      if( CheckWord.Trim() == WordToMatch )
+      string CheckWord = WordsArray[Index0, Index1, Index2, Index3].WordRecArray[Count].Word;
+      if( CheckWord.Trim() == TrimMatch )
         {
         if( null == WordsArray[Index0, Index1, Index2, Index3].WordRecArray[Count].IndexCol )
           {
@@ -288,7 +251,12 @@ namespace DGOLibrary
     // This will make a new one if need be.
     IntegerCollection IntCol = GetIntegerCollection( Word );
     if( IntCol == null )
+      {
       return; // There was an error.
+      }
+
+    // if( Word.Trim() == "aaa" )
+      // ShowStatus( "Adding the integer for aaa." );
 
     IntCol.AddInteger( PageIndex, true );
 
@@ -323,19 +291,7 @@ namespace DGOLibrary
             int Last = WordsArray[Index0, Index1, Index2, Index3].WordRecArrayLast;
             for( int Count = 0; Count < Last; Count++ )
               {
-              string Word = WordsArray[Index0, Index1, Index2, Index3].WordRecArray[Count].WordTail;
-              if( !( (Index0 > 26) || // Non-ASCII is 27.
-                     (Index1 > 26) ||
-                     (Index2 > 26) ||
-                     (Index3 > 26)))
-                {
-                Word = Char.ToString( GetLetterFromIndex( Index0 )) +
-                       Char.ToString( GetLetterFromIndex( Index1 )) +
-                       Char.ToString( GetLetterFromIndex( Index2 )) +
-                       Char.ToString( GetLetterFromIndex( Index3 )) +
-                       Word;
-
-                }
+              string Word = WordsArray[Index0, Index1, Index2, Index3].WordRecArray[Count].Word;
 
               IntegerCollection IntCol = WordsArray[Index0, Index1, Index2, Index3].WordRecArray[Count].IndexCol;
               string Line = "";
@@ -388,20 +344,7 @@ namespace DGOLibrary
             int Last = WordsArray[Index0, Index1, Index2, Index3].WordRecArrayLast;
             for( int Count = 0; Count < Last; Count++ )
               {
-              string Word = WordsArray[Index0, Index1, Index2, Index3].WordRecArray[Count].WordTail;
-              if( !( (Index0 > 26) || // Non-ASCII is 27.
-                     (Index1 > 26) ||
-                     (Index2 > 26) ||
-                     (Index3 > 26)))
-                {
-                Word = Char.ToString( GetLetterFromIndex( Index0 )) +
-                       Char.ToString( GetLetterFromIndex( Index1 )) +
-                       Char.ToString( GetLetterFromIndex( Index2 )) +
-                       Char.ToString( GetLetterFromIndex( Index3 )) +
-                       Word;
-
-                }
-
+              string Word = WordsArray[Index0, Index1, Index2, Index3].WordRecArray[Count].Word;
               IntegerCollection IntCol = WordsArray[Index0, Index1, Index2, Index3].WordRecArray[Count].IndexCol;
               string Line = "";
               if( IntCol == null )
@@ -490,8 +433,11 @@ namespace DGOLibrary
 
     if( FixedWord.Length != 0 )
       {
-      // MForm.ShowStatus( "To: " + FixedWord );
-      return FixedWord;
+      // "aaa" would go right through FixSuffix() with
+      // nothing happening.
+      if( WordExists( FixedWord ) )
+        return FixedWord;
+
       }
 
     ShowStatus( "Word? " + InWord );
