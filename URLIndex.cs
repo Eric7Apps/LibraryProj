@@ -53,6 +53,7 @@ namespace DGOLibrary
 
 
 
+
   private int GetRandomishIndex( string URL )
     {
     string URLKey = URL.ToLower();
@@ -640,8 +641,7 @@ namespace DGOLibrary
         if( Page1 == null )
           continue;
 
-        // Number of pages: 10,703
-        Page1.UpdateFromFile( Page1.GetTitle(), Page1.GetURL(), Page1.GetFileName(), false, Page1.GetRelativeURLBase(), true );
+        Page1.UpdateFromFile( Page1.GetTitle(), Page1.GetURL(), Page1.GetFileName(), false, Page1.GetRelativeURLBase(), false );
         }
       }
 
