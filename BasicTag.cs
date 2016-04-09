@@ -610,6 +610,10 @@ namespace DGOLibrary
     {
     // For tags that need work:
 
+    if( TagName == "base" )
+      return;
+
+
     if( TagName == "hl2" ) // HL2 Powerball.
       return;
 
