@@ -42,12 +42,6 @@ namespace DGOLibrary
     }
 
 
-  /*
-  internal WordsIndex GetMainWordsIndex()
-    {
-    return MainWordsIndex;
-    }
-    */
 
   internal void AddWord( string Word )
     {
