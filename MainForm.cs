@@ -21,7 +21,7 @@ namespace DGOLibrary
 {
   public partial class MainForm : Form
   {
-  internal const string VersionDate = "4/7/2016";
+  internal const string VersionDate = "4/9/2016";
   internal const int VersionNumber = 09; // 0.9
   internal const string MessageBoxTitle = "Library Project";
   private System.Threading.Mutex SingleInstanceMutex = null;
@@ -571,12 +571,14 @@ namespace DGOLibrary
 
   private void indexAllToolStripMenuItem_Click(object sender, EventArgs e)
     {
-    // PageList1.IndexAll();
     ParagraphFreqCtr.ClearAll();
     MainURLIndex.IndexAll();
     // ParagraphFreqCtr.SortByCount();
-    // ParagraphFreqCtr.ShowValues( 50 );
+    // ParagraphFreqCtr.ShowValues( 500 );
     // MainWordsData.ShowWordsAtZero();
+
+    // MainWordsData.WriteToTextFile();
+    // MainTextBox.AppendText( "Saved word index file.\r\n" ); 
     }
 
 
