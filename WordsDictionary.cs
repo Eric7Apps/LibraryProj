@@ -56,11 +56,12 @@ namespace DGOLibrary
         if( Line == "" )
           continue;
 
-        string[] SplitS = Line.Split( new Char[] { '\t' } );
-        if( SplitS.Length < 1 )
-          continue;
+        // string[] SplitS = Line.Split( new Char[] { '\t' } );
+        // if( SplitS.Length < 1 )
+          // continue;
 
-        string KeyWord = SplitS[0].Trim().ToLower();
+        // string KeyWord = SplitS[0].Trim().ToLower();
+        string KeyWord = Line.ToLower();
         if( ExcludedWords.IsExcluded( KeyWord ))
           {
           // if( KeyWord == "something or other" )
