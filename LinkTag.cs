@@ -171,10 +171,15 @@ namespace DGOLibrary
       return;
       }
 
-    if( !(LinkURL.StartsWith( "http://" ) ||
-          LinkURL.StartsWith( "https://" )))
-      LinkURL = GetRelativeURLBase() + LinkURL;
-      // LinkURL = "http://www.durangoherald.com" + LinkURL;
+
+    string RelativeBase = GetRelativeURLBase();
+    if( !RelativeBase.Contains( "www.durangogov.org" ))
+      {
+      if( !(LinkURL.StartsWith( "http://" ) ||
+            LinkURL.StartsWith( "https://" )))
+        LinkURL = RelativeBase + LinkURL;
+
+      }
 
     if( !LinkIsGood( LinkURL, Title, GetRelativeURLBase() ))
       {
@@ -318,7 +323,7 @@ namespace DGOLibrary
 
     // Part of Google's early success was because of
     // their algorithm that showed that a site was
-    // popular if a lot of other site linked to it.
+    // popular if a lot of other sites linked to it.
     // But for now this is ignoring links from one
     // domain to another.
 
@@ -328,62 +333,43 @@ namespace DGOLibrary
     // Don't do cross-site linking for now, like
     // from Durango city gov to Durango Herald or 
     // Telegraph.
-    // The Durango Gov page links to a page on the Herald
-    // or the Telegraph (the full link, not a relative
-    // link) but then that page has relative
-    // links in it like /section/COLUMNISTS07/something
-    // and so it applies the base URL of DurangoGov.org
-    // to make it:
-    // DurangoGov.org/section/COLUMNISTS07/something
-    // So don't get that full-link page in the first
-    // place.  Then it won't get the wrong relative
-    // links from that.
+    // The Durango Gov page serves up a page from the
+    // Herald that has relative links in it.
 
-    if( !TestURL.ToLower().StartsWith( BaseURL ))
+    if( !TestURL.StartsWith( BaseURL ))
       return true;
 
-    /*
+    // Durango Gov way of linking to a page on the Herald.
+    if( TestURL.Contains( "http://www.durangogov.orghttp://www.durangogov.org:80/" ))
+      return true;
+
     // All index.cfm?
     // If it's not .cfm is it on the Telegraph?
     // Does the Telegraph use a Cold Fusion (.cfm) server?
     if( TestURL.Contains( "www.durangogov.org/index.cfm/" ))
       return true;
 
-    // Is this on the Telegraph?
-    if( TestURL.Contains( "http://www.durangotelegraph.com/section/" ))
-      return true;
+    // Temporary fixes:
 
-    // And this?
-    if( TestURL.Contains( "http://www.durangotelegraph.com/article/" ))
+    // News articles from the Herald.
+    if( TestURL.Contains( "www.durangotelegraph.com/article/" ))
       return true;
-
-    // if( TestURL.Contains( "www.durangogov.org/index.cfm/archives/" ))
-      // return true;
 
     // www.durangogov.org/section/COLUMNISTS07
     if( TestURL.Contains( "www.durangogov.org/section/" ))
       return true;
 
-    // News articles from the Herald.
-    if( TestURL.Contains( "www.durangogov.org/article/" ))
-      return true;
-
+    // Telegraph?
     if( TestURL.Contains( "www.durangogov.org/archives/" ))
       return true;
 
     if( TestURL.Contains( "www.durangogov.org/contact/" ))
       return true;
 
-    // News archives or archived civic alerts?
-    if( TestURL.Contains( "www.durangogov.org/civicalerts.aspx?arc=" ))
+    if( TestURL.Contains( "/rss.aspx" ))
       return true;
 
-    */
-
-    // if( TestURL.Contains( "/sitemap.aspx" ))
-      // return true;
-
-    if( TestURL.Contains( "/rss.aspx" ))
+    if( TestURL.Contains( "/search/" ))
       return true;
 
     if( TestURL.Contains( "/myaccount.aspx?" ))
