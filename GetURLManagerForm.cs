@@ -172,14 +172,10 @@ namespace DGOLibrary
     // AddURLForm( "Durango Gov Social Media", "http://www.durangogov.org/Index.aspx?NID=79", true, false, "http://www.durangogov.org" );
     // AddURLForm( "Durango Gov Durango's Voice", "http://www.durangogov.org/index.aspx?NID=712", true, false, "http://www.durangogov.org" );
     // AddURLForm( "Durango Gov What's Happening", "http://www.durangogov.org/Index.aspx?NID=268", true, false, "http://www.durangogov.org" );
-
-    // Get the civic alerts, but take out Herald and
-    // Telegraph articles.
     AddURLForm( "Durango Gov City News", "http://www.durangogov.org/CivicAlerts.aspx", true, false, "http://www.durangogov.org" );
 
-    // Get the site map each time for new parts?
-    // http://www.durangogov.org/sitemap.aspx
-
+    // Get the site map each time to find new parts.
+    AddURLForm( "Durango Gov Site Map", "http://www.durangogov.org/sitemap.aspx", true, false, "http://www.durangogov.org" );
     AddURLForm( "Durango Gov Library", "http://www.durangogov.org/index.aspx?NID=220", true, false, "http://www.durangogov.org" );
     AddURLForm( "Durango Gov Meeting Calendar", "http://www.durangogov.org/index.aspx?NID=101", true, false, "http://www.durangogov.org" );
     AddURLForm( "Durango Gov Parks & Recreation", "http://www.durangogov.org/index.aspx?NID=222", true, false, "http://www.durangogov.org" );
@@ -188,6 +184,14 @@ namespace DGOLibrary
 
 
     AddURLForm( "Durango Telegraph Main Page", "http://www.durangotelegraph.com/", true, false, "http://www.durangotelegraph.com" );
+    AddURLForm( "Durango Telegraph Archives", "http://www.durangotelegraph.com/index.cfm/archives/", true, false, "http://www.durangotelegraph.com" );
+    AddURLForm( "Durango Telegraph Classifieds", "http://www.durangotelegraph.com/index.cfm/classifieds/", true, false, "http://www.durangotelegraph.com" );
+    AddURLForm( "Durango Telegraph News 1", "http://www.durangotelegraph.com/index.cfm/news1/", true, false, "http://www.durangotelegraph.com" );
+    AddURLForm( "Durango Telegraph Second Section", "http://www.durangotelegraph.com/index.cfm/second-section/", true, false, "http://www.durangotelegraph.com" );
+    AddURLForm( "Durango Telegraph News", "http://www.durangotelegraph.com/index.cfm/news/", true, false, "http://www.durangotelegraph.com" );
+
+
+    AddURLForm( "Mountain Town News", "http://mountaintownnews.net/", true, false, "http://mountaintownnews.net" );
     }
 
 
@@ -529,7 +533,7 @@ namespace DGOLibrary
     FreeOldForms();
 
     // Play nice and don't send requests too often.
-    if( QueueTime.GetSecondsToNow() > 2.0 )
+    if( QueueTime.GetSecondsToNow() > 1.0 )
       {
       // ShowStatus( "Timer for next in queue." );
       StartNextInQueue();
