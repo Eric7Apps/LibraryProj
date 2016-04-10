@@ -115,6 +115,12 @@ namespace DGOLibrary
       {
       return FixWordT( Word );
       }
+
+    if( Word[0] == 'u' )
+      {
+      return FixWordU( Word );
+      }
+
     if( Word[0] == 'w' )
       {
       return FixWordW( Word );
@@ -133,6 +139,9 @@ namespace DGOLibrary
 
   internal static string FixWordA( string Word )
     {
+    if( Word == "acclerating" )
+      return "accelerate";
+
     if( Word == "ariz" )
       return "arizona";
 
@@ -243,6 +252,9 @@ namespace DGOLibrary
 
   internal static string FixWordI( string Word )
     {
+    if( Word == "isitors" )
+      return "visitor";
+
     if( Word == "inacio" )
       return "ignacio";
 
@@ -300,6 +312,9 @@ namespace DGOLibrary
     // perseverate
     if( Word == "perservation" )
       return "preservation";
+
+    if( Word == "powdr" )
+      return "powder";
 
     if( Word == "pparenthood" )
       return "parenthood";
@@ -361,6 +376,17 @@ namespace DGOLibrary
 
     return Word;
     }
+
+
+
+  internal static string FixWordU( string Word )
+    {
+    if( Word == "utiltiies" )
+      return "utility";
+
+    return Word;
+    }
+
 
 
   internal static string FixWordW( string Word )
