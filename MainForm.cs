@@ -21,7 +21,7 @@ namespace DGOLibrary
 {
   public partial class MainForm : Form
   {
-  internal const string VersionDate = "4/9/2016";
+  internal const string VersionDate = "4/10/2016";
   internal const int VersionNumber = 09; // 0.9
   internal const string MessageBoxTitle = "Library Project";
   private System.Threading.Mutex SingleInstanceMutex = null;
@@ -32,6 +32,7 @@ namespace DGOLibrary
   private string TempFileDirectory = "";
   // private string PagesDirectory = "";
   private string PageFilesDirectory = "";
+  private string PageFilesCompressedDirectory = "";
   private string DataDirectory = "";
   private string WebPagesDirectory = "";
   private bool IsClosing = false;
@@ -44,7 +45,8 @@ namespace DGOLibrary
   internal NetIPStatus NetStats;
   internal WordsData MainWordsData;
   internal URLIndex MainURLIndex;
-  internal FrequencyCounter ParagraphFreqCtr;
+  internal FrequencyCounter FrequencyCtr;
+  internal PageCompress PageCompress1;
 
 
 
@@ -61,8 +63,8 @@ namespace DGOLibrary
     NetStats = new NetIPStatus( this );
     NetStats.ReadFromFile();
 
-    ParagraphFreqCtr = new FrequencyCounter( this );
-
+    FrequencyCtr = new FrequencyCounter( this );
+    PageCompress1 = new PageCompress( this );
     WordsDictionary1 = new WordsDictionary( this );
     MainWordsData = new WordsData( this );
     ScriptDictionary1 = new ScriptDictionary( this );
@@ -96,9 +98,9 @@ namespace DGOLibrary
     }
 
 
-  internal void AddParaGraphWordCount( string Word )
+  internal void AddFrequencyWordCount( string Word )
     {
-    ParagraphFreqCtr.AddString( Word );
+    FrequencyCtr.AddString( Word );
     }
 
 
@@ -137,18 +139,18 @@ namespace DGOLibrary
     {
     TempFileDirectory = "c:\\DGOLibProject\\TempFiles\\";
     PageFilesDirectory = "c:\\DGOLibProject\\PageFiles\\";
-    // PagesDirectory = "c:\\DGOLibProject\\Pages\\";
+    PageFilesCompressedDirectory = "c:\\DGOLibProject\\PageFilesCompressed\\";
     DataDirectory = Application.StartupPath + "\\Data\\";
     WebPagesDirectory = Application.StartupPath + "\\WebPages\\";
 
     if( !Directory.Exists( TempFileDirectory ))
       Directory.CreateDirectory( TempFileDirectory );
 
-    // if( !Directory.Exists( PagesDirectory ))
-      // Directory.CreateDirectory( PagesDirectory );
-
     if( !Directory.Exists( PageFilesDirectory ))
       Directory.CreateDirectory( PageFilesDirectory );
+
+    if( !Directory.Exists( PageFilesCompressedDirectory ))
+      Directory.CreateDirectory( PageFilesCompressedDirectory );
 
     if( !Directory.Exists( WebPagesDirectory ))
       Directory.CreateDirectory( WebPagesDirectory );
@@ -170,16 +172,16 @@ namespace DGOLibrary
     return TempFileDirectory;
     }
 
-  /*
-  internal string GetPagesDirectory()
-    {
-    return PagesDirectory;
-    }
-    */
 
   internal string GetPageFilesDirectory()
     {
     return PageFilesDirectory;
+    }
+
+
+  internal string GetPageFilesCompressedDirectory()
+    {
+    return PageFilesCompressedDirectory;
     }
 
 
@@ -458,6 +460,10 @@ namespace DGOLibrary
     // PageList1.ReadFromTextFile();
     MainURLIndex.ReadFromTextFile();
 
+    ShowStatus( "Reading PageCompress data..." );
+    PageCompress1.ReadFromTextFile();
+    // PageCompress1.ReadFromFrequencyFile();
+
     ShowStatus( "Reading script data..." );
     ScriptDictionary1.ReadFromTextFile();
 
@@ -489,7 +495,10 @@ namespace DGOLibrary
 
     // CheckTimer.Interval = 15 * 60 * 1000;
     // CheckTimer.Start();
+
+    // MainURLIndex.ShowCRCDistribution();
     }
+
 
 
   internal void ReadWebFileData()
@@ -549,15 +558,47 @@ namespace DGOLibrary
 
   private void MakeNonAsciiCharacters()
     {
-    // for( int Count = 0xa0; Count < 0xe0; Count++ )
-      // ShowStatus( Count.ToString( "X2" ) + ") " + Char.ToString( (char)Count ));
+    /*
+    Symbols:
+        General Punctuation (2000–206F)
+        Superscripts and Subscripts (2070–209F)
+        Currency Symbols (20A0–20CF)
+        Combining Diacritical Marks for Symbols (20D0–20FF)
+        Letterlike Symbols (2100–214F)
+        Number Forms (2150–218F)
+        Arrows (2190–21FF)
+        Mathematical Operators (2200–22FF)
+        Miscellaneous Technical (2300–23FF)
+        Control Pictures (2400–243F)
+        Optical Character Recognition (2440–245F)
+        Enclosed Alphanumerics (2460–24FF)
+        Box Drawing (2500–257F)
+        Block Elements (2580–259F)
+        Geometric Shapes (25A0–25FF)
+        Miscellaneous Symbols (2600–26FF)
+        Dingbats (2700–27BF)
+        Miscellaneous Mathematical Symbols-A (27C0–27EF)
+        Supplemental Arrows-A (27F0–27FF)
+        Braille Patterns (2800–28FF)
+        Supplemental Arrows-B (2900–297F)
+        Miscellaneous Mathematical Symbols-B (2980–29FF)
+        Supplemental Mathematical Operators (2A00–2AFF)
+        Miscellaneous Symbols and Arrows (2B00–2BFF)
+    */
+
+    // See the MarkersDelimiters.cs file.
+
+    // Don't exclude any characters in the Basic
+    // Multilingual Plane except these Dingbat characters
+    // which are used as markers or delimiters.
+    //    Dingbats (2700–27BF)
+    for( int Count = 0x2700; Count < 0x27BF; Count++ )
+      ShowStatus( Count.ToString( "X2" ) + ") " + Char.ToString( (char)Count ));
 
      // &#147;
-    int GetVal = 0x201c;
-    ShowStatus( "Character: " + Char.ToString( (char)GetVal ));
-
     // ShowStatus( " " );
-    // ShowStatus( "&#xad; " + Char.ToString( (char)0xad ));
+    // int GetVal = 187; // 0x201c;
+    // ShowStatus( "Character: " + Char.ToString( (char)GetVal ));
     }
 
 
@@ -571,11 +612,22 @@ namespace DGOLibrary
 
   private void indexAllToolStripMenuItem_Click(object sender, EventArgs e)
     {
-    ParagraphFreqCtr.ClearAll();
-    MainURLIndex.IndexAll();
-    // ParagraphFreqCtr.SortByCount();
-    // ParagraphFreqCtr.ShowValues( 500 );
+    FrequencyCtr.ClearAll();
+    MainURLIndex.IndexAll( false );
+    /*
+    ShowStatus( "Sorting..." );
+    FrequencyCtr.SortByCount();
+    ShowStatus( "Finished sorting." );
+    // FrequencyCtr.ShowValues( 500 );
+    FrequencyCtr.WriteToTextFile();
+    ShowStatus( "Saved the frequency file." );
     // MainWordsData.ShowWordsAtZero();
+    ShowStatus( "Reading PageCompress frequency data..." );
+    PageCompress1.ReadFromFrequencyFile();
+    ShowStatus( "Writing PageCompress data..." );
+    PageCompress1.WriteToTextFile();
+    ShowStatus( "Finished indexing everything." );
+    */
 
     // MainWordsData.WriteToTextFile();
     // MainTextBox.AppendText( "Saved word index file.\r\n" ); 
@@ -618,6 +670,12 @@ namespace DGOLibrary
     MainURLIndex.ShowDuplicateFileNames();
     }
 
+
+
+  private void compressAllToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+    MainURLIndex.IndexAll( true );
+    }
 
 
   }
