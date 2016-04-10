@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.IO;
 
 
 namespace DGOLibrary
@@ -16,6 +17,7 @@ namespace DGOLibrary
   private SortedDictionary<string, int> WordsDictionary;
   private StringRec[] StringRecArray;
   private int[] SortIndexArray;
+  private string FileName = "";
 
 
   public struct StringRec
@@ -36,6 +38,7 @@ namespace DGOLibrary
     MForm = UseForm;
 
     WordsDictionary = new SortedDictionary<string, int>();
+    FileName = MForm.GetDataDirectory() + "FrequencyCount.txt";
     }
 
 
@@ -48,6 +51,9 @@ namespace DGOLibrary
 
   internal void AddString( string InString )
     {
+    if( InString.Length < 3 )
+      return;
+
     InString = InString.ToLower();
     if( WordsDictionary.ContainsKey( InString ))
       {
@@ -75,6 +81,12 @@ namespace DGOLibrary
       StringRec Rec = new StringRec();
       Rec.Word = Kvp.Key;
       Rec.Count = Kvp.Value;
+
+      // Drastically improve sorting and file size by
+      // removing all of those unique or rare values.
+      if( Rec.Count < 3 )
+        continue;
+
       StringRecArray[Where] = Rec;
       SortIndexArray[Where] = Where;
       Where++;
@@ -97,8 +109,17 @@ namespace DGOLibrary
 
     MakeSortedArray();
 
+    int Loops = 0;
     while( true )
       {
+      Loops++;
+      if( (Loops & 0xFF) == 0 )
+        {
+        if( !MForm.CheckEvents())
+          return;
+
+        }
+
       bool Swapped = false;
 
       for( int Count = 0; Count < (StringRecArray.Length - 1); Count++ )
@@ -144,6 +165,38 @@ namespace DGOLibrary
       }
     }
 
+
+
+  internal bool WriteToTextFile()
+    {
+    try
+    {
+    using( StreamWriter SWriter = new StreamWriter( FileName, false, Encoding.UTF8 ))
+      {
+      for( int Count = 0; Count < StringRecArray.Length; Count++ )
+        {
+        int WordCount = StringRecArray[SortIndexArray[Count]].Count;
+        if( WordCount < 3 )
+          continue;
+
+        string Word = StringRecArray[SortIndexArray[Count]].Word;
+        // int Weight = WordCount * Word.Length;
+        string Line = WordCount.ToString() + "\t" + Word;
+        SWriter.WriteLine( Line );
+        }
+
+      SWriter.WriteLine( " " );
+      }
+
+    return true;
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Could not write the frequency data to the file." );
+      MForm.ShowStatus( Except.Message );
+      return false;
+      }
+    }
 
 
   }
