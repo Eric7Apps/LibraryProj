@@ -69,7 +69,7 @@ namespace DGOLibrary
     AddURLForm( "National / World", "http://www.durangoherald.com/section/News03/", true, false, "http://www.durangoherald.com" );
     AddURLForm( "Business", "http://www.durangoherald.com/section/News04/", true, false, "http://www.durangoherald.com" );
     AddURLForm( "Columnists", "http://www.durangoherald.com//section/Columnists/", true, false, "http://www.durangoherald.com" );
-    AddURLForm( "Obituaries", "http://obituaries.durangoherald.com/obituaries/durangoherald/", true, false, "http://www.durangoherald.com" );
+    AddURLForm( "Obituaries", "http://obituaries.durangoherald.com/obituaries/durangoherald/", true, false, "http://obituaries.durangoherald.com" );
     AddURLForm( "Education", "http://www.durangoherald.com/section/News05/", true, false, "http://www.durangoherald.com" );
     AddURLForm( "Good Earth", "http://www.durangoherald.com/section/News06/", true, false, "http://www.durangoherald.com" );
     AddURLForm( "Real Estate", "http://www.durangoherald.com/section/realestate/", true, false, "http://www.durangoherald.com" );
@@ -115,7 +115,7 @@ namespace DGOLibrary
     MForm.MainURLIndex.AddEmptyPage( "News Tip", "http://www.durangoherald.com/section/newstip/", "http://www.durangoherald.com" );
     MForm.MainURLIndex.AddEmptyPage( "RSS", "http://www.durangoherald.com/section/rss/", "http://www.durangoherald.com" );
     MForm.MainURLIndex.AddEmptyPage( "Staff Listing", "http://www.durangoherald.com/section/contact/", "http://www.durangoherald.com" );
-    MForm.MainURLIndex.AddEmptyPage( "Submit an Obituary", "http://obituaries.durangoherald.com/obituaries/durangoherald/obituary-place-an-obituary.aspx", "http://www.durangoherald.com" );
+    MForm.MainURLIndex.AddEmptyPage( "Submit an Obituary", "http://obituaries.durangoherald.com/obituaries/durangoherald/obituary-place-an-obituary.aspx", "http://obituaries.durangoherald.com" );
     MForm.MainURLIndex.AddEmptyPage( "SnowDown", "http://www.durangoherald.com/section/snowdown/", "http://www.durangoherald.com" );
     MForm.MainURLIndex.AddEmptyPage( "View Multimedia", "http://www.durangoherald.com/section/video/", "http://www.durangoherald.com" );
 
@@ -260,6 +260,15 @@ namespace DGOLibrary
 
   internal void AddURLForm( string Title, string URL, bool AddToPageList, bool ShowTitle, string RelativeURLBase )
     {
+    if( !URL.StartsWith( RelativeURLBase ))
+      {
+      MForm.ShowStatus( "Trying to add a URL to the GetURLManagerForm" );
+      MForm.ShowStatus( "with the wrong RelativeURLBase." );
+      MForm.ShowStatus( "RelativeURLBase: " + RelativeURLBase );
+      MForm.ShowStatus( "URL: " + URL );
+      return;
+      }
+
     // For when I start out with no pages in the page list.
     if( AddToPageList )
       {
