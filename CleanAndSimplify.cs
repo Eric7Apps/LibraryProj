@@ -38,7 +38,12 @@ namespace DGOLibrary
 
     // Replace some Unicode characters with ASCII.
     Result = Result.Replace( "”", "\"" );
+    Result = Result.Replace( "“", "\"" );
     Result = Result.Replace( "’", "'" );
+    Result = Result.Replace( "‘", "'" );
+
+    //                                   »
+    Result = Result.Replace( "&#0187;", " " );
 
     Result = Result.Replace( "&#x2013;", " " ); // A weird symbol.
     Result = Result.Replace( "&#x2018;", "'" );
