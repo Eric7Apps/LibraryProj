@@ -23,6 +23,7 @@ namespace DGOLibrary
   private int Index = 0;
   private string SearchableContents = "";
   private string FullFileContents = "";
+  private string CompressedFileContents = "";
   // private byte[] UTF8Contents;
   private string RelativeURLBase = "";
 
@@ -103,13 +104,6 @@ namespace DGOLibrary
     }
 
 
-  /*
-  internal void ClearFileName()
-    {
-    FileName = "";
-    }
-    */
-
 
   internal int GetIndex()
     {
@@ -187,8 +181,8 @@ namespace DGOLibrary
       FileContents = ReadFromTextFile( InFileName );
 
     if( FileContents == "" )
-      FileContents = ReadFromTextFile( InFileName );
-      // return;
+      return;
+      // FileContents = ReadFromTextFile( InFileName );
 
 
     if( FileContents.Contains( "The requested page could not be found." ))
@@ -276,6 +270,8 @@ namespace DGOLibrary
 
     // MoveContentsToUTF8( FileContents );
 
+    SplitForCompress( FileContents );
+
     string CleanContents = FileContents;
     FileContents = "";
 
@@ -330,9 +326,28 @@ namespace DGOLibrary
 
 
 
-  internal void ReadToFullFileContentsString( string InFileName )
+  private void SplitForCompress( string InString )
+    {
+    string[] SplitS = InString.Split( new Char[] { '>' } );
+    for( int Count = 0; Count < SplitS.Length; Count++ )
+      {
+      string Line = SplitS[Count];
+      Line = Line.Replace( "\r", MarkersDelimiters.CRReplace );
+      if( Line.Length >= PageCompress.MinimumStringLength )
+        AddFrequencyWordCount( Line );
+
+      }
+    }
+
+
+  internal void ReadToFullFileContentsString( string InFileName, bool SaveCompressed )
     {
     FullFileContents = ReadFromTextFile( InFileName );
+    if( SaveCompressed )
+      {
+      CompressedFileContents = MForm.PageCompress1.GetCompressedPage( FullFileContents );
+      WriteToCompressedTextFile( CompressedFileContents );
+      }
     }
 
 
@@ -364,12 +379,18 @@ namespace DGOLibrary
       "Y" + RightNow.GetLocalYear().ToString() + "\\";
 
     MakeNewDirectory( Path ); // If it needs to create a new one.
+    string CompressedPath = Path.Replace( "\\PageFiles\\", "\\PageFilesCompressed\\" );
+    MakeNewDirectory( CompressedPath );
 
     Path += "M" + RightNow.GetLocalMonth().ToString() + "\\";
     MakeNewDirectory( Path );
+    CompressedPath = Path.Replace( "\\PageFiles\\", "\\PageFilesCompressed\\" );
+    MakeNewDirectory( CompressedPath );
 
     Path += "D" + RightNow.GetLocalDay().ToString() + "\\";
     MakeNewDirectory( Path );
+    CompressedPath = Path.Replace( "\\PageFiles\\", "\\PageFilesCompressed\\" );
+    MakeNewDirectory( CompressedPath );
 
     string FileS = "H" + RightNow.GetLocalHour().ToString();
     FileS += "M" + RightNow.GetLocalMinute().ToString();
@@ -450,7 +471,7 @@ namespace DGOLibrary
         // <meta http-equiv="content-type" 
         // content="text/html; charset=utf-8" />
 
-        Line = Utility.GetCleanUnicodeString( Line, 1000000, true );
+        Line = Utility.GetCleanUnicodeString( Line, 10000000, false );
         if( Line.Length > 0 )
           SBuilder.Append( Line + "\r" );
 
@@ -467,6 +488,40 @@ namespace DGOLibrary
       }
     }
 
+
+
+  internal bool WriteToCompressedTextFile( string FileContents )
+    {
+    try
+    {
+    if( FileContents.Length < 1 )
+      return false;
+
+    string CompressedFileName = FileName.Replace( "\\PageFiles\\", "\\PageFilesCompressed\\" );
+    // This would be one big line.
+    string[] Lines = FileContents.Split( new Char[] { '\r' } );
+
+    using ( StreamWriter SWriter = new StreamWriter( FileName, false, Encoding.UTF8 ))
+      {
+      for( int Count = 0; Count < Lines.Length; Count++ )
+        {
+        string Line = Lines[Count];
+        if( Line.Trim().Length > 0 )
+          SWriter.WriteLine( Line );
+
+        }
+      }
+
+    return true;
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Could not write to the file." );
+      MForm.ShowStatus( FileName );
+      MForm.ShowStatus( Except.Message );
+      return false;
+      }
+    }
 
 
   internal bool WriteToTextFile( string FileContents )
@@ -647,9 +702,9 @@ namespace DGOLibrary
     }
 
 
-  internal void AddParaGraphWordCount( string Word )
+  internal void AddFrequencyWordCount( string Word )
     {
-    MForm.AddParaGraphWordCount( Word );
+    MForm.AddFrequencyWordCount( Word );
     }
 
 
