@@ -63,13 +63,20 @@ namespace DGOLibrary
       {
       char ToCheck = InString[Count];
 
-      // This removes tabs and CR and LF.
+      // Replace tabs and CR LF with spaces.
       if( ToCheck < ' ' )
-        continue;
+        ToCheck = ' '; // continue;
 
       //  Don't go higher than D800 (Surrogates).
       if( ToCheck >= 0xD800 )
-        continue;
+        ToCheck = ' '; // continue;
+
+      // Don't exclude any characters in the Basic
+      // Multilingual Plane except what are called
+      // the "Dingbat" characters which are used as
+      // markers or delimiters.
+      if( (ToCheck >= 0x2700) && (ToCheck <= 0x27BF))
+        ToCheck = ' '; // continue;
 
       SBuilder.Append( Char.ToString( ToCheck ));
       }
@@ -456,6 +463,50 @@ namespace DGOLibrary
       }
 
     return -1;
+    }
+
+
+
+  // This is a Cyclic Redundancy Check (CRC) function.
+  // CCITT is the international standards body.
+  // This CRC function is translated from a magazine
+  // article in Dr. Dobbs Journal.
+  // By Bob Felice, June 17, 2007
+  // But this is my C# translation of what was in that
+  // article.  (It was written in C.)
+  internal static uint GetCRC16( string InString )
+    {
+    // Different Polynomials can be used.
+    uint Polynomial = 0x8408;
+    uint crc = 0xFFFF;
+    if( InString == null )
+      return ~crc;
+
+    if( InString.Length == 0 )
+      return ~crc;
+
+    uint data = 0;
+    for( int Count = 0; Count < InString.Length; Count++ )
+      {
+      data = (uint)(0xFF & InString[Count] );
+      // For each bit in the data byte.
+      for( int i = 0; i < 8; i++ )
+        { 
+        if( 0 != ((crc & 0x0001) ^ (data & 0x0001)) )
+          crc = (crc >> 1) ^ Polynomial;
+        else
+          crc >>= 1;
+
+        data >>= 1;
+        }
+      }
+
+    crc = ~crc;
+    data = crc;
+    crc = (crc << 8) | ((data >> 8) & 0xFF);
+
+    // Just make sure it's 16 bits.
+    return crc & 0xFFFF;
     }
 
 
