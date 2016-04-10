@@ -339,7 +339,7 @@ namespace DGOLibrary
     if( !TestURL.StartsWith( BaseURL ))
       return true;
 
-    // Durango Gov way of linking to a page on the Herald.
+    // What is this?
     if( TestURL.Contains( "http://www.durangogov.orghttp://www.durangogov.org:80/" ))
       return true;
 
@@ -355,8 +355,14 @@ namespace DGOLibrary
     if( TestURL.Contains( "www.durangotelegraph.com/article/" ))
       return true;
 
+    if( TestURL.Contains( "www.durangotelegraph.org/section/" ))
+      return true;
+
     // www.durangogov.org/section/COLUMNISTS07
     if( TestURL.Contains( "www.durangogov.org/section/" ))
+      return true;
+
+    if( TestURL.Contains( "www.durangogov.org/article/" ))
       return true;
 
     // Telegraph?
