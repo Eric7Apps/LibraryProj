@@ -2,6 +2,7 @@
 // Notes on this source code are at:
 // ericlibproj.blogspot.com
 
+
 using System;
 using System.Text;
 using System.Collections.Generic;
@@ -18,9 +19,6 @@ namespace DGOLibrary
   private string[] URLStringsArray;
   private int URLStringsArrayLast = 0;
   private string FileName = "";
-
-
-  // Test this against PageList.
 
 
   public struct URLsRec
@@ -53,32 +51,35 @@ namespace DGOLibrary
 
 
 
-
-  private int GetRandomishIndex( string URL )
+  internal uint GetCRCHash( string URL )
     {
     string URLKey = URL.ToLower();
+    return Utility.GetCRC16( URLKey );
+    }
 
-    // Check: URLsRecArrayLength for the size of
-    // this index.
 
-    // Get a basic randomish index.
-    // A quick and easy (for now) hash function.
-    int Sum = 0;
-    int ExclusiveOR = 0;
-    for( int Count = 0; Count < URLKey.Length; Count++ )
+
+  internal void ShowCRCDistribution()
+    {
+    try
+    {
+    for( int Index = 0; Index < URLsRecArrayLength; Index++ )
       {
-      // A sum would be the same as Exclusive OR
-      // except that it has a carry bit.
-      Sum += (int)URLKey[Count];
+      if( URLsRecArray[Index].URLIndexArray ==  null )
+        continue;
 
-      // No carry bit.
-      ExclusiveOR = ExclusiveOR ^ (int)URLKey[Count];
-      } 
+      int Last = URLsRecArray[Index].URLIndexArrayLast;
+      MForm.ShowStatus( Index.ToString() + ") " + Last.ToString());
+      if( !MForm.CheckEvents())
+        return;
 
-    int Index = Sum & 0xFF;
-    Index <<= 8;
-    Index |= ExclusiveOR & 0xFF;
-    return Index; // A 16 bit number.
+      }
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Exception in URLIndex.ShowCRCDistribution():" );
+      MForm.ShowStatus( Except.Message );
+      }
     }
 
 
@@ -101,7 +102,7 @@ namespace DGOLibrary
       return null;
       }
 
-    int Index = GetRandomishIndex( ExistingURL );
+    uint Index = GetCRCHash( ExistingURL );
 
     if( URLsRecArray[Index].URLIndexArray ==  null )
       {
@@ -220,7 +221,8 @@ namespace DGOLibrary
     try
     {
     // This does ToLower().
-    int Index = GetRandomishIndex( URL );
+    uint Index = GetCRCHash( URL );
+
 
     if( URLsRecArray[Index].URLIndexArray ==  null )
       return false;
@@ -269,6 +271,7 @@ namespace DGOLibrary
     }
 
 
+
   internal void AddURL( string URL, Page PageToAdd )
     {
     try
@@ -290,15 +293,15 @@ namespace DGOLibrary
     if( URLStringsArrayLast >= URLStringsArray.Length )
       Array.Resize( ref URLStringsArray, URLStringsArray.Length + 1024 );
 
-    int Index = GetRandomishIndex( Rec.URL );
+    uint Index = GetCRCHash( Rec.URL );
 
     if( URLsRecArray[Index].URLIndexArray ==  null )
-      URLsRecArray[Index].URLIndexArray = new URLIndexRec[64];
+      URLsRecArray[Index].URLIndexArray = new URLIndexRec[16];
 
     URLsRecArray[Index].URLIndexArray[URLsRecArray[Index].URLIndexArrayLast] = Rec;
     URLsRecArray[Index].URLIndexArrayLast++;
     if( URLsRecArray[Index].URLIndexArrayLast >= URLsRecArray[Index].URLIndexArray.Length )
-      Array.Resize( ref URLsRecArray[Index].URLIndexArray, URLsRecArray[Index].URLIndexArray.Length + 64 );
+      Array.Resize( ref URLsRecArray[Index].URLIndexArray, URLsRecArray[Index].URLIndexArray.Length + 16 );
 
     }
     catch( Exception Except )
@@ -341,8 +344,7 @@ namespace DGOLibrary
     if( FixedURL.Length == 0 )
       return -1;
 
-    int Index = GetRandomishIndex( FixedURL );
-
+    uint Index = GetCRCHash( FixedURL );
     if( URLsRecArray[Index].URLIndexArray ==  null )
       return -1;
 
@@ -474,6 +476,9 @@ namespace DGOLibrary
     {
     try
     {
+    URLStringsArray = new string[1024];
+    URLStringsArrayLast = 0;
+
     for( int Index = 0; Index < URLsRecArrayLength; Index++ )
       {
       URLsRecArray[Index].URLIndexArray =  null;
@@ -566,7 +571,8 @@ namespace DGOLibrary
 
 
 
-  internal void ReadAllFilesToContent()
+
+  internal void ReadAllFilesToContent( bool SaveCompressed )
     {
     MForm.ShowStatus( "Start of ReadAllFilesToContent()." );
     int Loops = 0;
@@ -596,7 +602,7 @@ namespace DGOLibrary
         if( ReadFileName.Length < 1 )
           continue;
 
-        Page1.ReadToFullFileContentsString( ReadFileName );
+        Page1.ReadToFullFileContentsString( ReadFileName, SaveCompressed );
         // Page1.MoveContentsToUTF8( FileContents );
         }
       }
@@ -606,13 +612,13 @@ namespace DGOLibrary
 
 
 
-  internal void IndexAll()
+  internal void IndexAll( bool SaveCompressed )
     {
     try
     {
     ECTime StartTime = new ECTime();
     MForm.MainWordsData.ClearAllIntCollections();
-    ReadAllFilesToContent();
+    ReadAllFilesToContent( SaveCompressed );
 
     StartTime.SetToNow();
 
@@ -955,7 +961,6 @@ namespace DGOLibrary
       return null;
       }
     }
-
 
 
 
