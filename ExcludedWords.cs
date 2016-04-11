@@ -2,6 +2,8 @@
 // Notes on this source code are at:
 // ericlibproj.blogspot.com
 
+
+
 using System;
 using System.Text;
 
@@ -23,7 +25,7 @@ namespace DGOLibrary
     "how;could;get;only;where;while;many;may;" +
     "during;before;those;most;back;any;him;off;going;" +
     "much;since;even;being;then;use;these;still;" +
-    "says;both;such;another;did;say;very;" +
+    "says;both;such;another;did;say;very;div;" +
     "uses;take;along;goes;time;gets;made;half;" +
     "wouldn;didn;take;takes;mostly;used;along;" +
     "backed;does;lasted;having;came;doesn;isn;" +
