@@ -27,7 +27,7 @@ namespace DGOLibrary
   private string FileName = "";
   private string Title = "";
   private string RelativeURLBase = "";
-
+  private bool HadDownloadError = false;
 
   public struct HttpWorkerInfo
     {
@@ -281,8 +281,10 @@ namespace DGOLibrary
 
     if( ToShow.StartsWith( "Download Error:" ))
       {
+      HadDownloadError = true;
       MForm.ShowStatus( "Title: " + Title );
       MForm.ShowStatus( ToShow );
+      // e.Cancel = true;
       }
     
     // e.ProgressPercentage
@@ -316,8 +318,12 @@ namespace DGOLibrary
     // if( MForm.PageList1 != null )
       // MForm.PageList1.UpdatePageFromFile( Title, URLToGet, FileName, true, RelativeURLBase );
 
-    if( MForm.MainURLIndex != null )
-      MForm.MainURLIndex.UpdatePageFromFile( Title, URLToGet, FileName, true, RelativeURLBase, true );
+    if( !HadDownloadError )
+      {
+      if( MForm.MainURLIndex != null )
+        MForm.MainURLIndex.MakeNewFromFile( Title, URLToGet, FileName, RelativeURLBase );
+
+      }
 
     FileIsDone = true;
 
@@ -367,7 +373,7 @@ namespace DGOLibrary
     }
 
 
-
+  /*
   internal void SaveStatusToFile( string FileName )
     {
     try
@@ -388,6 +394,7 @@ namespace DGOLibrary
       return;
       }
     }
+    */
 
 
   }
