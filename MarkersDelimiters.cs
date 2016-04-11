@@ -1,3 +1,9 @@
+// Programming by Eric Chauvin.
+// Notes on this source code are at:
+// ericlibproj.blogspot.com
+
+
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,15 +20,25 @@ namespace DGOLibrary
   // Multilingual Plane except these characters
   // commonly known as Dingbat characters.
 
-  //    Dingbats (0x2700 to 0x27BF)
-  // 2700) ✀  // Used to replace \r character.
-  internal const string CRReplace = "✀"; // Char.ToString( (char)0x2700 );
-  // 2701) ✁  // Used to mark the beginning of an indexed line.
-  internal const string IndexBeginMark = "✁";
+  // All of these are 3 bytes in UTF8.
+  // So use something other than UTF8 for compression
+  // at the byte level.
+
+  // 2700) ✀  Used to replace \r character.
+  internal const char CRReplace = '✀'; // Char.ToString( (char)0x2700 );
+
+  // 2794) ➔  Used to mark the beginning of an indexed line.
+  internal const char IndexBeginMark = '➔';
+
+  // 2705) ✅  Used to delimit the field count.
+  internal const char FieldCountMark = '✅';
 
 
     /*
-2702) ✂
+  //    Dingbats (0x2700 to 0x27BF)
+
+  // 2701) ✁  
+  // 2702) ✂
 2703) ✃
 2704) ✄
 2705) ✅
@@ -168,7 +184,6 @@ namespace DGOLibrary
 2791) ➑
 2792) ➒
 2793) ➓
-2794) ➔
 2795) ➕
 2796) ➖
 2797) ➗
