@@ -23,7 +23,7 @@ namespace DGOLibrary
   private int Index = 0;
   private string SearchableContents = "";
   private string FullFileContents = "";
-  private string CompressedFileContents = "";
+  // private string CompressedFileContents = "";
   // private byte[] UTF8Contents;
   private string RelativeURLBase = "";
 
@@ -141,7 +141,193 @@ namespace DGOLibrary
 
 
 
-  internal void UpdateFromFile( string UseTitle, string UseURL, string InFileName, bool SetTime, string RelativeURL, bool ReadFromFile ) //, int UniqueNumber )
+  private void GetScriptAndComments( string FileContents )
+    {
+    // MForm.ShowStatus( "Code Comments:" );
+    FileContents = FileContents.ToLower();
+    string CommentLine = FileContents;
+
+    CommentLine = CommentLine.Replace( '\r', ' ' );
+    SortedDictionary<string, int> Lines = Utility.GetPatternsFromStartToEnd( "<!--", "-->", CommentLine );
+    if( Lines != null )
+      {
+      foreach( KeyValuePair<string, int> Kvp in Lines )
+        {
+        MForm.CodeCommentDictionary1.AddLine( Kvp.Key, RelativeURLBase );
+        // MForm.ShowStatus( Kvp.Key );
+        }
+      }
+
+    // MForm.ShowStatus( "Script:" );
+    string ScriptLine = FileContents;
+    ScriptLine = ScriptLine.Replace( '\r', ' ' );
+    Lines = Utility.GetPatternsFromStartToEnd( "<script", "/script>", ScriptLine );
+    if( Lines != null )
+      {
+      foreach( KeyValuePair<string, int> Kvp in Lines )
+        {
+        MForm.ScriptDictionary1.AddLine( Kvp.Key, RelativeURLBase );
+        // MForm.   AllWords.UpdateWord( Kvp.Key, URL );
+        // MForm.ShowStatus( Kvp.Key );
+        }
+      }
+    }
+
+
+
+  internal void ReindexFromFile()
+    {
+    try
+    {
+    SearchableContents = "";
+
+    // FullFileContents should have already been read.
+    string FileContents = FullFileContents;
+    if( FileContents == "" )
+      FileContents = ReadFromTextFile( FileName );
+
+    if( FileContents == "" )
+      return;
+
+
+    if( HasBadFileContents( FileContents, FileName ))
+      return;
+
+    if( !HasGoodBaseURLContents( FileContents ))
+      return;
+
+    /*
+    if( URL != ExistingURL )
+      {
+      MForm.ShowStatus( " " );
+      MForm.ShowStatus( "Title: " + Title );
+      MForm.ShowStatus( "URL is being fixed from: " + URL );
+      MForm.ShowStatus( "To: " + URL );
+      URL = ExistingURL;
+      }
+      */
+
+    // MForm.ShowStatus( " " );
+    // MForm.ShowStatus( " " );
+    // MForm.ShowStatus( "Title: " + Title );
+    // MForm.ShowStatus( "Updating: " + URL );
+    // MForm.ShowStatus( "File name: " + FileName );
+
+    // GetCleanUnicodeString() was done in
+    // ReadFromTextFile() for each line.
+
+    // Update the file's date/time stamp for testing
+    // so I know if the file was used.
+    //  WriteToTextFile( FileContents );
+
+    SplitForFrequencyData( FileContents );
+
+    string CleanContents = FileContents;
+    FileContents = "";
+
+    // ContentsUpdateTime.SetToNow();
+
+    //  GetScriptAndComments( CleanContents );
+
+    CleanContents = Utility.RemovePatternFromStartToEnd( "<!--", "-->", CleanContents );
+
+    // This will match <ScRipT.  It's not case sensitive.
+    CleanContents = Utility.RemovePatternFromStartToEnd( "<script", "/script>", CleanContents );
+
+    // Parse what's in the tags recursively.
+    BasicTag BTag = new BasicTag( this, CleanContents, RelativeURLBase );
+    BTag.MakeContainedTags();
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Exception in Page.ReindexFromFile()." );
+      MForm.ShowStatus( Except.Message );
+      }
+    }
+
+
+
+  private bool HasGoodBaseURLContents( string FileContents )
+    {
+    //var heatmap_pages = ['durangoherald.com', 'durangoherald.com/section/news01', 'durangoherald.com/section/sports', 'durangoherald.com/section/opinion', 'durangoherald.com/section/lifestyle'];
+
+    // href="http://e-herald.net"
+
+
+    FileContents = FileContents.ToLower();
+
+    ////////
+    if( RelativeURLBase == "http://www.durangoherald.com" )
+      {
+      if( FileContents.Contains( "http://www.durangotelegraph.com" ))
+        {
+        MForm.ShowStatus( " " );
+        MForm.ShowStatus( "A page from the Herald contains a full link to the Telegraph." );
+        MForm.ShowStatus( "Title: " + Title );
+        MForm.ShowStatus( "URL: " + URL );
+        return false;
+        }
+
+      if( FileContents.Contains( "http://www.durangogov.org" ))
+        {
+        MForm.ShowStatus( " " );
+        MForm.ShowStatus( "A page from the Herald contains a full link to the Durango Gov." );
+        MForm.ShowStatus( "Title: " + Title );
+        MForm.ShowStatus( "URL: " + URL );
+        }
+      }
+
+
+    //////////
+    if( RelativeURLBase == "http://www.durangotelegraph.com" )
+      {
+      if( FileContents.Contains( "http://www.durangoherald.com" ))
+        {
+        MForm.ShowStatus( " " );
+        MForm.ShowStatus( "A page from the Telegraph contains a full link to the Herald." );
+        MForm.ShowStatus( "Title: " + Title );
+        MForm.ShowStatus( "URL: " + URL );
+        return false;
+        }
+
+      if( FileContents.Contains( "http://www.durangogov.org" ))
+        {
+        MForm.ShowStatus( " " );
+        MForm.ShowStatus( "A page from the Telegraph contains a full link to Durango Gov." );
+        MForm.ShowStatus( "Title: " + Title );
+        MForm.ShowStatus( "URL: " + URL );
+        }
+      }
+
+
+    /////////
+    if( RelativeURLBase == "http://www.durangogov.org" )
+      {
+      if( FileContents.Contains( "http://www.durangoherald.com" ))
+        {
+        MForm.ShowStatus( " " );
+        MForm.ShowStatus( "A page from Durango Gov contains a full link to the Herald." );
+        MForm.ShowStatus( "Title: " + Title );
+        MForm.ShowStatus( "URL: " + URL );
+        return false;
+        }
+
+      if( FileContents.Contains( "http://www.durangotelegraph.com" ))
+        {
+        MForm.ShowStatus( " " );
+        MForm.ShowStatus( "A page from Durango Gov contains a full link to the Telegraph." );
+        MForm.ShowStatus( "Title: " + Title );
+        MForm.ShowStatus( "URL: " + URL );
+        return false;
+        }
+      }
+
+    return true;
+    }
+
+
+
+  internal void MakeNewFromFile( string UseTitle, string UseURL, string InFileName, string RelativeURL )
     {
     try
     {
@@ -158,103 +344,37 @@ namespace DGOLibrary
       return;
       }
 
-    // if( URL.Length > 0 )
-      // if( URL != UseURL )
+    // This might not be a new page.  It might be like
+    // one of the main pages that keeps getting
+    // downloaded to be updated.  So leave it with
+    // the original title and things if that's true.
 
-    URL = UseURL;
-    RelativeURLBase = RelativeURL;
-    if( Title.Length > 0 )
-      {
-      if( Title != UseTitle )
-        {
-        // MForm.ShowStatus( "The title is not being changed." );
-        }
-      }
-    else
-      {
-      // Truncate the title if it's too long.
+    if( URL.Length < 3 )
+      URL = UseURL;
+
+    if( RelativeURLBase.Length < 3 )
+      RelativeURLBase = RelativeURL.ToLower();
+
+    // Truncate the title if it's too long.
+    if( Title.Length < 3 )
       Title = Utility.TruncateString( UseTitle, 500 );
-      }
 
-    string FileContents = FullFileContents;
-    if( ReadFromFile )
-      FileContents = ReadFromTextFile( InFileName );
-
+    // GetCleanUnicodeString() is done in
+    // ReadFromTextFile() for each line.
+    string FileContents = ReadFromTextFile( InFileName );
     if( FileContents == "" )
       return;
-      // FileContents = ReadFromTextFile( InFileName );
 
-
-    if( FileContents.Contains( "The requested page could not be found." ))
-      {
-      MForm.ShowStatus( "This link is bad. (404)" );
-      MForm.ShowStatus( "URL is: " + URL );
-      // MForm.ShowStatus( "Deleting File: " + InFileName );
-      File.Delete( InFileName );
-      FileContents = "";
+    if( HasBadFileContents( FileContents, InFileName ))
       return;
-      }
 
-    if( FileContents.Contains( "sorry, but there is not a web page matching your entry." ))
-      {
-      MForm.ShowStatus( "This link is bad. (404)" );
-      MForm.ShowStatus( "URL is: " + URL );
-      // MForm.ShowStatus( "Deleting File: " + InFileName );
-      File.Delete( InFileName );
-      FileContents = "";
+    if( !HasGoodBaseURLContents( FileContents ))
       return;
-      }
 
-    if( FileContents.StartsWith( "%PDF-" ))
-      {
-      MForm.ShowStatus( "This is a PDF file." );
-      MForm.ShowStatus( "URL is: " + URL );
-      // MForm.ShowStatus( "Deleting File: " + InFileName );
-      File.Delete( InFileName );
-      FileContents = "";
-      return;
-      }
+    if( FileName.Length < 3 )
+      FileName = MakeNewFileName(); // UniqueNumber );
 
-    if( FileContents.Contains( "https://n26.network-auth.com/splash/" ))
-      {
-      // Obviously this is not running on a real server
-      // when this happens.
-      MForm.ShowStatus( "Cancelled because WiFi access needs OK." );
-      // MForm.ShowStatus( "Deleting File: " + InFileName );
-      File.Delete( InFileName );
-      MForm.SetCancelled();
-      return;
-      }
-
-    if( !FileContents.Contains( "<html" ))
-      {
-      if( !FileContents.Contains( "<HTML" ))
-        {
-        MForm.ShowStatus( "This is not an HTML file." );
-        // MForm.ShowStatus( "Deleting File: " + InFileName );
-        File.Delete( InFileName );
-        FileContents = "";
-        return;
-        }
-      }
-
-    // MForm.ShowStatus( "Checking original FileName: " + FileName );
-
-    // Notice that a main page like the ones added in
-    // GetURLManagerForm.cs will have a file name that has
-    // the date when it was first created.
-    if( ReadFromFile )
-      {
-      if( FileName.Length < 1 )
-        FileName = MakeNewFileName(); // UniqueNumber );
-
-      }
-    else
-      {
-      if( FileName.Length < 1 )
-        FileName = InFileName;
-
-      }
+    WriteToTextFile( FileContents );
 
     // MForm.ShowStatus( " " );
     // MForm.ShowStatus( " " );
@@ -262,51 +382,12 @@ namespace DGOLibrary
     // MForm.ShowStatus( "Updating: " + URL );
     // MForm.ShowStatus( "File name: " + FileName );
 
-    // GetCleanUnicodeString() was done in
-    // ReadFromTextFile() for each line.
-
-    if( ReadFromFile )
-      WriteToTextFile( FileContents );
-
-    // MoveContentsToUTF8( FileContents );
-
-    SplitForCompress( FileContents );
-
     string CleanContents = FileContents;
     FileContents = "";
 
-    if( SetTime )
-      ContentsUpdateTime.SetToNow();
+    ContentsUpdateTime.SetToNow();
 
-    if( ReadFromFile )
-      {
-      // MForm.ShowStatus( "Code Comments:" );
-      string CommentLine = CleanContents.ToLower();
-      CommentLine = CommentLine.Replace( "\r", " " );
-      SortedDictionary<string, int> Lines = Utility.GetPatternsFromStartToEnd( "<!--", "-->", CommentLine );
-      if( Lines != null )
-        {
-        foreach( KeyValuePair<string, int> Kvp in Lines )
-          {
-          MForm.CodeCommentDictionary1.AddLine( Kvp.Key, RelativeURLBase );
-          // MForm.ShowStatus( Kvp.Key );
-          }
-        }
-
-      // MForm.ShowStatus( "Script:" );
-      string ScriptLine = CleanContents.ToLower();
-      ScriptLine = ScriptLine.Replace( "\r", " " );
-      Lines = Utility.GetPatternsFromStartToEnd( "<script", "/script>", ScriptLine );
-      if( Lines != null )
-        {
-        foreach( KeyValuePair<string, int> Kvp in Lines )
-          {
-          MForm.ScriptDictionary1.AddLine( Kvp.Key, RelativeURLBase );
-          // MForm.   AllWords.UpdateWord( Kvp.Key, URL );
-          // MForm.ShowStatus( Kvp.Key );
-          }
-        }
-      }
+    GetScriptAndComments( CleanContents );
 
     CleanContents = Utility.RemovePatternFromStartToEnd( "<!--", "-->", CleanContents );
 
@@ -319,34 +400,112 @@ namespace DGOLibrary
     }
     catch( Exception Except )
       {
-      MForm.ShowStatus( "Exception in Page.UpdateFromFile()." );
+      MForm.ShowStatus( "Exception in Page.MakeNewFromFile()." );
       MForm.ShowStatus( Except.Message );
       }
     }
 
 
 
-  private void SplitForCompress( string InString )
+  private bool HasBadFileContents( string FileContents, string InFileName )
+    {
+    if( FileContents.Contains( "The requested page could not be found." ))
+      {
+      MForm.ShowStatus( "This link is bad. (404)" );
+      MForm.ShowStatus( "URL is: " + URL );
+      // MForm.ShowStatus( "Deleting File: " + InFileName );
+      File.Delete( InFileName );
+      return true;
+      }
+
+    if( FileContents.Contains( "sorry, but there is not a web page matching your entry." ))
+      {
+      MForm.ShowStatus( "This link is bad. (404)" );
+      MForm.ShowStatus( "URL is: " + URL );
+      // MForm.ShowStatus( "Deleting File: " + InFileName );
+      File.Delete( InFileName );
+      return true;
+      }
+
+    if( FileContents.StartsWith( "%PDF-" ))
+      {
+      MForm.ShowStatus( "This is a PDF file." );
+      MForm.ShowStatus( "URL is: " + URL );
+      // MForm.ShowStatus( "Deleting File: " + InFileName );
+      File.Delete( InFileName );
+      return true;
+      }
+
+    if( FileContents.Contains( "https://n26.network-auth.com/splash/" ))
+      {
+      // Obviously this is not running on a real server
+      // when this happens.
+      MForm.ShowStatus( "Cancelled because WiFi access needs OK." );
+      // MForm.ShowStatus( "Deleting File: " + InFileName );
+      File.Delete( InFileName );
+      MForm.SetCancelled();
+      return true;
+      }
+
+    if( !FileContents.Contains( "<html" ))
+      {
+      if( !FileContents.Contains( "<HTML" ))
+        {
+        MForm.ShowStatus( "This is not an HTML file." );
+        // MForm.ShowStatus( "Deleting File: " + InFileName );
+        File.Delete( InFileName );
+        return true;
+        }
+      }
+
+    return false;
+    }
+
+
+
+  private void SplitForFrequencyData( string InString )
     {
     string[] SplitS = InString.Split( new Char[] { '>' } );
     for( int Count = 0; Count < SplitS.Length; Count++ )
       {
       string Line = SplitS[Count];
-      Line = Line.Replace( "\r", MarkersDelimiters.CRReplace );
+
+      Line = Line.Replace( '\r', MarkersDelimiters.CRReplace );
       if( Line.Length >= PageCompress.MinimumStringLength )
-        AddFrequencyWordCount( Line );
+        MForm.AddFrequencyWordCount2( Line );
 
       }
     }
 
 
-  internal void ReadToFullFileContentsString( string InFileName, bool SaveCompressed )
+
+  internal void ReadToFullFileContentsString( string InFileName )
     {
     FullFileContents = ReadFromTextFile( InFileName );
-    if( SaveCompressed )
+    }
+
+
+
+  internal void ReadFullAndWriteToCompressed( string InFileName )
+    {
+    string FileContents = ReadFromTextFile( InFileName );
+    // It can do without the space or CR after the
+    // last </html> tag.
+    string TrimmedFileContents = FileContents.Trim();
+
+    string CompressedFileContents = MForm.PageCompress1.GetCompressedPage( TrimmedFileContents );
+    WriteToCompressedTextFile( CompressedFileContents );
+    string Test = MForm.PageCompress1.GetDecompressedPage( CompressedFileContents );
+    int DiffAt = Utility.FirstDifferentCharacter( Test, TrimmedFileContents );
+
+    if( Test != TrimmedFileContents )
       {
-      CompressedFileContents = MForm.PageCompress1.GetCompressedPage( FullFileContents );
-      WriteToCompressedTextFile( CompressedFileContents );
+      string ShowS = "DiffAt: " + DiffAt.ToString() +
+        "\r\nFileContents:\r\n" + FileContents +
+        "\r\n\r\nTest:\r\n" + Test +
+        "\r\n\r\nCompressedFileContents:\r\n" + CompressedFileContents;
+
+      throw( new Exception( "Test != FileContents.\r\n" + ShowS ));
       }
     }
 
@@ -501,7 +660,7 @@ namespace DGOLibrary
     // This would be one big line.
     string[] Lines = FileContents.Split( new Char[] { '\r' } );
 
-    using ( StreamWriter SWriter = new StreamWriter( FileName, false, Encoding.UTF8 ))
+    using ( StreamWriter SWriter = new StreamWriter( CompressedFileName, false, Encoding.UTF8 ))
       {
       for( int Count = 0; Count < Lines.Length; Count++ )
         {
@@ -516,12 +675,13 @@ namespace DGOLibrary
     }
     catch( Exception Except )
       {
-      MForm.ShowStatus( "Could not write to the file." );
-      MForm.ShowStatus( FileName );
+      MForm.ShowStatus( "Could not write to the compressed file." );
+      // MForm.ShowStatus( CompressedFileName );
       MForm.ShowStatus( Except.Message );
       return false;
       }
     }
+
 
 
   internal bool WriteToTextFile( string FileContents )
@@ -702,9 +862,9 @@ namespace DGOLibrary
     }
 
 
-  internal void AddFrequencyWordCount( string Word )
+  internal void AddFrequencyWordCount2( string Word )
     {
-    MForm.AddFrequencyWordCount( Word );
+    MForm.AddFrequencyWordCount2( Word );
     }
 
 
