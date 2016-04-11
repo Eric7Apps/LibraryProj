@@ -510,6 +510,57 @@ namespace DGOLibrary
     }
 
 
+
+  internal static int CountCharacters( string InString, char CountChar )
+    {
+    if( InString == null )
+      return 0;
+
+    if( InString.Length == 0 )
+      return 0;
+
+    int Total = 0;
+    for( int Count = 0; Count < InString.Length; Count++ )
+      {
+      if( CountChar == InString[Count] )
+        Total++;
+
+      }
+
+    return Total;
+    }
+
+
+
+  internal static int FirstDifferentCharacter( string InString1, string InString2 )
+    {
+    if( InString1 == null )
+      return 0;
+
+    if( InString2 == null )
+      return 0;
+
+    if( InString1.Length == 0 )
+      return 0;
+
+    if( InString2.Length == 0 )
+      return 0;
+
+    int ShortestLength = InString1.Length;
+    if( ShortestLength > InString2.Length )
+      ShortestLength = InString2.Length;
+
+    for( int Count = 0; Count < ShortestLength; Count++ )
+      {
+      if( InString1[Count] != InString2[Count] )
+        return Count;
+
+      }
+
+    return -1;
+    }
+
+
   }
 }
 
