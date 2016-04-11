@@ -84,7 +84,7 @@ namespace DGOLibrary
 
 
 
-  internal Page GetPage( string URL )
+  internal Page GetPage( string URL, bool ShowNew )
     {
     try
     {
@@ -120,6 +120,9 @@ namespace DGOLibrary
         Page Result =  URLsRecArray[Index].URLIndexArray[Count].PageForURL;
         if( Result == null )
           {
+          if( ShowNew )
+            MForm.ShowStatus( "Made a new page for: " + ExistingURL );
+
           Result = new Page( MForm );
           URLsRecArray[Index].URLIndexArray[Count].PageForURL = Result;
           }
@@ -369,7 +372,7 @@ namespace DGOLibrary
 
 
 
-  internal void UpdatePageFromFile( string Title, string URL, string FileName, bool SetTime, string RelativeURLBase, bool ReadFromFile )
+  internal void MakeNewFromFile( string Title, string URL, string FileName, string RelativeURLBase )
     {
     try
     {
@@ -403,7 +406,7 @@ namespace DGOLibrary
       }
 
     // It will create an empty one if it doesn't have it.
-    Page UsePage = GetPage( ExistingURL );
+    Page UsePage = GetPage( ExistingURL, false );
     if( UsePage == null )
       {
       MForm.ShowStatus( "There was an error getting the page for:" );
@@ -421,11 +424,75 @@ namespace DGOLibrary
     // to this URLIndex to get the indexes for every
     // URL in the links it is adding.  So while this
     // is being called, new URLs are being added.
-    UsePage.UpdateFromFile( Title, ExistingURL, FileName, SetTime, RelativeURLBase, ReadFromFile );
+    UsePage.MakeNewFromFile( Title, ExistingURL, FileName, RelativeURLBase );
     }
     catch( Exception Except )
       {
-      MForm.ShowStatus( "Exception in URLIndex.UpdatePageFromFile():" );
+      MForm.ShowStatus( "Exception in URLIndex.MakeNewFromFile():" );
+      MForm.ShowStatus( Except.Message );
+      }
+    }
+
+
+
+  internal void ReindexFromFile( string Title, string URL, string FileName, string RelativeURLBase )
+    {
+    try
+    {
+    if( URL == null )
+      return;
+
+    if( Title == null )
+      return;
+
+    if( LinkTag.LinkIsBad( URL, Title, RelativeURLBase ))
+      return;
+
+    if( URL.Length < 10 )
+      {
+      MForm.ShowStatus( "URL is too short in ReindexFromFile()." );
+      return;
+      }
+
+    if( Title.Length < 3 )
+      {
+      MForm.ShowStatus( "Title is too short in ReindexFromFile()." );
+      MForm.ShowStatus( "Title: " + Title );
+      return;
+      }
+
+    string ExistingURL = GetExistingURL( URL );
+    if( ExistingURL.Length == 0 )
+      {
+      MForm.ShowStatus( "No existing URL for reindexing." );
+      MForm.ShowStatus( "URL: " + URL );
+      return;
+      }
+
+    // It will create an empty one if it doesn't have it.
+    Page UsePage = GetPage( ExistingURL, true );
+    if( UsePage == null )
+      {
+      MForm.ShowStatus( "There was an error getting the page for:" );
+      MForm.ShowStatus( ExistingURL );
+      return;
+      }
+
+    // Notice that if the URL aleady exists then
+    // the contents of that page are updated but
+    // the old contents are not saved.  So for example
+    // the main index page at www.durangoherald.com
+    // is updated but the old one is not saved.
+
+    // When this page gets parsed it will refer back
+    // to this URLIndex to get the indexes for every
+    // URL in the links it is adding.  So while this
+    // is being called, new URLs are being added.
+    UsePage.ReindexFromFile();
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Exception in URLIndex.ReindexFromFile():" );
       MForm.ShowStatus( Except.Message );
       }
     }
@@ -572,8 +639,15 @@ namespace DGOLibrary
 
 
 
-  internal void ReadAllFilesToContent( bool SaveCompressed )
+  internal void ReadAllFilesToContent2()
     {
+    // The Windows Antimalware Service executible is
+    // taking almost all of the CPU time the first
+    // time this is run if the computer has been turned
+    // off.  But apparently it knows if it hasn't been
+    // written to since then, if this is run again.
+    // So the second time it runs it's much faster.
+
     MForm.ShowStatus( "Start of ReadAllFilesToContent()." );
     int Loops = 0;
 
@@ -602,7 +676,7 @@ namespace DGOLibrary
         if( ReadFileName.Length < 1 )
           continue;
 
-        Page1.ReadToFullFileContentsString( ReadFileName, SaveCompressed );
+        Page1.ReadToFullFileContentsString( ReadFileName );
         // Page1.MoveContentsToUTF8( FileContents );
         }
       }
@@ -612,13 +686,61 @@ namespace DGOLibrary
 
 
 
-  internal void IndexAll( bool SaveCompressed )
+  internal void MakeCompressedFiles()
+    {
+    try
+    {
+    MForm.ShowStatus( "Start of MakeCompressedFiles()." );
+    int Loops = 0;
+
+    for( int Index = 0; Index < URLsRecArrayLength; Index++ )
+      {
+      if( URLsRecArray[Index].URLIndexArray ==  null )
+        continue;
+
+      int Last = URLsRecArray[Index].URLIndexArrayLast;
+      for( int Count = 0; Count < Last; Count++ )
+        {
+        Loops++;
+        if( (Loops & 0x3F) == 0 )
+          {
+          MForm.ShowStatus( "Compressing Files: " + Loops.ToString( "N0" ));
+          if( !MForm.CheckEvents())
+            return;
+
+          }
+
+        Page Page1 =  URLsRecArray[Index].URLIndexArray[Count].PageForURL;
+        if( Page1 == null )
+          continue;
+
+        string ReadFileName = Page1.GetFileName();
+        if( ReadFileName.Length < 1 )
+          continue;
+
+        Page1.ReadFullAndWriteToCompressed( ReadFileName );
+        }
+      }
+
+    MForm.ShowStatus( "Finished MakeCompressedFiles()." );
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Exception in URLIndex.MakeCompressedFiles()." );
+      MForm.ShowStatus( Except.Message );
+      }
+    }
+
+
+
+  internal void IndexAll( bool ReadFilesFirst )
     {
     try
     {
     ECTime StartTime = new ECTime();
     MForm.MainWordsData.ClearAllIntCollections();
-    ReadAllFilesToContent( SaveCompressed );
+    if( ReadFilesFirst )
+      ReadAllFilesToContent2();
 
     StartTime.SetToNow();
 
@@ -638,16 +760,13 @@ namespace DGOLibrary
           if( !MForm.CheckEvents())
             return;
 
-          if( MForm.GetIsClosing() )
-            return;
-
           }
 
         Page Page1 =  URLsRecArray[Index].URLIndexArray[Count].PageForURL;
         if( Page1 == null )
           continue;
 
-        Page1.UpdateFromFile( Page1.GetTitle(), Page1.GetURL(), Page1.GetFileName(), false, Page1.GetRelativeURLBase(), false );
+        Page1.ReindexFromFile();
         }
       }
 
@@ -665,6 +784,54 @@ namespace DGOLibrary
       }
     }
 
+
+  /* duplicate to erase ======
+  internal void MakeCompressedFiles()
+    {
+    try
+    {
+    ECTime StartTime = new ECTime();
+    StartTime.SetToNow();
+
+    int Loops = 0;
+    for( int Index = 0; Index < URLsRecArrayLength; Index++ )
+      {
+      if( URLsRecArray[Index].URLIndexArray ==  null )
+        continue;
+
+      int Last = URLsRecArray[Index].URLIndexArrayLast;
+      for( int Count = 0; Count < Last; Count++ )
+        {
+        Loops++;
+        if( (Loops & 0x1F) == 0 )
+          {
+          MForm.ShowStatus( "Compressed Files: " + Loops.ToString( "N0" ));
+          if( !MForm.CheckEvents())
+            return;
+
+          }
+
+        Page Page1 =  URLsRecArray[Index].URLIndexArray[Count].PageForURL;
+        if( Page1 == null )
+          continue;
+
+        Page1.ReadFullAndWriteToCompressed( Page1.GetFileName() );
+        }
+      }
+
+    MForm.ShowStatus( " " );
+    int Seconds = (int)StartTime.GetSecondsToNow();
+    int Minutes = Seconds / 60;
+    Seconds = Seconds % 60;
+    MForm.ShowStatus( "Finished writing to compressed files: " + Minutes.ToString( "N0" ) + ":" + Seconds.ToString());
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Exception in URLIndex.MakeCompressedFiles()." );
+      MForm.ShowStatus( Except.Message );
+      }
+    }
+    */
 
 
   internal void ShowDuplicateFileNames()
@@ -910,8 +1077,8 @@ namespace DGOLibrary
         if( !Contents.Contains( "library" ))
           continue;
 
-        if( !Contents.Contains( "carnegie" ))
-          continue;
+        // if( !Contents.Contains( "carnegie" ))
+          // continue;
 
         MForm.ShowStatus( " " );
         MForm.ShowStatus( " " );
@@ -1024,7 +1191,7 @@ namespace DGOLibrary
           continue;
           }
 
-        Page SendPage = GetPage( URL );
+        Page SendPage = GetPage( URL, false );
         if( SendPage == null )
           {
           MForm.ShowStatus( "The page was null for: " + URL );
