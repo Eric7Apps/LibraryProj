@@ -171,17 +171,15 @@ namespace DGOLibrary
       return;
       }
 
+    // If a page on Durango Gov is really from the
+    // Telegraph (for example) then this will give it
+    // the base URL of the server that served it up.
+    string RelativeBase = GetRelativeURL();
+    if( !(LinkURL.StartsWith( "http://" ) ||
+          LinkURL.StartsWith( "https://" )))
+      LinkURL = RelativeBase + LinkURL;
 
-    string RelativeBase = GetRelativeURLBase();
-    if( !RelativeBase.Contains( "www.durangogov.org" ))
-      {
-      if( !(LinkURL.StartsWith( "http://" ) ||
-            LinkURL.StartsWith( "https://" )))
-        LinkURL = RelativeBase + LinkURL;
-
-      }
-
-    if( !LinkIsGood( LinkURL, Title, GetRelativeURLBase() ))
+    if( !LinkIsGood( LinkURL, Title, GetRelativeURL() ))
       {
       // GetCallingPage().AddStatusString( "Not using URL: " + LinkURL, 500 );
       return;
@@ -339,13 +337,11 @@ namespace DGOLibrary
     if( !TestURL.StartsWith( BaseURL ))
       return true;
 
-    // What is this?
     if( TestURL.Contains( "http://www.durangogov.orghttp://www.durangogov.org:80/" ))
       return true;
 
-    // All index.cfm?
-    // If it's not .cfm is it on the Telegraph?
-    // Does the Telegraph use a Cold Fusion (.cfm) server?
+    // All index.cfm.
+    // The Telegraph uses a Cold Fusion (.cfm) server.
     if( TestURL.Contains( "www.durangogov.org/index.cfm/" ))
       return true;
 
@@ -366,11 +362,23 @@ namespace DGOLibrary
       return true;
 
     // Telegraph?
-    if( TestURL.Contains( "www.durangogov.org/archives/" ))
-      return true;
+    // if( TestURL.Contains( "www.durangoherald.com/archives/" ))
+      // return true;
+
+    // Telegraph?
+    // if( TestURL.Contains( "www.durangogov.org/archives/" ))
+      // return true;
 
     if( TestURL.Contains( "www.durangogov.org/contact/" ))
       return true;
+
+    if( TestURL.Contains( "www.durangoherald.com" ))
+      {
+      // This is the Telegraph.
+      if( TestURL.Contains( "/index.cfm/" ))
+        return true;
+
+      }
 
     if( TestURL.Contains( "/rss.aspx" ))
       return true;
@@ -413,6 +421,8 @@ namespace DGOLibrary
 
     return false;
     }
+
+
 
 
   }
