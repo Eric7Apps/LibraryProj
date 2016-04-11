@@ -3,6 +3,7 @@
 // ericlibproj.blogspot.com
 
 
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -69,7 +70,6 @@ namespace DGOLibrary
     MainWordsData = new WordsData( this );
     ScriptDictionary1 = new ScriptDictionary( this );
     CodeCommentDictionary1 = new CodeCommentDictionary( this );
-    // PageList1 = new PageList( this );
     MainURLIndex = new URLIndex( this );
     WebFData = new WebFilesData( this );
 
@@ -98,9 +98,9 @@ namespace DGOLibrary
     }
 
 
-  internal void AddFrequencyWordCount( string Word )
+  internal void AddFrequencyWordCount2( string Word )
     {
-    FrequencyCtr.AddString( Word );
+    FrequencyCtr.AddString2( Word );
     }
 
 
@@ -120,7 +120,7 @@ namespace DGOLibrary
     string URL = "https://www.colorado.gov/";
     // PageList1.UpdatePageFromFile( "Colorado Gov Main Page", URL, FileName, true, "https://www.colorado.gov" );
 
-    MainURLIndex.UpdatePageFromFile( "Colorado Gov Main Page", URL, FileName, true, "https://www.colorado.gov", true );
+    MainURLIndex.ReindexFromFile( "Colorado Gov Main Page", URL, FileName, "https://www.colorado.gov" );
     }
 
 
@@ -614,23 +614,10 @@ namespace DGOLibrary
     {
     FrequencyCtr.ClearAll();
     MainURLIndex.IndexAll( false );
-    /*
-    ShowStatus( "Sorting..." );
-    FrequencyCtr.SortByCount();
-    ShowStatus( "Finished sorting." );
     // FrequencyCtr.ShowValues( 500 );
-    FrequencyCtr.WriteToTextFile();
-    ShowStatus( "Saved the frequency file." );
-    // MainWordsData.ShowWordsAtZero();
-    ShowStatus( "Reading PageCompress frequency data..." );
-    PageCompress1.ReadFromFrequencyFile();
-    ShowStatus( "Writing PageCompress data..." );
-    PageCompress1.WriteToTextFile();
+    // FrequencyCtr.WriteToTextFile();
+    // ShowStatus( "Saved the frequency file." );
     ShowStatus( "Finished indexing everything." );
-    */
-
-    // MainWordsData.WriteToTextFile();
-    // MainTextBox.AppendText( "Saved word index file.\r\n" ); 
     }
 
 
@@ -674,8 +661,23 @@ namespace DGOLibrary
 
   private void compressAllToolStripMenuItem_Click(object sender, EventArgs e)
     {
-    MainURLIndex.IndexAll( true );
+    // Do this indexing to add to the Frequency data.
+    // MainURLIndex.IndexAll( false );
+    // ShowStatus( "Sorting..." );
+    // FrequencyCtr.SortByCount();
+    // ShowStatus( "Finished sorting." );
+    // FrequencyCtr.ShowValues( 500 );
+    // FrequencyCtr.WriteToTextFile();
+    // ShowStatus( "Saved the frequency file." );
+    // MainWordsData.ShowWordsAtZero();
+    // ShowStatus( "Reading PageCompress frequency data..." );
+    // PageCompress1.ReadFromFrequencyFile();
+    // ShowStatus( "Writing PageCompress data..." );
+    // PageCompress1.WriteToTextFile();
+    ShowStatus( "Making compressed files." );
+    MainURLIndex.MakeCompressedFiles();
     }
+
 
 
   }
