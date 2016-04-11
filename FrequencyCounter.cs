@@ -49,12 +49,14 @@ namespace DGOLibrary
     }
 
 
-  internal void AddString( string InString )
+  internal void AddString2( string InString )
     {
     if( InString.Length < 3 )
       return;
 
-    InString = InString.ToLower();
+    // Don't do this ToLower().  Compression can't put
+    // it back just like it was.
+    // InString = InString.ToLower();
     if( WordsDictionary.ContainsKey( InString ))
       {
       WordsDictionary[InString] = WordsDictionary[InString] + 1;
