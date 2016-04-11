@@ -17,7 +17,7 @@ namespace DGOLibrary
   // private int ContainedTagsLast = 0;
   private string MainText = "";
   private Page CallingPage;
-  private string RelativeURLBase = "";
+  private string RelativeURLFixed = "";
 
 
 
@@ -31,7 +31,7 @@ namespace DGOLibrary
     {
     CallingPage = UsePage;
     MainText = UseText;
-    RelativeURLBase = RelativeURL;
+    RelativeURLFixed = RelativeURL;
     }
 
 
@@ -47,9 +47,9 @@ namespace DGOLibrary
     }
 
 
-  protected string GetRelativeURLBase()
+  protected string GetRelativeURL()
     {
-    return RelativeURLBase;
+    return RelativeURLFixed;
     }
 
 
@@ -68,7 +68,6 @@ namespace DGOLibrary
 
     return -1;
     }
-
 
 
   private bool IsAllLetters( string InString )
@@ -576,20 +575,20 @@ namespace DGOLibrary
 
       if( TagName == "p" )
         {
-        ParagraphTag PTag = new ParagraphTag( CallingPage, NewTagS, RelativeURLBase );
+        ParagraphTag PTag = new ParagraphTag( CallingPage, NewTagS, RelativeURLFixed );
         PTag.ParseParagraph();
         }
 
       if( TagName == "a" )
         {
-        LinkTag LTag = new LinkTag( CallingPage, NewTagS, RelativeURLBase );
+        LinkTag LTag = new LinkTag( CallingPage, NewTagS, RelativeURLFixed );
         LTag.ParseLink();
         }
 
       // There are links in Paragraphs sometimes.
       if( !DoNotParseTag( TagName ))
         {
-        BasicTag TagToAdd = new BasicTag( CallingPage, NewTagS, RelativeURLBase );
+        BasicTag TagToAdd = new BasicTag( CallingPage, NewTagS, RelativeURLFixed );
         // AddContainedTag( TagToAdd );
         TagToAdd.MakeContainedTags();
         }
