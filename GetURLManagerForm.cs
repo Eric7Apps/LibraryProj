@@ -122,6 +122,7 @@ namespace DGOLibrary
 
    ////////////////////
     // It works with https.
+    /*
     AddURLForm( "Colorado Gov Main Page", "https://www.colorado.gov/", true, false, "https://www.colorado.gov" );
     AddURLForm( "Colorado Gov State Agencies", "https://www.colorado.gov/state-agencies", true, false, "https://www.colorado.gov" );
     AddURLForm( "Colorado Gov Branches of Government", "https://www.colorado.gov/government-branches", true, false, "https://www.colorado.gov" );
@@ -152,7 +153,7 @@ namespace DGOLibrary
     AddURLForm( "Colorado Gov Medicaid", "https://www.colorado.gov/search?tid=medicaid", true, false, "https://www.colorado.gov" );
     AddURLForm( "Colorado Gov Transparency Online Project (TOPS)", "https://www.colorado.gov/apps/oit/transparency/index.html", true, false, "https://www.colorado.gov" );
     AddURLForm( "Colorado Gov Registered Services", "https://www.colorado.gov/registered-services", true, false, "https://www.colorado.gov" );
-
+    */
 
     /////////////
     AddURLForm( "Durango Gov Main Page", "http://www.durangogov.org/", true, false, "http://www.durangogov.org" );
@@ -244,6 +245,7 @@ namespace DGOLibrary
 
     return false;
     }
+
 
 
   private void UpdateTitleDateTime( string Title )
