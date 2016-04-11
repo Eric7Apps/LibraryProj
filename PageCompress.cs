@@ -18,8 +18,6 @@ namespace DGOLibrary
   private const int LinesRecArrayLength = 0xFFFF + 1;
   private string[] StringsArray;
   private int StringsArrayLast = 0;
-  private string[] SplitPageArray;
-  private int SplitPageArrayLast = 0;
   private string FileName = "";
   internal const int MinimumStringLength = 5;
 
@@ -54,8 +52,9 @@ namespace DGOLibrary
     {
     MForm = UseForm;
     LinesRecArray = new LinesRec[LinesRecArrayLength];
-    StringsArray = new string[1024];
-    SplitPageArray = new string[1024];
+
+    // Number of compress lines: 394,400
+    StringsArray = new string[1024 * 256];
     FileName = MForm.GetDataDirectory() + "CompressDictionary.txt";
     }
 
@@ -106,17 +105,17 @@ namespace DGOLibrary
     Rec.Index = StringsArrayLast;
     StringsArrayLast++;
     if( StringsArrayLast >= StringsArray.Length )
-      Array.Resize( ref StringsArray, StringsArray.Length + 1024 );
+      Array.Resize( ref StringsArray, StringsArray.Length + (1024 * 32) );
 
     uint CRCIndex = Utility.GetCRC16( Line );
 
     if( LinesRecArray[CRCIndex].LineIndexArray ==  null )
-      LinesRecArray[CRCIndex].LineIndexArray = new LineIndexRec[16];
+      LinesRecArray[CRCIndex].LineIndexArray = new LineIndexRec[8];
 
     LinesRecArray[CRCIndex].LineIndexArray[LinesRecArray[CRCIndex].LineIndexArrayLast] = Rec;
     LinesRecArray[CRCIndex].LineIndexArrayLast++;
     if( LinesRecArray[CRCIndex].LineIndexArrayLast >= LinesRecArray[CRCIndex].LineIndexArray.Length )
-      Array.Resize( ref LinesRecArray[CRCIndex].LineIndexArray, LinesRecArray[CRCIndex].LineIndexArray.Length + 16 );
+      Array.Resize( ref LinesRecArray[CRCIndex].LineIndexArray, LinesRecArray[CRCIndex].LineIndexArray.Length + 8 );
 
     return true;
     }
@@ -185,12 +184,12 @@ namespace DGOLibrary
     uint CRCIndex = Utility.GetCRC16( Line );
 
     if( LinesRecArray[CRCIndex].LineIndexArray ==  null )
-      LinesRecArray[CRCIndex].LineIndexArray = new LineIndexRec[16];
+      LinesRecArray[CRCIndex].LineIndexArray = new LineIndexRec[8];
 
     LinesRecArray[CRCIndex].LineIndexArray[LinesRecArray[CRCIndex].LineIndexArrayLast] = Rec;
     LinesRecArray[CRCIndex].LineIndexArrayLast++;
     if( LinesRecArray[CRCIndex].LineIndexArrayLast >= LinesRecArray[CRCIndex].LineIndexArray.Length )
-      Array.Resize( ref LinesRecArray[CRCIndex].LineIndexArray, LinesRecArray[CRCIndex].LineIndexArray.Length + 16 );
+      Array.Resize( ref LinesRecArray[CRCIndex].LineIndexArray, LinesRecArray[CRCIndex].LineIndexArray.Length + 8 );
 
     }
     catch( Exception Except )
@@ -242,6 +241,7 @@ namespace DGOLibrary
     int Last = LinesRecArray[Index].LineIndexArrayLast;
     for( int Count = 0; Count < Last; Count++ )
       {
+      // Notice that this is case-sensitive.
       if( Line == LinesRecArray[Index].LineIndexArray[Count].Line )
         return LinesRecArray[Index].LineIndexArray[Count].Index;
 
@@ -400,7 +400,7 @@ namespace DGOLibrary
       while( SReader.Peek() >= 0 ) 
         {
         Loops++;
-        if( (Loops & 0xFF) == 0 )
+        if( (Loops & 0xFFF) == 0 )
           {
           if( !MForm.CheckEvents())
             return false;
@@ -454,49 +454,39 @@ namespace DGOLibrary
     }
 
 
-  private void AddSplitPageLine( string Line )
-    {
-    SplitPageArray[SplitPageArrayLast] = Line;
-    SplitPageArrayLast++;
-    if( SplitPageArrayLast >= SplitPageArray.Length )
-      Array.Resize( ref SplitPageArray, SplitPageArray.Length + 1024 );
-
-    }
-
-
 
   internal string GetCompressedPage( string InString )
     {
     try
     {
-    SplitPageArrayLast = 0;
+    StringBuilder SBuilder = new StringBuilder();
+    int FieldCount = Utility.CountCharacters( InString, '>' );
+    SBuilder.Append( FieldCount.ToString() + MarkersDelimiters.FieldCountMark );
+
     string[] SplitS = InString.Split( new Char[] { '>' } );
-    for( int Count = 0; Count < SplitS.Length; Count++ )
+
+    if( FieldCount > SplitS.Length )
+      throw( new Exception( "FieldCount > SplitS.Length in compress." ));
+
+    for( int Count = 0; Count < FieldCount; Count++ )
       {
       string Line = SplitS[Count];
-      Line = Line.Replace( "\r", MarkersDelimiters.CRReplace );
-      AddSplitPageLine( Line );
-      }
-
-    StringBuilder SBuilder = new StringBuilder();
-    for( int Count = 0; Count < SplitPageArrayLast; Count++ )
-      {
-      int Index = GetIndex( SplitPageArray[Count] );
+      Line = Line.Replace( '\r', MarkersDelimiters.CRReplace );
+      int Index = GetIndex( Line );
       if( Index >= 0 )
         {
-        SplitPageArray[Count] = MarkersDelimiters.IndexBeginMark + Index.ToString();
+        Line = Char.ToString( MarkersDelimiters.IndexBeginMark ) + Index.ToString();
         }
       // else leave the string as-is.
 
-      SBuilder.Append( SplitPageArray[Count] + ">" );
+      SBuilder.Append( Line + ">" );
       }
 
     return SBuilder.ToString();
-
     }
     catch( Exception Except )
       {
-      MForm.ShowStatus( "Exception in AddFrequencyLine():" );
+      MForm.ShowStatus( "Exception in GetCompressedPage():" );
       MForm.ShowStatus( Except.Message );
       return "";
       }
@@ -504,5 +494,58 @@ namespace DGOLibrary
 
 
 
+  internal string GetDecompressedPage( string InString )
+    {
+    try
+    {
+    StringBuilder SBuilder = new StringBuilder();
+
+    string[] SplitFieldCount = InString.Split( new Char[] { MarkersDelimiters.FieldCountMark } );
+
+    int FieldCount = Int32.Parse( SplitFieldCount[0] );
+    string MainPart = SplitFieldCount[1];
+
+    string[] SplitS = MainPart.Split( new Char[] { '>' } );
+    if( FieldCount > SplitS.Length )
+      throw( new Exception( "FieldCount > SplitS.Length in decompress." ));
+
+    for( int Count = 0; Count < FieldCount; Count++ )
+      {
+      string Line = SplitS[Count];
+      if( Line.StartsWith( Char.ToString( MarkersDelimiters.IndexBeginMark )))
+        {
+        Line = Line.Remove( 0, 1 );
+        int Index = Int32.Parse( Line );
+        Line = GetLineFromIndex( Index );
+        }
+
+      Line = Line.Replace( MarkersDelimiters.CRReplace, '\r' );
+      SBuilder.Append( Line + ">" );
+      }
+
+    return SBuilder.ToString();
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Exception in GetDecompressedPage():" );
+      MForm.ShowStatus( Except.Message );
+      return "";
+      }
+    }
+
+/*
+What CR?  \n ?
+
+Test != FileContents.
+DiffAt: 22815
+FileContents:
+<!DOCTYPE html>
+unusual line endings
+  <!--[if IEMobile 7]><html class="no-js ie iem7" lang="en" dir="ltr"><![endif]-->
+*/
+
+
+
   }
 }
+
