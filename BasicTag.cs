@@ -609,6 +609,10 @@ namespace DGOLibrary
     {
     // For tags that need work:
 
+    if( TagName == "section" )
+      return;
+
+
     if( TagName == "base" )
       return;
 
