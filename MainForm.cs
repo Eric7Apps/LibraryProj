@@ -22,7 +22,7 @@ namespace DGOLibrary
 {
   public partial class MainForm : Form
   {
-  internal const string VersionDate = "4/10/2016";
+  internal const string VersionDate = "4/12/2016";
   internal const int VersionNumber = 09; // 0.9
   internal const string MessageBoxTitle = "Library Project";
   private System.Threading.Mutex SingleInstanceMutex = null;
@@ -46,9 +46,11 @@ namespace DGOLibrary
   internal NetIPStatus NetStats;
   internal WordsData MainWordsData;
   internal URLIndex MainURLIndex;
-  internal FrequencyCounter FrequencyCtr;
+  internal FrequencyCounter PageFrequencyCtr;
   internal PageCompress PageCompress1;
-
+  private bool ServersAreReady = false;
+  internal CharacterIndex CharIndex;
+  internal HuffmanCodes HuffmanCd;
 
 
   public MainForm()
@@ -64,7 +66,9 @@ namespace DGOLibrary
     NetStats = new NetIPStatus( this );
     NetStats.ReadFromFile();
 
-    FrequencyCtr = new FrequencyCounter( this );
+    HuffmanCd = new HuffmanCodes( this );
+    CharIndex = new CharacterIndex( this );
+    PageFrequencyCtr = new FrequencyCounter( this, "FrequencyCountPage.txt" );
     PageCompress1 = new PageCompress( this );
     WordsDictionary1 = new WordsDictionary( this );
     MainWordsData = new WordsData( this );
@@ -98,15 +102,16 @@ namespace DGOLibrary
     }
 
 
-  internal void AddFrequencyWordCount2( string Word )
+  internal void AddPageFrequencyCount( string Word )
     {
-    FrequencyCtr.AddString2( Word );
+    PageFrequencyCtr.AddString( Word );
     }
 
 
 
   private void testToolStripMenuItem_Click(object sender, EventArgs e)
     {
+    /*
     // Herald page:
     // string URL = "http://www.durangoherald.com/";
     string FileName = GetPageFilesDirectory() + "TestFile.txt";
@@ -121,6 +126,7 @@ namespace DGOLibrary
     // PageList1.UpdatePageFromFile( "Colorado Gov Main Page", URL, FileName, true, "https://www.colorado.gov" );
 
     MainURLIndex.ReindexFromFile( "Colorado Gov Main Page", URL, FileName, "https://www.colorado.gov" );
+    */
     }
 
 
@@ -449,20 +455,21 @@ namespace DGOLibrary
     }
 
 
+  internal bool GetServersAreReady()
+    {
+    return ServersAreReady;
+    }
+
+
 
   private void StartupTimer_Tick(object sender, EventArgs e)
     {
     StartupTimer.Stop();
 
     ShowStatus( "Reading URL index data..." );
-    // Make sure the PageList is loaded up before
+    // Make sure the URLIndex is loaded up before
     // GetURLMgrForm is started.
-    // PageList1.ReadFromTextFile();
     MainURLIndex.ReadFromTextFile();
-
-    ShowStatus( "Reading PageCompress data..." );
-    PageCompress1.ReadFromTextFile();
-    // PageCompress1.ReadFromFrequencyFile();
 
     ShowStatus( "Reading script data..." );
     ScriptDictionary1.ReadFromTextFile();
@@ -478,6 +485,12 @@ namespace DGOLibrary
     // ShowStatus( "Reading All Words data..." );
     // AllWords.ReadFromTextFile();
 
+    ShowStatus( "Reading PageCompress data..." );
+    PageCompress1.ReadFromTextFile();
+    // PageCompress1.ReadFromFrequencyFile();
+
+    // Do these last.
+    ShowStatus( "Starting up forms..." );
     GetURLMgrForm = new GetURLManagerForm( this );
 
     WebListenForm = new WebListenerForm( this );
@@ -486,17 +499,14 @@ namespace DGOLibrary
 
     WebListenForm.StartServer();
     // TLSListenForm.StartServer();
-    ShowStatus( "After the servers were started." );
-
-    /////////////////
-    // Make this last.
-    // This calls CheckEvents().
-    // PageList1.ReadAllFilesToContent();
 
     // CheckTimer.Interval = 15 * 60 * 1000;
     // CheckTimer.Start();
 
     // MainURLIndex.ShowCRCDistribution();
+    ServersAreReady = true;
+    ShowStatus( " " );
+    ShowStatus( "After the servers were started." );
     }
 
 
@@ -592,13 +602,20 @@ namespace DGOLibrary
     // Multilingual Plane except these Dingbat characters
     // which are used as markers or delimiters.
     //    Dingbats (2700–27BF)
-    for( int Count = 0x2700; Count < 0x27BF; Count++ )
-      ShowStatus( Count.ToString( "X2" ) + ") " + Char.ToString( (char)Count ));
+    // for( int Count = 0x2700; Count < 0x27BF; Count++ )
+      // ShowStatus( Count.ToString( "X2" ) + ") " + Char.ToString( (char)Count ));
+
+    // for( int Count = 128; Count < 256; Count++ )
+      // ShowStatus( "      case (int)'" + Char.ToString( (char)Count ) + "': return " + Count.ToString( "X4" ) + ";" );
+
+    // for( int Count = 32; Count < 256; Count++ )
+      // ShowStatus( "    CharacterArray[" + Count.ToString() + "] = '" + Char.ToString( (char)Count ) + "';  //  0x" + Count.ToString( "X2" ) );
+
 
      // &#147;
     // ShowStatus( " " );
-    // int GetVal = 187; // 0x201c;
-    // ShowStatus( "Character: " + Char.ToString( (char)GetVal ));
+    int GetVal = 0x252F; // 0x201c;
+    ShowStatus( "Character: " + Char.ToString( (char)GetVal ));
     }
 
 
@@ -612,7 +629,13 @@ namespace DGOLibrary
 
   private void indexAllToolStripMenuItem_Click(object sender, EventArgs e)
     {
-    FrequencyCtr.ClearAll();
+    if( !GetServersAreReady())
+      {
+      ShowStatus( "The startup process isn't finished yet." );
+      return;
+      }
+
+    PageFrequencyCtr.ClearAll();
     MainURLIndex.IndexAll( false );
     // FrequencyCtr.ShowValues( 500 );
     // FrequencyCtr.WriteToTextFile();
@@ -661,21 +684,7 @@ namespace DGOLibrary
 
   private void compressAllToolStripMenuItem_Click(object sender, EventArgs e)
     {
-    // Do this indexing to add to the Frequency data.
-    // MainURLIndex.IndexAll( false );
-    // ShowStatus( "Sorting..." );
-    // FrequencyCtr.SortByCount();
-    // ShowStatus( "Finished sorting." );
-    // FrequencyCtr.ShowValues( 500 );
-    // FrequencyCtr.WriteToTextFile();
-    // ShowStatus( "Saved the frequency file." );
-    // MainWordsData.ShowWordsAtZero();
-    // ShowStatus( "Reading PageCompress frequency data..." );
-    // PageCompress1.ReadFromFrequencyFile();
-    // ShowStatus( "Writing PageCompress data..." );
-    // PageCompress1.WriteToTextFile();
-    ShowStatus( "Making compressed files." );
-    MainURLIndex.MakeCompressedFiles();
+    MainURLIndex.CompressAllFiles();
     }
 
 
