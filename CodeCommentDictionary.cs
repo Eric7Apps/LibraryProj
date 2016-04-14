@@ -137,6 +137,9 @@ namespace DGOLibrary
     if( ContainsBadStuff( Line ))
       return;
 
+    if( !MainDictionary.ContainsKey( Line ))
+      MForm.ShowStatus( "New Comments: " + Line );
+
     if( Line.Length > 0 )
       MainDictionary[Line] = URL;
 
