@@ -350,6 +350,12 @@ namespace DGOLibrary
 
   private void testToolStripMenuItem_Click(object sender, EventArgs e)
     {
+    if( !MForm.GetServersAreReady())
+      {
+      ShowStatus( "The startup process isn't finished yet." );
+      return;
+      }
+
     QueueTime.SetToNow();
     // QueueTime.AddSeconds( -8 );
 
