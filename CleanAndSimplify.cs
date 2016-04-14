@@ -33,8 +33,25 @@ namespace DGOLibrary
     // A â€˜softâ€™ opening
     // Where do those links come from?
 
-    // A â€˜softâ€™ opening
     // http://www.DurangoTelegraph.com/index.cfm/archives/2009/november-26-2009/a-asoftae284a2-opening/
+
+
+    Result = Result.Replace( "%E2%80%98", "'" );
+    Result = Result.Replace( "%E2%80%99", "'" );
+    // A â€˜softâ€™ opening
+    // Result = Result.Replace( "%E2", "â" );
+    // Control character.
+    // Result = Result.Replace( "%80", " " );
+    // Result = Result.Replace( "%98", " " );
+    Result = Result.Replace( "%2526", " " );
+    Result = Result.Replace( "%2527", " " );
+    Result = Result.Replace( "%252F", " " );
+    Result = Result.Replace( "%253D", " " );
+
+    // 0x20 is the space character.
+    Result = Result.Replace( "%20", " " );
+
+    Result = Result.Replace( "%2f", "/" );
 
     // Replace some Unicode characters with ASCII.
     Result = Result.Replace( "”", "\"" );
@@ -42,26 +59,46 @@ namespace DGOLibrary
     Result = Result.Replace( "’", "'" );
     Result = Result.Replace( "‘", "'" );
 
-    //                                   »
-    Result = Result.Replace( "&#0187;", " " );
+    // A control code.
+    Result = Result.Replace( "&#145;", " " );
 
-    Result = Result.Replace( "&#x2013;", " " ); // A weird symbol.
+    // &#0187;
+    // This one is very high in the frequency count.
+    Result = Result.Replace( "&#0187;", "»" );
+
+    // 160 is a control code.
+    Result = Result.Replace( "&#160;", " " );
+
+    Result = Result.Replace( "&#x2013;", "-" );
+    Result = Result.Replace( "&#x2014;", "—" );
+
+
     Result = Result.Replace( "&#x2018;", "'" );
     Result = Result.Replace( "&#x2019;", "'" );
     Result = Result.Replace( "&#x201c;", "\"" );
     Result = Result.Replace( "&#x201d;", "\"" );
     Result = Result.Replace( "&#x2026;", "..." );
 
+    Result = Result.Replace( "&#8211;", "-" );
+
+    Result = Result.Replace( "&#8216;", "'" );
     Result = Result.Replace( "&#8217;", "'" );
     Result = Result.Replace( "&#8220;", "\"" );
     Result = Result.Replace( "&#8221;", "\"" );
+    Result = Result.Replace( "&#8226;", "•" );
+    Result = Result.Replace( "&#8230;", "…" );
 
     Result = Result.Replace( "&#10050;", " " ); // Some kind of circular character for a bullet list.
 
     // 39 is ASCII apostrophe.
     Result = Result.Replace( "&#39;", "'" );
+    Result = Result.Replace( "&#039;", "'" );
 
+    Result = Result.Replace( "&#xa9;", "©" );
     Result = Result.Replace( "&#xad;", " " ); // hyphen for word wrap I think.
+
+    Result = Result.Replace( "&#xbc;", "¼" );
+    Result = Result.Replace( "&#xbd;", "½" );
 
     Result = Result.Replace( "&#xe0;", "à" );
     Result = Result.Replace( "&#xe1;", "á" );
@@ -191,6 +228,8 @@ namespace DGOLibrary
 
     // Do this last.
     Result = Result.Replace( "&amp;", "&" );
+
+    Result = Result.Replace( "%26", "&" );
 
     return Result;
     }
