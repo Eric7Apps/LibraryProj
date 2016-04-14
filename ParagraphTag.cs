@@ -2,6 +2,8 @@
 // Notes on this source code are at:
 // ericlibproj.blogspot.com
 
+
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -194,6 +196,7 @@ namespace DGOLibrary
     InString = InString.Replace( "’", " " );
     InString = InString.Replace( "•", " " );
     InString = InString.Replace( "—", " " );
+    InString = InString.Replace( "…", " " );
 
     // "Durango's "
     InString = InString.Replace( "'s ", " " );
