@@ -129,12 +129,16 @@ namespace DGOLibrary
     }
 
 
+
   internal void AddLine( string Line, string URL )
     {
     Line = Line.Trim().ToLower();
 
     if( ContainsBadStuff( Line ))
       return;
+
+    if( !MainDictionary.ContainsKey( Line ))
+      MForm.ShowStatus( "New JavaScript: " + Line );
 
     if( Line.Length > 0 )
       MainDictionary[Line] = URL;
