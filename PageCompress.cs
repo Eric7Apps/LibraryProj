@@ -19,7 +19,7 @@ namespace DGOLibrary
   private string[] StringsArray;
   private int StringsArrayLast = 0;
   private string FileName = "";
-  internal const int MinimumStringLength = 5;
+  internal const int MinimumStringLength = 3;
 
 
   public struct LinesRec
@@ -34,14 +34,10 @@ namespace DGOLibrary
     public string Line;
     public int Index;
     public int Frequency;
-    public int Weight;
+    // public int Weight;
     }
 
 
-    // These strings can include a CR character.
-    // 510346	\r</div
-    // 0	510346	✀</div
-    // They are not trimmed.
 
   private PageCompress()
     {
@@ -53,8 +49,12 @@ namespace DGOLibrary
     MForm = UseForm;
     LinesRecArray = new LinesRec[LinesRecArrayLength];
 
-    // Number of compress lines: 394,400
-    StringsArray = new string[1024 * 256];
+    int ArraySize = MForm.GlobalProps.GetLastIndexInCompress1();
+    ArraySize++;
+    if( ArraySize < 1024 )
+      ArraySize = 1024;
+
+    StringsArray = new string[ArraySize];
     FileName = MForm.GetDataDirectory() + "CompressDictionary.txt";
     }
 
@@ -72,34 +72,15 @@ namespace DGOLibrary
     // given the smallest index numbers.
     // The most frequent string of all is given the
     // index zero.
-    // 0	510346	✀</div
     // So the most frequent strings take up less space
     // as strings.
-    // If there are 400,000 strings that means the
-    // biggest index values are 6 characters long
-    // (as strings).
-    // The most frequent string (so far) is "\r</div"
-    // which is 6 characters long.  It would be 
-    // replaced by a two-byte marker followed by
-    // the index value of 0.  So that's two characters
-    // and 4 bytes.  Three bytes as UTF8.
-    // The next most frequent tag is "</script"
-    // which is 8 characters.
-
-    // Delim is one character (two bytes), plus a max
-    // of 123456 for an index string, so that's 8
-    // characters.
-    // Make it 6 to make it worth keeping.
     if( Line.Length < MinimumStringLength )
-      return false;
-
-    if( Frequency < 3 )
       return false;
 
     LineIndexRec Rec = new LineIndexRec();
     Rec.Line = Line;
     Rec.Frequency = Frequency;
-    Rec.Weight = Frequency * Line.Length;
+    // Rec.Weight = Frequency * Line.Length;
 
     StringsArray[StringsArrayLast] = Line;
     Rec.Index = StringsArrayLast;
@@ -129,17 +110,17 @@ namespace DGOLibrary
 
 
 
-  internal void AddVerifiedLine( string Line )
+  internal void AddVerifiedLine( string FileLine )
     {
     try
     {
-    if( Line == null )
+    if( FileLine == null )
       return;
 
-    if( Line.Length < 2 )
+    if( FileLine.Length < 2 )
       return;
 
-    string[] SplitS = Line.Split( new Char[] { '\t' } );
+    string[] SplitS = FileLine.Split( new Char[] { '\t' } );
     if( SplitS.Length < 3 )
       return;
 
@@ -172,16 +153,17 @@ namespace DGOLibrary
     if( Rec.Line.Length < MinimumStringLength )
       throw( new Exception( "Rec.Line.Length < MinimumStringLength in AddVerifiedLine()." ));
 
-    Rec.Weight = Rec.Frequency * Rec.Line.Length;
+    // Rec.Weight = Rec.Frequency * Rec.Line.Length;
+
+    if( StringsArrayLast <= Rec.Index )
+      StringsArrayLast = Rec.Index + 1;
 
     if( Rec.Index >= StringsArray.Length )
       Array.Resize( ref StringsArray, Rec.Index + 1024 );
 
-    StringsArray[Rec.Index] = Line;
-    if( StringsArrayLast < Rec.Index )
-      StringsArrayLast = Rec.Index;
+    StringsArray[Rec.Index] = Rec.Line;
 
-    uint CRCIndex = Utility.GetCRC16( Line );
+    uint CRCIndex = Utility.GetCRC16( Rec.Line );
 
     if( LinesRecArray[CRCIndex].LineIndexArray ==  null )
       LinesRecArray[CRCIndex].LineIndexArray = new LineIndexRec[8];
@@ -215,9 +197,15 @@ namespace DGOLibrary
       return "";
       }
 
+    // This is why decompressing is a lot faster
+    // than compressing.
     string Result = StringsArray[Where];
+
     if( Result == null )
+      {
+      MForm.ShowStatus( "GetLineFromIndex(): Result was null at: " + Where.ToString() );
       return "";
+      }
 
     return Result;
     }
@@ -264,6 +252,7 @@ namespace DGOLibrary
     try
     {
     int Written = 0;
+    int LastIndex = 0;
     using( StreamWriter SWriter = new StreamWriter( FileName, false, Encoding.UTF8 ))
       {
       for( int Index = 0; Index < LinesRecArrayLength; Index++ )
@@ -278,6 +267,9 @@ namespace DGOLibrary
           if( Rec.Line == null )
             throw( new Exception( "Bug: Rec.Line should not be null here." ));
 
+          if( LastIndex < Rec.Index )
+            LastIndex = Rec.Index;
+
           Written++;
           string Line = Rec.Index.ToString() + "\t" +
              Rec.Frequency.ToString() + "\t" +
@@ -287,6 +279,8 @@ namespace DGOLibrary
           }
         }
       }
+
+    MForm.GlobalProps.SetLastIndexInCompress1( LastIndex );
 
     MForm.ShowStatus( "PageCompress wrote " + Written.ToString( "N0" ) + " lines to the file." );
     return true;
@@ -305,7 +299,6 @@ namespace DGOLibrary
     {
     try
     {
-    StringsArray = new string[1024];
     StringsArrayLast = 0;
 
     for( int Index = 0; Index < LinesRecArrayLength; Index++ )
@@ -323,19 +316,35 @@ namespace DGOLibrary
 
 
 
-  internal bool VerifyStringsArray()
+  internal void VerifyStringsArray()
     {
+    int LastIndex = MForm.GlobalProps.GetLastIndexInCompress1();
+    if( (StringsArrayLast - 1) != LastIndex )
+      {
+      MForm.ShowStatus( " " );
+      MForm.ShowStatus( " " );
+      MForm.ShowStatus( " " );
+      MForm.ShowStatus( " " );
+      MForm.ShowStatus( "LastIndexInCompress1 isn't what it should be." );
+      MForm.ShowStatus( "LastIndex: " + LastIndex.ToString());
+      MForm.ShowStatus( "StringsArrayLast: " + StringsArrayLast.ToString());
+      MForm.ShowStatus( " " );
+      MForm.ShowStatus( " " );
+      MForm.ShowStatus( " " );
+      MForm.ShowStatus( " " );
+      // throw( new Exception( "Check on this." ));
+      }
+
     for( int Count = 0; Count < StringsArrayLast; Count++ )
       {
       if( StringsArray[Count] == null )
         {
-        MForm.ShowStatus( "There was a null string at: " + Count.ToString());
+        // MForm.ShowStatus( "There was a null string at: " + Count.ToString());
         throw( new Exception( "There was a null string at: " + Count.ToString() + " in VerifyStringsArray()." ));
         }
       }
-
-    return true;
     }
+
 
 
   internal bool ReadFromTextFile()
@@ -349,8 +358,19 @@ namespace DGOLibrary
     int HowMany = 0;
     using( StreamReader SReader = new StreamReader( FileName, Encoding.UTF8 ))
       {
+      // int Loops = 0;
       while( SReader.Peek() >= 0 ) 
         {
+        /*
+        Loops++;
+        if( (Loops & 0xFFF) == 0 )
+          {
+          if( !MForm.CheckEvents())
+            return false;
+
+          }
+          */
+
         string Line = SReader.ReadLine();
         if( Line == null )
           continue;
@@ -380,12 +400,64 @@ namespace DGOLibrary
     }
 
 
+  internal static string ReplaceCharacters( string InString )
+    {
+    // Replace some super-common ones with one symbol.
+
+    // The marker symbols are 3 UTF8 bytes, but only one
+    // byte in CharacterIndex.cs.
+    InString = InString.Replace( '\r', MarkersDelimiters.CRReplace );
+    // InString = InString.Replace( '\n', MarkersDelimiters.NewLineReplace );
+    InString = InString.Replace( "href=\"", Char.ToString( MarkersDelimiters.AnchorTag ) );
+    InString = InString.Replace( "www.durangoherald.com", Char.ToString( MarkersDelimiters.HeraldDomain ));
+    InString = InString.Replace( "fb:comments-count", Char.ToString( MarkersDelimiters.FaceBookComments ));
+    // InString = InString.Replace( "<p class=\"articleText\"", Char.ToString( MarkersDelimiters.Paragraph ));
+    InString = InString.Replace( "the", Char.ToString( MarkersDelimiters.TheReplace ));
+    InString = InString.Replace( "and", Char.ToString( MarkersDelimiters.AndReplace ));
+    InString = InString.Replace( "div", Char.ToString( MarkersDelimiters.DivReplace ));
+    InString = InString.Replace( "<li", Char.ToString( MarkersDelimiters.LiTag ));
+    InString = InString.Replace( "article", Char.ToString( MarkersDelimiters.ArticleWord ));
+    InString = InString.Replace( "\"fb_comment_link\"", Char.ToString( MarkersDelimiters.FaceBookCommentLink ));
+    InString = InString.Replace( "/", Char.ToString( MarkersDelimiters.SlashReplace ) + " " );
+    InString = InString.Replace( ">", Char.ToString( MarkersDelimiters.TagReplace ) + " " );
+    InString = InString.Replace( "=", Char.ToString( MarkersDelimiters.EqualsReplace ) + " " );
+    InString = InString.Replace( "class➇", Char.ToString( MarkersDelimiters.ClassReplace ));
+    InString = InString.Replace( "-", Char.ToString( MarkersDelimiters.DashReplace ) + " " );
+
+    return InString;
+    }
+
+
+  internal static string ReverseReplaceCharacters( string InString )
+    {
+    InString = InString.Replace( Char.ToString( MarkersDelimiters.DashReplace ) + " ", "-" );
+    InString = InString.Replace( Char.ToString( MarkersDelimiters.ClassReplace ), "class➇" );
+    InString = InString.Replace( Char.ToString( MarkersDelimiters.EqualsReplace ) + " ", "=" );
+    InString = InString.Replace( Char.ToString( MarkersDelimiters.TagReplace ) + " ", ">" );
+    InString = InString.Replace( Char.ToString( MarkersDelimiters.SlashReplace ) + " ", "/" );
+
+    InString = InString.Replace( Char.ToString( MarkersDelimiters.FaceBookCommentLink ), "\"fb_comment_link\"" );
+    InString = InString.Replace( Char.ToString( MarkersDelimiters.ArticleWord ), "article" );
+    InString = InString.Replace( Char.ToString( MarkersDelimiters.LiTag ), "<li" );
+    InString = InString.Replace( Char.ToString( MarkersDelimiters.DivReplace ), "div" );
+    InString = InString.Replace( Char.ToString( MarkersDelimiters.AndReplace ), "and");
+    InString = InString.Replace( Char.ToString( MarkersDelimiters.TheReplace ), "the");
+    // InString = InString.Replace( Char.ToString( MarkersDelimiters.Paragraph ), "<p class=\"articleText\"" );
+    InString = InString.Replace( Char.ToString( MarkersDelimiters.FaceBookComments ), "fb:comments-count" );
+    InString = InString.Replace( Char.ToString( MarkersDelimiters.HeraldDomain ), "www.durangoherald.com" );
+    InString = InString.Replace( Char.ToString( MarkersDelimiters.AnchorTag ), "href=\"" );
+    // InString = InString.Replace( MarkersDelimiters.NewLineReplace, '\n' );
+    InString = InString.Replace( MarkersDelimiters.CRReplace, '\r' );
+    return InString;
+    }
+
+
 
   internal bool ReadFromFrequencyFile()
     {
     try
     {
-    string FreqFileName = MForm.GetDataDirectory() + "FrequencyCount.txt";
+    string FreqFileName = MForm.GetDataDirectory() + "FrequencyCountPage.txt";
 
     ClearAll();
     if( !File.Exists( FreqFileName ))
@@ -393,7 +465,7 @@ namespace DGOLibrary
 
     int LongestLine = 0;
     int HowMany = 0;
-    int TotalSize = 0;
+    long TotalSize = 0;
     using( StreamReader SReader = new StreamReader( FreqFileName, Encoding.UTF8 ))
       {
       int Loops = 0;
@@ -460,10 +532,13 @@ namespace DGOLibrary
     try
     {
     StringBuilder SBuilder = new StringBuilder();
-    int FieldCount = Utility.CountCharacters( InString, '>' );
+
+    InString = ReplaceCharacters( InString );
+
+    int FieldCount = Utility.CountCharacters( InString, ' ' );
     SBuilder.Append( FieldCount.ToString() + MarkersDelimiters.FieldCountMark );
 
-    string[] SplitS = InString.Split( new Char[] { '>' } );
+    string[] SplitS = InString.Split( new Char[] { ' ' } );
 
     if( FieldCount > SplitS.Length )
       throw( new Exception( "FieldCount > SplitS.Length in compress." ));
@@ -471,7 +546,12 @@ namespace DGOLibrary
     for( int Count = 0; Count < FieldCount; Count++ )
       {
       string Line = SplitS[Count];
-      Line = Line.Replace( '\r', MarkersDelimiters.CRReplace );
+      if( Line.Length == 0 )
+        {
+        SBuilder.Append( " " );
+        continue;
+        }
+
       int Index = GetIndex( Line );
       if( Index >= 0 )
         {
@@ -479,10 +559,12 @@ namespace DGOLibrary
         }
       // else leave the string as-is.
 
-      SBuilder.Append( Line + ">" );
+      SBuilder.Append( Line + " " );
       }
 
-    return SBuilder.ToString();
+    string Result = SBuilder.ToString();
+    Result = Result.Replace( " " + Char.ToString( MarkersDelimiters.IndexBeginMark ), Char.ToString( MarkersDelimiters.IndexBeginAndSpaceReplace ));
+    return Result;
     }
     catch( Exception Except )
       {
@@ -500,30 +582,70 @@ namespace DGOLibrary
     {
     StringBuilder SBuilder = new StringBuilder();
 
-    string[] SplitFieldCount = InString.Split( new Char[] { MarkersDelimiters.FieldCountMark } );
+    InString = InString.Replace( Char.ToString( MarkersDelimiters.IndexBeginAndSpaceReplace ), " " + Char.ToString( MarkersDelimiters.IndexBeginMark ));
 
-    int FieldCount = Int32.Parse( SplitFieldCount[0] );
-    string MainPart = SplitFieldCount[1];
+    int Index = InString.IndexOf( MarkersDelimiters.FieldCountMark );
+    if( Index < 0 )
+      {
+      MForm.ShowStatus( "The decompressed page didn't have the field count marker." );
+      return "";
+      }
 
-    string[] SplitS = MainPart.Split( new Char[] { '>' } );
+    string FieldPart = InString.Remove( Index );
+    // MForm.ShowStatus( "FieldPart: " + FieldPart );
+    string MainPart = InString.Remove( 0, Index + 1 );
+
+    int FieldCount = 0;
+    try
+    {
+    FieldCount = Int32.Parse( FieldPart );
+    }
+    catch( Exception ) // Except )
+      {
+      MForm.ShowStatus( "Exception getting the FieldCount value." );
+      return "";
+      }
+
+    string[] SplitS = MainPart.Split( new Char[] { ' ' } );
     if( FieldCount > SplitS.Length )
       throw( new Exception( "FieldCount > SplitS.Length in decompress." ));
 
     for( int Count = 0; Count < FieldCount; Count++ )
       {
       string Line = SplitS[Count];
+      // Line might be "".
+      if( Line.Length == 0 )
+        {
+        SBuilder.Append( " " );
+        continue;
+        }
+
       if( Line.StartsWith( Char.ToString( MarkersDelimiters.IndexBeginMark )))
         {
         Line = Line.Remove( 0, 1 );
-        int Index = Int32.Parse( Line );
+        try
+        {
+        Index = Int32.Parse( Line );
+        }
+        catch( Exception ) // Except )
+          {
+          MForm.ShowStatus( "Exception getting the integer in: " + Line );
+          return "";
+          }
+
         Line = GetLineFromIndex( Index );
+        if( Line == "" )
+          {
+          MForm.ShowStatus( "There was no line at index: " + Index.ToString() );
+          return "";
+          }
         }
 
-      Line = Line.Replace( MarkersDelimiters.CRReplace, '\r' );
-      SBuilder.Append( Line + ">" );
+      SBuilder.Append( Line + " " );
       }
 
-    return SBuilder.ToString();
+    string Result = ReverseReplaceCharacters( SBuilder.ToString());
+    return Result;
     }
     catch( Exception Except )
       {
@@ -532,17 +654,6 @@ namespace DGOLibrary
       return "";
       }
     }
-
-/*
-What CR?  \n ?
-
-Test != FileContents.
-DiffAt: 22815
-FileContents:
-<!DOCTYPE html>
-unusual line endings
-  <!--[if IEMobile 7]><html class="no-js ie iem7" lang="en" dir="ltr"><![endif]-->
-*/
 
 
 
