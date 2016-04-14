@@ -5,10 +5,8 @@
 
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+
 
 namespace DGOLibrary
 {
@@ -20,25 +18,43 @@ namespace DGOLibrary
   // Multilingual Plane except these characters
   // commonly known as Dingbat characters.
 
-  // All of these are 3 bytes in UTF8.
-  // So use something other than UTF8 for compression
-  // at the byte level.
+  // All of these symbols are 3 bytes in UTF8.
+  // But see CharacterIndex.cs.
 
-  // 2700) ✀  Used to replace \r character.
-  internal const char CRReplace = '✀'; // Char.ToString( (char)0x2700 );
+  internal const char NoCharacter = '✀';
+  internal const char IndexBeginMark = '➀';
+  internal const char SlashReplace = '➁';
+  internal const char TagReplace = '➂';
+  internal const char CRReplace = '➃';
+  internal const char TheReplace = '➄';
+  internal const char AndReplace = '➅';
+  internal const char DivReplace = '➆';
+  internal const char EqualsReplace = '➇';
+  internal const char ClassReplace = '➈';
+  internal const char FieldCountMark = '➉';
+  internal const char Paragraph = '➊';
+  internal const char AnchorTag = '➋';
+  internal const char HeraldDomain = '➌';
+  internal const char FaceBookComments = '➍';
+  internal const char IndexBeginAndSpaceReplace = '➎';
+  internal const char LiTag = '➏';
+  internal const char ArticleWord = '➐';
+  internal const char FaceBookCommentLink = '➑';
+  internal const char DashReplace = '➒';
 
-  // 2794) ➔  Used to mark the beginning of an indexed line.
-  internal const char IndexBeginMark = '➔';
-
-  // 2705) ✅  Used to delimit the field count.
-  internal const char FieldCountMark = '✅';
+  // Check CharacterIndex.cs.
 
 
     /*
+2792) 
+2793) ➓
+
+
   //    Dingbats (0x2700 to 0x27BF)
 
-  // 2701) ✁  
-  // 2702) ✂
+2700) ✀
+2701) ✁
+2702) ✂
 2703) ✃
 2704) ✄
 2705) ✅
@@ -184,6 +200,7 @@ namespace DGOLibrary
 2791) ➑
 2792) ➒
 2793) ➓
+2794) ➔
 2795) ➕
 2796) ➖
 2797) ➗
@@ -226,7 +243,6 @@ namespace DGOLibrary
 27BC) ➼
 27BD) ➽
 27BE) ➾
-
 
     */
 
