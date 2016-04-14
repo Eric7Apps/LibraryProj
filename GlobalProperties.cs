@@ -3,12 +3,11 @@
 // ericlibproj.blogspot.com
 
 
+
 using System;
-using System.Collections.Generic;
 using System.Text;
-using System.Threading.Tasks;
 using System.IO;
-using System.Windows.Forms;
+using System.Windows.Forms; // Application.
 
 
 
@@ -18,7 +17,8 @@ namespace DGOLibrary
   {
   private MainForm MForm;
   private ConfigureFile Config;
-
+  private int LastIndexInCompress1 = 0;
+  private int LastIndexInWordCompress = 0;
 
 
   internal GlobalProperties( MainForm UseForm )
@@ -34,26 +34,69 @@ namespace DGOLibrary
 
   internal void ReadAllPropertiesFromConfig()
     {
-    // RSAPrime1 = Config.GetString( "RSAPrime1" );
+    try
+    {
+    LastIndexInCompress1 = GetIntegerValue( "LastIndexInCompress1" );
+    LastIndexInWordCompress = GetIntegerValue( "LastIndexInWordCompress" );
+
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Exception in ReadAllPropertiesFromConfig():" );
+      MForm.ShowStatus( Except.Message );
+      }
     }
 
 
-  /*
-  internal string GetRSAPrime1()
+
+  private int GetIntegerValue( string Key )
     {
-    return RSAPrime1;
+    try
+    {
+    return Int32.Parse( Config.GetString( Key ));
     }
-    */
+    catch( Exception ) // Except )
+      {
+      // MForm.ShowStatus( "Exception in GetIntegerValue():" );
+      // MForm.ShowStatus( Except.Message );
+      return -1;
+      }
+    }
 
 
-  /*
-  internal void SetRSAPrivKInverseExponent( string SetTo )
+
+  private void SetIntegerValue( string Key, int ToSet )
     {
-    RSAPrivKInverseExponent = SetTo;
-    Config.SetString( "RSAPrivKInverseExponent", SetTo );
+    Config.SetString( Key, ToSet.ToString() );
     Config.WriteToTextFile();
     }
-    */
+
+
+
+  internal int GetLastIndexInCompress1()
+    {
+    return LastIndexInCompress1;
+    }
+
+
+  internal void SetLastIndexInCompress1( int SetTo )
+    {
+    SetIntegerValue( "LastIndexInCompress1", SetTo );
+    }
+
+
+
+  internal int GetLastIndexInWordCompress()
+    {
+    return LastIndexInWordCompress;
+    }
+
+
+  internal void SetLastIndexInWordCompress( int SetTo )
+    {
+    SetIntegerValue( "LastIndexInWordCompress", SetTo );
+    }
+
 
 
   }
