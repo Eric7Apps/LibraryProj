@@ -78,6 +78,37 @@ namespace DGOLibrary
       if( (ToCheck >= 0x2700) && (ToCheck <= 0x27BF))
         ToCheck = ' '; // continue;
 
+      // Basic Multilingual Plane
+      // C0 Controls and Basic Latin (Basic Latin) (0000–007F)
+      // C1 Controls and Latin-1 Supplement (0080–00FF)
+      // Latin Extended-A (0100–017F)
+      // Latin Extended-B (0180–024F)
+      // IPA Extensions (0250–02AF)
+      // Spacing Modifier Letters (02B0–02FF)
+      // Combining Diacritical Marks (0300–036F)
+      // General Punctuation (2000–206F)
+      // Superscripts and Subscripts (2070–209F)
+      // Currency Symbols (20A0–20CF)
+      // Combining Diacritical Marks for Symbols (20D0–20FF)
+      // Letterlike Symbols (2100–214F)
+      // Number Forms (2150–218F)
+      // Arrows (2190–21FF)
+      // Mathematical Operators (2200–22FF)
+      // Box Drawing (2500–257F)
+      // Geometric Shapes (25A0–25FF)
+      // Miscellaneous Symbols (2600–26FF)
+      // Dingbats (2700–27BF)
+      // Miscellaneous Symbols and Arrows (2B00–2BFF)
+
+      // Control characters.
+      if( (ToCheck >= 127) && (ToCheck <= 160))
+        ToCheck = ' ';
+
+      // Control character?
+      if( ToCheck == 173 )
+        ToCheck = ' ';
+
+
       SBuilder.Append( Char.ToString( ToCheck ));
       }
 
@@ -220,6 +251,9 @@ namespace DGOLibrary
     if( InSLength < MatchLength )
       return false;
 
+    if( Where < 0 )
+      return false;
+
     for( int Count = 0; Count < MatchLength; Count++ )
       {
       if( (Where + Count) >= InSLength )
@@ -251,6 +285,15 @@ namespace DGOLibrary
     {
     try
     {
+    if( InString == null )
+      return "";
+
+    if( InString.Length < StartS.Length )
+      return InString;
+
+    if( InString.Length < EndS.Length )
+      return InString;
+
     StringBuilder SBuilder = new StringBuilder();
     bool IsInside = false;
     int EndSLength = EndS.Length;
