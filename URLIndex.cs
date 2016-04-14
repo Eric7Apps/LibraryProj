@@ -434,7 +434,7 @@ namespace DGOLibrary
     }
 
 
-
+  /*
   internal void ReindexFromFile( string Title, string URL, string FileName, string RelativeURLBase )
     {
     try
@@ -488,7 +488,7 @@ namespace DGOLibrary
     // to this URLIndex to get the indexes for every
     // URL in the links it is adding.  So while this
     // is being called, new URLs are being added.
-    UsePage.ReindexFromFile();
+    UsePage.ReindexFromFile( true );
     }
     catch( Exception Except )
       {
@@ -496,6 +496,7 @@ namespace DGOLibrary
       MForm.ShowStatus( Except.Message );
       }
     }
+    */
 
 
 
@@ -638,10 +639,11 @@ namespace DGOLibrary
 
 
 
-
+  /*
   internal void ReadAllFilesToContent2()
     {
-    // The Windows Antimalware Service executible is
+    // The main files have JavaScript in them and so
+    // the Windows Antimalware Service executible is
     // taking almost all of the CPU time the first
     // time this is run if the computer has been turned
     // off.  But apparently it knows if it hasn't been
@@ -683,6 +685,7 @@ namespace DGOLibrary
 
     MForm.ShowStatus( "Finished ReadAllFilesToContent()." );
     }
+    */
 
 
 
@@ -733,14 +736,15 @@ namespace DGOLibrary
 
 
 
-  internal void IndexAll( bool ReadFilesFirst )
+  internal void IndexAll( bool ReadFromCompressed )
     {
     try
     {
+    MForm.ShowStatus( "Started indexing..." );
     ECTime StartTime = new ECTime();
     MForm.MainWordsData.ClearAllIntCollections();
-    if( ReadFilesFirst )
-      ReadAllFilesToContent2();
+    // if( ReadFilesFirst )
+      // ReadAllFilesToContent2();
 
     StartTime.SetToNow();
 
@@ -754,7 +758,7 @@ namespace DGOLibrary
       for( int Count = 0; Count < Last; Count++ )
         {
         Loops++;
-        if( (Loops & 0x1F) == 0 )
+        if( (Loops & 0x7) == 0 )
           {
           // MForm.ShowStatus( "Files: " + Loops.ToString( "N0" ));
           if( !MForm.CheckEvents())
@@ -766,7 +770,7 @@ namespace DGOLibrary
         if( Page1 == null )
           continue;
 
-        Page1.ReindexFromFile();
+        Page1.ReindexFromFile( ReadFromCompressed );
         }
       }
 
@@ -785,53 +789,6 @@ namespace DGOLibrary
     }
 
 
-  /* duplicate to erase ======
-  internal void MakeCompressedFiles()
-    {
-    try
-    {
-    ECTime StartTime = new ECTime();
-    StartTime.SetToNow();
-
-    int Loops = 0;
-    for( int Index = 0; Index < URLsRecArrayLength; Index++ )
-      {
-      if( URLsRecArray[Index].URLIndexArray ==  null )
-        continue;
-
-      int Last = URLsRecArray[Index].URLIndexArrayLast;
-      for( int Count = 0; Count < Last; Count++ )
-        {
-        Loops++;
-        if( (Loops & 0x1F) == 0 )
-          {
-          MForm.ShowStatus( "Compressed Files: " + Loops.ToString( "N0" ));
-          if( !MForm.CheckEvents())
-            return;
-
-          }
-
-        Page Page1 =  URLsRecArray[Index].URLIndexArray[Count].PageForURL;
-        if( Page1 == null )
-          continue;
-
-        Page1.ReadFullAndWriteToCompressed( Page1.GetFileName() );
-        }
-      }
-
-    MForm.ShowStatus( " " );
-    int Seconds = (int)StartTime.GetSecondsToNow();
-    int Minutes = Seconds / 60;
-    Seconds = Seconds % 60;
-    MForm.ShowStatus( "Finished writing to compressed files: " + Minutes.ToString( "N0" ) + ":" + Seconds.ToString());
-    }
-    catch( Exception Except )
-      {
-      MForm.ShowStatus( "Exception in URLIndex.MakeCompressedFiles()." );
-      MForm.ShowStatus( Except.Message );
-      }
-    }
-    */
 
 
   internal void ShowDuplicateFileNames()
@@ -1241,6 +1198,47 @@ namespace DGOLibrary
       MForm.ShowStatus( Except.Message );
       return null;
       }
+    }
+
+
+
+  internal void CompressAllFiles()
+    {
+    if( !MForm.GetServersAreReady())
+      {
+      MForm.ShowStatus( "The startup process isn't finished yet." );
+      return;
+      }
+
+    // Do this indexing to add to the Frequency data.
+    // Don't read from the compressed files.
+    MForm.HuffmanCd.Clear();
+    IndexAll( false );
+
+    MForm.ShowStatus( "Sorting..." );
+    // There are whole paragraphs from the Herald that
+    // are repeated more than 20 times because the files
+    // are duplicated at so many different URLs.
+    MForm.PageFrequencyCtr.SortByCount( 20 ); // Minimum frequency.
+
+    MForm.ShowStatus( "Finished sorting." );
+    // FrequencyCtr.ShowValues( 500 );
+    MForm.PageFrequencyCtr.WriteToTextFile();
+    MForm.ShowStatus( "Saved the frequency file." );
+    // MainWordsData.ShowWordsAtZero();
+    MForm.ShowStatus( "Reading PageCompress frequency data..." );
+    MForm.PageCompress1.ReadFromFrequencyFile();
+    MForm.ShowStatus( "Writing PageCompress data..." );
+    MForm.PageCompress1.WriteToTextFile();
+
+    MForm.ShowStatus( "Making compressed files." );
+    MakeCompressedFiles();
+
+    MForm.PageFrequencyCtr.ShowCharacters();
+
+    MForm.HuffmanCd.GetStatsString();
+
+    MForm.ShowStatus( "Finished making compressed files." );
     }
 
 
