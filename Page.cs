@@ -3,6 +3,7 @@
 // ericlibproj.blogspot.com
 
 
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -22,9 +23,7 @@ namespace DGOLibrary
   private string FileName = "";
   private int Index = 0;
   private string SearchableContents = "";
-  private string FullFileContents = "";
   // private string CompressedFileContents = "";
-  // private byte[] UTF8Contents;
   private string RelativeURLBase = "";
 
 
@@ -175,26 +174,40 @@ namespace DGOLibrary
 
 
 
-  internal void ReindexFromFile()
+  internal void ReindexFromFile( bool ReadFromCompressed )
     {
     try
     {
     SearchableContents = "";
 
-    // FullFileContents should have already been read.
-    string FileContents = FullFileContents;
-    if( FileContents == "" )
+    if( FileName == "" )
+      return;
+
+    string FileContents = "";
+    if( ReadFromCompressed )
+      {
+      string CompressedFileName = FileName.Replace( "\\PageFiles\\", "\\PageFilesCompressed\\" );
+      FileContents = ReadFromCompressedFile( CompressedFileName );
+      }
+    else
+      {
       FileContents = ReadFromTextFile( FileName );
+      }
 
     if( FileContents == "" )
       return;
-
 
     if( HasBadFileContents( FileContents, FileName ))
+      {
+      File.Delete( FileName );
       return;
+      }
 
     if( !HasGoodBaseURLContents( FileContents ))
+      {
+      File.Delete( FileName );
       return;
+      }
 
     /*
     if( URL != ExistingURL )
@@ -213,26 +226,27 @@ namespace DGOLibrary
     // MForm.ShowStatus( "Updating: " + URL );
     // MForm.ShowStatus( "File name: " + FileName );
 
-    // GetCleanUnicodeString() was done in
-    // ReadFromTextFile() for each line.
+    // GetCleanUnicodeString() was already done
+    // in ReadFromTextFile() for each line.
 
     // Update the file's date/time stamp for testing
     // so I know if the file was used.
     //  WriteToTextFile( FileContents );
 
-    SplitForFrequencyData( FileContents );
-
     string CleanContents = FileContents;
     FileContents = "";
 
+    if( !ReadFromCompressed )
+      {
+      CleanContents = Utility.RemovePatternFromStartToEnd( "<!--", "-->", CleanContents );
+      // This will match <ScRipT.  It's not case sensitive.
+      CleanContents = Utility.RemovePatternFromStartToEnd( "<script", "/script>", CleanContents );
+      // SplitForFrequencyData( CleanAndSimplify.SimplifyCharacterCodes( CleanContents ));
+      SplitForFrequencyData( CleanContents );
+      // ==========
+      }
+
     // ContentsUpdateTime.SetToNow();
-
-    //  GetScriptAndComments( CleanContents );
-
-    CleanContents = Utility.RemovePatternFromStartToEnd( "<!--", "-->", CleanContents );
-
-    // This will match <ScRipT.  It's not case sensitive.
-    CleanContents = Utility.RemovePatternFromStartToEnd( "<script", "/script>", CleanContents );
 
     // Parse what's in the tags recursively.
     BasicTag BTag = new BasicTag( this, CleanContents, RelativeURLBase );
@@ -249,12 +263,18 @@ namespace DGOLibrary
 
   private bool HasGoodBaseURLContents( string FileContents )
     {
-    //var heatmap_pages = ['durangoherald.com', 'durangoherald.com/section/news01', 'durangoherald.com/section/sports', 'durangoherald.com/section/opinion', 'durangoherald.com/section/lifestyle'];
-
-    // href="http://e-herald.net"
-
+    // This is an oversimplification for fixing a problem
+    // that needs more work.
 
     FileContents = FileContents.ToLower();
+
+    if( FileContents.Contains( "href=\"http://e-herald.net\"" ))
+      {
+      if( RelativeURLBase != "http://www.durangoherald.com" )
+        return false;
+
+      }
+
 
     ////////
     if( RelativeURLBase == "http://www.durangoherald.com" )
@@ -274,6 +294,7 @@ namespace DGOLibrary
         MForm.ShowStatus( "A page from the Herald contains a full link to the Durango Gov." );
         MForm.ShowStatus( "Title: " + Title );
         MForm.ShowStatus( "URL: " + URL );
+        return false;
         }
       }
 
@@ -296,6 +317,7 @@ namespace DGOLibrary
         MForm.ShowStatus( "A page from the Telegraph contains a full link to Durango Gov." );
         MForm.ShowStatus( "Title: " + Title );
         MForm.ShowStatus( "URL: " + URL );
+        return false;
         }
       }
 
@@ -369,7 +391,7 @@ namespace DGOLibrary
       return;
 
     if( !HasGoodBaseURLContents( FileContents ))
-      return;
+      return;  // So it never gets written from the temp file.
 
     if( FileName.Length < 3 )
       FileName = MakeNewFileName(); // UniqueNumber );
@@ -465,47 +487,104 @@ namespace DGOLibrary
 
   private void SplitForFrequencyData( string InString )
     {
-    string[] SplitS = InString.Split( new Char[] { '>' } );
+    // It can do without the space or CR after the
+    // last </html> tag.
+    InString = InString.Trim();
+
+    InString = PageCompress.ReplaceCharacters( InString );
+
+    string[] SplitS = InString.Split( new Char[] { ' ' } );
     for( int Count = 0; Count < SplitS.Length; Count++ )
       {
       string Line = SplitS[Count];
 
-      Line = Line.Replace( '\r', MarkersDelimiters.CRReplace );
       if( Line.Length >= PageCompress.MinimumStringLength )
-        MForm.AddFrequencyWordCount2( Line );
+        MForm.AddPageFrequencyCount( Line );
 
       }
     }
 
 
 
+
+  /*
   internal void ReadToFullFileContentsString( string InFileName )
     {
     FullFileContents = ReadFromTextFile( InFileName );
     }
-
+    */
 
 
   internal void ReadFullAndWriteToCompressed( string InFileName )
     {
     string FileContents = ReadFromTextFile( InFileName );
+
+    int DiffAt = 0;
+    string CleanContents = "";
+    byte[] CharBuffer = MForm.CharIndex.StringToBytes( FileContents );
+    if( CharBuffer == null )
+      {
+      MForm.ShowStatus( "CharBuffer == null." );
+      }
+    else
+      {
+      string TestChars = MForm.CharIndex.BytesToString( CharBuffer );
+      if( TestChars != FileContents )
+        {
+        DiffAt = Utility.FirstDifferentCharacter( TestChars, FileContents );
+        CleanContents = FileContents.Replace( '\r', MarkersDelimiters.CRReplace );
+        TestChars = TestChars.Replace( '\r', MarkersDelimiters.CRReplace );
+        string ShowS = "TestChars.Length: " + TestChars.Length.ToString() + "\r\n" +
+           GetFileName() + "\r\n" +
+           "DiffAt: " + DiffAt.ToString() +
+           "\r\nCleanContents:\r\n" + CleanContents +
+           "\r\n\r\nTestChars:\r\n" + TestChars;
+
+        throw( new Exception( "TestChars != FileContents.\r\n" + ShowS ));
+        }
+      }
+
+    CleanContents = FileContents;
+
+    // Remove comments.
+    CleanContents = Utility.RemovePatternFromStartToEnd( "<!--", "-->", CleanContents );
+
+    // Remove JavaScript.
+    CleanContents = Utility.RemovePatternFromStartToEnd( "<script", "/script>", CleanContents );
+
+    // ========= Fix this because of links.
+    // CleanContents = CleanAndSimplify.SimplifyCharacterCodes( CleanContents );
+
+    CleanContents = CleanContents.Replace( "\r\r", "\r" );
+    CleanContents = CleanContents.Replace( "\r\r", "\r" );
     // It can do without the space or CR after the
     // last </html> tag.
-    string TrimmedFileContents = FileContents.Trim();
+    CleanContents = CleanContents.Trim();
+    if( CleanContents.Length < 20 ) // <html>nada</html>
+      {
+      MForm.ShowStatus( "Nothing to compress in: " + InFileName );
+      return;
+      }
 
-    string CompressedFileContents = MForm.PageCompress1.GetCompressedPage( TrimmedFileContents );
+    string CompressedFileContents = MForm.PageCompress1.GetCompressedPage( CleanContents );
     WriteToCompressedTextFile( CompressedFileContents );
     string Test = MForm.PageCompress1.GetDecompressedPage( CompressedFileContents );
-    int DiffAt = Utility.FirstDifferentCharacter( Test, TrimmedFileContents );
 
-    if( Test != TrimmedFileContents )
+    DiffAt = Utility.FirstDifferentCharacter( Test, CleanContents );
+
+    if( Test != CleanContents )
       {
+      CleanContents = CleanContents.Replace( '\r', MarkersDelimiters.CRReplace );
+      // CleanContents = CleanContents.Replace( '\n', MarkersDelimiters.NewLineReplace );
+      Test = Test.Replace( '\r', MarkersDelimiters.CRReplace );
+      // Test = Test.Replace( '\n', MarkersDelimiters.NewLineReplace );
+
       string ShowS = "DiffAt: " + DiffAt.ToString() +
-        "\r\nFileContents:\r\n" + FileContents +
+        "\r\nCleanContents:\r\n" + CleanContents +
         "\r\n\r\nTest:\r\n" + Test +
         "\r\n\r\nCompressedFileContents:\r\n" + CompressedFileContents;
 
-      throw( new Exception( "Test != FileContents.\r\n" + ShowS ));
+      throw( new Exception( "Test != CleanContents.\r\n" + ShowS ));
       }
     }
 
@@ -638,6 +717,54 @@ namespace DGOLibrary
       }
 
     return SBuilder.ToString();
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Could not read the file: \r\n" + ReadFileName );
+      MForm.ShowStatus( Except.Message );
+      return "";
+      }
+    }
+
+
+
+  internal string ReadFromCompressedFile( string ReadFileName )
+    {
+    if( MForm.GetIsClosing())
+      return "";
+
+    try
+    {
+    if( !File.Exists( ReadFileName ))
+      {
+      MForm.ShowStatus( " " );
+      MForm.ShowStatus( "Reading compressed text file. The file does not exist for:" );
+      MForm.ShowStatus( Title );
+      MForm.ShowStatus( ReadFileName );
+      MForm.ShowStatus( URL );
+      MForm.ShowStatus( " " );
+      return "";
+      }
+
+    StringBuilder SBuilder = new StringBuilder();
+
+    using( StreamReader SReader = new StreamReader( ReadFileName, Encoding.UTF8 ))
+      {
+      while( SReader.Peek() >= 0 )
+        {
+        string Line = SReader.ReadLine();
+        if( Line == null )
+          break;
+
+        // Line = Utility.GetCleanUnicodeString( Line, 10000000, false );
+        if( Line.Length > 0 )
+          SBuilder.Append( Line );
+
+        }
+      }
+
+    string Result = MForm.PageCompress1.GetDecompressedPage( SBuilder.ToString() );
+    return Result;
     }
     catch( Exception Except )
       {
@@ -862,10 +989,6 @@ namespace DGOLibrary
     }
 
 
-  internal void AddFrequencyWordCount2( string Word )
-    {
-    MForm.AddFrequencyWordCount2( Word );
-    }
 
 
   internal void AddToSearchableContents( string InString )
