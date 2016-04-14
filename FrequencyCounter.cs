@@ -3,6 +3,7 @@
 // ericlibproj.blogspot.com
 
 
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -15,8 +16,10 @@ namespace DGOLibrary
   {
   private MainForm MForm;
   private SortedDictionary<string, int> WordsDictionary;
+  private SortedDictionary<char, long> CharacterDictionary;
   private StringRec[] StringRecArray;
   private int[] SortIndexArray;
+  private int StringRecArrayLast = 0;
   private string FileName = "";
 
 
@@ -33,12 +36,14 @@ namespace DGOLibrary
 
 
 
-  internal FrequencyCounter( MainForm UseForm )
+  internal FrequencyCounter( MainForm UseForm, string UseFileName )
     {
     MForm = UseForm;
 
     WordsDictionary = new SortedDictionary<string, int>();
-    FileName = MForm.GetDataDirectory() + "FrequencyCount.txt";
+    CharacterDictionary = new SortedDictionary<char, long>();
+
+    FileName = MForm.GetDataDirectory() + UseFileName;
     }
 
 
@@ -49,10 +54,29 @@ namespace DGOLibrary
     }
 
 
-  internal void AddString2( string InString )
+
+  internal void AddCharacter( char ToAdd )
+    {
+    if( CharacterDictionary.ContainsKey( ToAdd ))
+      {
+      CharacterDictionary[ToAdd] = CharacterDictionary[ToAdd] + 1;
+      }
+    else
+      {
+      CharacterDictionary[ToAdd] = 1;
+      }
+    }
+
+
+
+  internal void AddString( string InString )
     {
     if( InString.Length < 3 )
       return;
+
+
+    for( int Count = 0; Count < InString.Length; Count++ )
+      AddCharacter( InString[Count] );
 
     // Don't do this ToLower().  Compression can't put
     // it back just like it was.
@@ -69,7 +93,7 @@ namespace DGOLibrary
 
 
 
-  private void MakeSortedArray()
+  private void MakeSortedArray( int MinFrequency )
     {
     try
     {
@@ -77,21 +101,19 @@ namespace DGOLibrary
     StringRecArray = new StringRec[ArrayLength];
     SortIndexArray = new int[ArrayLength];
 
-    int Where = 0;
+    StringRecArrayLast = 0;
     foreach( KeyValuePair<string, int> Kvp in WordsDictionary )
       {
       StringRec Rec = new StringRec();
       Rec.Word = Kvp.Key;
       Rec.Count = Kvp.Value;
 
-      // Drastically improve sorting and file size by
-      // removing all of those unique or rare values.
-      if( Rec.Count < 3 )
+      if( Rec.Count < MinFrequency )
         continue;
 
-      StringRecArray[Where] = Rec;
-      SortIndexArray[Where] = Where;
-      Where++;
+      StringRecArray[StringRecArrayLast] = Rec;
+      SortIndexArray[StringRecArrayLast] = StringRecArrayLast;
+      StringRecArrayLast++;
       }
 
     }
@@ -104,12 +126,12 @@ namespace DGOLibrary
 
 
 
-  internal void SortByCount()
+  internal void SortByCount( int MinFrequency )
     {
     if( WordsDictionary.Count < 2 )
       return;
 
-    MakeSortedArray();
+    MakeSortedArray( MinFrequency );
 
     int Loops = 0;
     while( true )
@@ -124,7 +146,7 @@ namespace DGOLibrary
 
       bool Swapped = false;
 
-      for( int Count = 0; Count < (StringRecArray.Length - 1); Count++ )
+      for( int Count = 0; Count < (StringRecArrayLast - 1); Count++ )
         {
         if( StringRecArray[SortIndexArray[Count]].Count < StringRecArray[SortIndexArray[Count + 1]].Count )
           {
@@ -145,10 +167,13 @@ namespace DGOLibrary
 
   internal void ShowValues( int Max )
     {
+    if( StringRecArray == null )
+      return;
+
     if( WordsDictionary.Count < 2 )
       return;
 
-    for( int Count = 0; Count < StringRecArray.Length; Count++ )
+    for( int Count = 0; Count < StringRecArrayLast; Count++ )
       {
       if( Count >= Max )
         break;
@@ -169,18 +194,58 @@ namespace DGOLibrary
 
 
 
+
+  internal void ShowCharacters()
+    {
+    int Count = 132;
+    foreach( KeyValuePair<char, long> Kvp in CharacterDictionary )
+      {
+      // if( Kvp.Value < 50 )
+        // continue;
+
+      if( MForm.CharIndex.GetCharacterIndex( Kvp.Key ) >= 0 )
+        continue;
+
+      // I'm using this to write code for the array.
+      int Hex = Kvp.Key;
+      MForm.ShowStatus( "    CharacterArray[" + Count.ToString() + "] = '" + Char.ToString( Kvp.Key ) + "'; // " + Kvp.Value.ToString( "N0" ) + "    0x" + Hex.ToString( "X4" ) );
+      Count++;
+      }
+
+    MForm.ShowStatus( " " );
+    MForm.ShowStatus( " " );
+    MForm.ShowStatus( " " );
+    MForm.ShowStatus( " " );
+    MForm.ShowStatus( " " );
+
+    Count = 132;
+    foreach( KeyValuePair<char, long> Kvp in CharacterDictionary )
+      {
+      // if( Kvp.Value < 50 )
+        // continue;
+
+      if( MForm.CharIndex.GetCharacterIndex( Kvp.Key ) >= 0 )
+        continue;
+
+      MForm.ShowStatus( "      case (int)'" + Char.ToString( Kvp.Key ) + "': return " + Count.ToString() + ";" );
+      Count++;
+      }
+    }
+
+
+
   internal bool WriteToTextFile()
     {
     try
     {
+    if( StringRecArray == null )
+      return false;
+
     using( StreamWriter SWriter = new StreamWriter( FileName, false, Encoding.UTF8 ))
       {
-      for( int Count = 0; Count < StringRecArray.Length; Count++ )
+      for( int Count = 0; Count < StringRecArrayLast; Count++ )
         {
         int WordCount = StringRecArray[SortIndexArray[Count]].Count;
-        if( WordCount < 3 )
-          continue;
-
         string Word = StringRecArray[SortIndexArray[Count]].Word;
         // int Weight = WordCount * Word.Length;
         string Line = WordCount.ToString() + "\t" + Word;
