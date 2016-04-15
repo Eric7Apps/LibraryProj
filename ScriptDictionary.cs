@@ -121,6 +121,24 @@ namespace DGOLibrary
     if( InString.Contains( "telerik" ))
       return true;
 
+    // It makes a unique ad ID.
+    if( InString.Contains( "adzoneid:" ))
+      return true;
+
+    // It makes a unique ID.
+    if( InString.Contains( "https://secure.ballantinecommunications.net/clickshare/" ))
+      return true;
+
+    // It makes a unique ID.
+    if( InString.Contains( "current_user_data.id" ))
+      return true;
+
+
+
+    // It makes a unique tag:
+    if( InString.Contains( "googletag.display(" ))
+      return true;
+
     // It's making a separate script for every article.
     if( InString.Contains( "/apps/pbcs.dll/article?" ))
       return true;
