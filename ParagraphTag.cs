@@ -160,7 +160,7 @@ namespace DGOLibrary
     // GetCallingPage().AddStatusString( "Paragraph: ", 500 );
     // GetCallingPage().AddStatusString( FullText, 5000 );
 
-    string SearchText = CleanAndSimplify.SimplifyCharacterCodes( FullText );
+    string SearchText = CleanAndSimplify.CleanupAll( FullText );
     GetCallingPage().AddToSearchableContents( SearchText );
 
     SortedDictionary<string, int> WordsDictionary = ParseText( SearchText );
