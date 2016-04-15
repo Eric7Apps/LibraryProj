@@ -371,6 +371,27 @@ namespace DGOLibrary
     }
 
 
+
+  private void CloseServers()
+    {
+    CheckTimer.Stop();
+
+    if( WebListenForm != null )
+      {
+      if( !WebListenForm.IsDisposed )
+        {
+        WebListenForm.Hide();
+        
+        // This could take a while since it's closing connections:
+        WebListenForm.FreeEverythingAndStopServer();
+        }
+      }
+
+    ShowStatus( "Closed servers." );
+    }
+
+
+
   internal void ShowWebListenerFormStatus( string Status )
     {
     if( IsClosing )
@@ -635,8 +656,13 @@ namespace DGOLibrary
       return;
       }
 
+    //////////
+    // For profiling and time testing.
+    CloseServers();
+    //////////
+
     PageFrequencyCtr.ClearAll();
-    MainURLIndex.IndexAll( false );
+    MainURLIndex.IndexAll( true ); // True: read from compressed.
     // FrequencyCtr.ShowValues( 500 );
     // FrequencyCtr.WriteToTextFile();
     // ShowStatus( "Saved the frequency file." );
@@ -684,6 +710,11 @@ namespace DGOLibrary
 
   private void compressAllToolStripMenuItem_Click(object sender, EventArgs e)
     {
+    //////////
+    // For profiling and time testing.
+    CloseServers();
+    //////////
+
     MainURLIndex.CompressAllFiles();
     }
 
