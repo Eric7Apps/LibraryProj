@@ -241,9 +241,8 @@ namespace DGOLibrary
       CleanContents = Utility.RemovePatternFromStartToEnd( "<!--", "-->", CleanContents );
       // This will match <ScRipT.  It's not case sensitive.
       CleanContents = Utility.RemovePatternFromStartToEnd( "<script", "/script>", CleanContents );
-      // SplitForFrequencyData( CleanAndSimplify.SimplifyCharacterCodes( CleanContents ));
+      SplitForFrequencyData( CleanAndSimplify.FixNonLinkParts( CleanContents ));
       SplitForFrequencyData( CleanContents );
-      // ==========
       }
 
     // ContentsUpdateTime.SetToNow();
@@ -552,8 +551,8 @@ namespace DGOLibrary
     // Remove JavaScript.
     CleanContents = Utility.RemovePatternFromStartToEnd( "<script", "/script>", CleanContents );
 
-    // ========= Fix this because of links.
-    // CleanContents = CleanAndSimplify.SimplifyCharacterCodes( CleanContents );
+    // Change stuff, but don't ruin links.
+    CleanContents = CleanAndSimplify.FixNonLinkParts( CleanContents );
 
     CleanContents = CleanContents.Replace( "\r\r", "\r" );
     CleanContents = CleanContents.Replace( "\r\r", "\r" );
@@ -870,7 +869,7 @@ namespace DGOLibrary
       return false;
 
     Title = Utility.GetCleanUnicodeString( SplitS[0], 1000, true );
-    Title = CleanAndSimplify.SimplifyCharacterCodes( Title );
+    Title = CleanAndSimplify.CleanupAll( Title );
     URL = Utility.GetCleanUnicodeString( SplitS[1], 2000, true );
 
     if( URL.Contains( "durangoherald.com/#tab" ))
