@@ -381,11 +381,29 @@ namespace DGOLibrary
     }
 
 
+
+  internal static bool StringHasALetter( string InString )
+    {
+    for( int Count = 0; Count < InString.Length; Count++ )
+      {
+      if( IsALetter( InString[Count] ))
+        return true;
+
+      }
+
+    return false;
+    }
+
+
+
   internal static bool IsALetter( char Letter )
     {
     // What exactly _is_ a letter?
     // It's anything that's not listed here.
     if( Char.IsDigit( Letter ))
+      return false;
+
+    if( Letter == ' ' )
       return false;
 
     if( Letter == '=' )
@@ -441,7 +459,6 @@ namespace DGOLibrary
 
     if( Letter == '+' )
       return false;
-
 
     if( Letter == '(' )
       return false;
