@@ -94,6 +94,26 @@ namespace DGOLibrary
     if( InString.Contains( "telerik" ))
       return true;
 
+    if( !Utility.StringHasALetter( InString ))
+      return true;
+
+    if( InString.Contains( "/article/" ))
+      return true;
+
+    // Each file is different even if it's pretty much
+    // the same file.
+    if( InString.Contains( "currentdate is " ))
+      return true;
+
+    // Search for this comment in pages:
+    if( InString.Contains( "last modified: " ))
+      return true;
+
+
+
+    if( InString.Contains( "getcontent: time out after" ))
+      return true;
+
     // It's making a separate script for every article.
     if( InString.Contains( "/apps/pbcs.dll/article?" ))
       return true;
