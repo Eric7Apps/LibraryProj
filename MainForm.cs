@@ -22,7 +22,7 @@ namespace DGOLibrary
 {
   public partial class MainForm : Form
   {
-  internal const string VersionDate = "4/12/2016";
+  internal const string VersionDate = "4/19/2016";
   internal const int VersionNumber = 09; // 0.9
   internal const string MessageBoxTitle = "Library Project";
   private System.Threading.Mutex SingleInstanceMutex = null;
@@ -41,8 +41,8 @@ namespace DGOLibrary
   internal GlobalProperties GlobalProps;
   // internal PageList PageList1;
   internal WordsDictionary WordsDictionary1;
-  internal ScriptDictionary ScriptDictionary1;
-  internal CodeCommentDictionary CodeCommentDictionary1;
+  // internal ScriptDictionary ScriptDictionary1;
+  // internal CodeCommentDictionary CodeCommentDictionary1;
   internal NetIPStatus NetStats;
   internal WordsData MainWordsData;
   internal URLIndex MainURLIndex;
@@ -72,8 +72,8 @@ namespace DGOLibrary
     PageCompress1 = new PageCompress( this );
     WordsDictionary1 = new WordsDictionary( this );
     MainWordsData = new WordsData( this );
-    ScriptDictionary1 = new ScriptDictionary( this );
-    CodeCommentDictionary1 = new CodeCommentDictionary( this );
+    // ScriptDictionary1 = new ScriptDictionary( this );
+    // CodeCommentDictionary1 = new CodeCommentDictionary( this );
     MainURLIndex = new URLIndex( this );
     WebFData = new WebFilesData( this );
 
@@ -359,11 +359,11 @@ namespace DGOLibrary
     // WordsDictionary1.WriteToTextFile();
     // MainTextBox.AppendText( "Saved words dictionary.\r\n" ); 
     
-    ScriptDictionary1.WriteToTextFile();
-    MainTextBox.AppendText( "Saved script.\r\n" ); 
+    // ScriptDictionary1.WriteToTextFile();
+    // MainTextBox.AppendText( "Saved script.\r\n" ); 
 
-    CodeCommentDictionary1.WriteToTextFile();
-    MainTextBox.AppendText( "Saved code comments.\r\n" ); 
+    // CodeCommentDictionary1.WriteToTextFile();
+    // MainTextBox.AppendText( "Saved code comments.\r\n" ); 
 
 
     // After getting what those others show.
@@ -492,11 +492,11 @@ namespace DGOLibrary
     // GetURLMgrForm is started.
     MainURLIndex.ReadFromTextFile();
 
-    ShowStatus( "Reading script data..." );
-    ScriptDictionary1.ReadFromTextFile();
+    // ShowStatus( "Reading script data..." );
+    // ScriptDictionary1.ReadFromTextFile();
 
-    ShowStatus( "Reading code comments data..." );
-    CodeCommentDictionary1.ReadFromTextFile();
+    // ShowStatus( "Reading code comments data..." );
+    // CodeCommentDictionary1.ReadFromTextFile();
 
     ShowStatus( "Reading words dictionary data..." );
     WordsDictionary1.ReadFromTextFile();
@@ -662,7 +662,10 @@ namespace DGOLibrary
     //////////
 
     PageFrequencyCtr.ClearAll();
-    MainURLIndex.IndexAll( true ); // True: read from compressed.
+    
+    // Fix this compress problem!
+    // ===============
+    MainURLIndex.IndexAll( false ); // True: read from compressed.
     // FrequencyCtr.ShowValues( 500 );
     // FrequencyCtr.WriteToTextFile();
     // ShowStatus( "Saved the frequency file." );
