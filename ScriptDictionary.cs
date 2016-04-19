@@ -1,3 +1,4 @@
+/*
 // Programming by Eric Chauvin.
 // Notes on this source code are at:
 // ericlibproj.blogspot.com
@@ -121,6 +122,9 @@ namespace DGOLibrary
     if( InString.Contains( "telerik" ))
       return true;
 
+    if( InString.Contains( "/apps/pbcs.dll/error?" ))
+      return true;
+
     // It makes a unique ad ID.
     if( InString.Contains( "adzoneid:" ))
       return true;
@@ -167,3 +171,4 @@ namespace DGOLibrary
   }
 }
 
+*/
