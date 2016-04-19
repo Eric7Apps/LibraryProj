@@ -44,6 +44,7 @@ namespace DGOLibrary
     }
 
 
+
   internal PageCompress( MainForm UseForm )
     {
     MForm = UseForm;
@@ -415,9 +416,9 @@ namespace DGOLibrary
     InString = InString.Replace( "the", Char.ToString( MarkersDelimiters.TheReplace ));
     InString = InString.Replace( "and", Char.ToString( MarkersDelimiters.AndReplace ));
     InString = InString.Replace( "div", Char.ToString( MarkersDelimiters.DivReplace ));
-    InString = InString.Replace( "<li", Char.ToString( MarkersDelimiters.LiTag ));
     InString = InString.Replace( "article", Char.ToString( MarkersDelimiters.ArticleWord ));
     InString = InString.Replace( "\"fb_comment_link\"", Char.ToString( MarkersDelimiters.FaceBookCommentLink ));
+    InString = InString.Replace( "li", Char.ToString( MarkersDelimiters.LiTag ));
     InString = InString.Replace( "/", Char.ToString( MarkersDelimiters.SlashReplace ) + " " );
     InString = InString.Replace( ">", Char.ToString( MarkersDelimiters.TagReplace ) + " " );
     InString = InString.Replace( "=", Char.ToString( MarkersDelimiters.EqualsReplace ) + " " );
@@ -436,9 +437,9 @@ namespace DGOLibrary
     InString = InString.Replace( Char.ToString( MarkersDelimiters.TagReplace ) + " ", ">" );
     InString = InString.Replace( Char.ToString( MarkersDelimiters.SlashReplace ) + " ", "/" );
 
+    InString = InString.Replace( Char.ToString( MarkersDelimiters.LiTag ), "li" );
     InString = InString.Replace( Char.ToString( MarkersDelimiters.FaceBookCommentLink ), "\"fb_comment_link\"" );
     InString = InString.Replace( Char.ToString( MarkersDelimiters.ArticleWord ), "article" );
-    InString = InString.Replace( Char.ToString( MarkersDelimiters.LiTag ), "<li" );
     InString = InString.Replace( Char.ToString( MarkersDelimiters.DivReplace ), "div" );
     InString = InString.Replace( Char.ToString( MarkersDelimiters.AndReplace ), "and");
     InString = InString.Replace( Char.ToString( MarkersDelimiters.TheReplace ), "the");
