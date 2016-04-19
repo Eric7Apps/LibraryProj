@@ -281,8 +281,9 @@ namespace DGOLibrary
       }
     else
       {
-      if( TitleWasRecentlyAdded( Title ))
-        return;
+      // =========
+      // if( TitleWasRecentlyAdded( Title ))
+        // return;
 
       UpdateTitleDateTime( Title );
       }
