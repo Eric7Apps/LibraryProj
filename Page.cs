@@ -140,6 +140,7 @@ namespace DGOLibrary
 
 
 
+  /*
   private void GetScriptAndComments( string FileContents )
     {
     // MForm.ShowStatus( "Code Comments:" );
@@ -171,7 +172,7 @@ namespace DGOLibrary
         }
       }
     }
-
+    */
 
 
   internal void ReindexFromFile( bool ReadFromCompressed )
@@ -352,6 +353,8 @@ namespace DGOLibrary
     {
     try
     {
+    // I have to compress new pages here.
+
     SearchableContents = "";
 
     // MForm.ShowStatus( " " );
@@ -408,7 +411,7 @@ namespace DGOLibrary
 
     ContentsUpdateTime.SetToNow();
 
-    GetScriptAndComments( CleanContents );
+    // GetScriptAndComments( CleanContents );
 
     CleanContents = Utility.RemovePatternFromStartToEnd( "<!--", "-->", CleanContents );
 
