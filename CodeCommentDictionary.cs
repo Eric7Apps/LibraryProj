@@ -1,3 +1,4 @@
+/*
 // Programming by Eric Chauvin.
 // Notes on this source code are at:
 // ericlibproj.blogspot.com
@@ -90,7 +91,10 @@ namespace DGOLibrary
   internal bool ContainsBadStuff( string InString )
     {
     InString = InString.ToLower();
-    
+
+    if( InString.Length < 50 )
+      return true;
+
     if( InString.Contains( "telerik" ))
       return true;
 
@@ -169,4 +173,4 @@ namespace DGOLibrary
   }
 }
 
-
+*/
