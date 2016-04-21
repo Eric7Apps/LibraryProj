@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Threading.Tasks;
+// using System.Threading.Tasks;
 using System.IO;
 
 
@@ -20,11 +20,13 @@ namespace DGOLibrary
   private string URL = "";
   private string Title = ""; // The title given in the link tag.
   private ECTime ContentsUpdateTime;
+  private string LastUpdateTimeInPage = "";
   private string FileName = "";
   private int Index = 0;
   private string SearchableContents = "";
   // private string CompressedFileContents = "";
   private string RelativeURLBase = "";
+  private string DuplicateURL = "";
 
 
   private Page()
@@ -234,6 +236,8 @@ namespace DGOLibrary
     // so I know if the file was used.
     //  WriteToTextFile( FileContents );
 
+    LastUpdateTimeInPage = GetLastUpdateTimeFromFileContents( FileContents );
+    // MForm.ShowStatus( "Last update: " + LastUpdateTimeInPage );
     string CleanContents = FileContents;
     FileContents = "";
 
@@ -399,6 +403,7 @@ namespace DGOLibrary
       FileName = MakeNewFileName(); // UniqueNumber );
 
     WriteToTextFile( FileContents );
+    LastUpdateTimeInPage = GetLastUpdateTimeFromFileContents( FileContents );
 
     // MForm.ShowStatus( " " );
     // MForm.ShowStatus( " " );
@@ -854,8 +859,9 @@ namespace DGOLibrary
            URL + "\t" +
            ContentsUpdateTime.GetIndex().ToString() + "\t" +
            FileName + "\t" +
-           // Index.ToString() + "\t" +
-           RelativeURLBase;
+           RelativeURLBase + "\t" +
+           DuplicateURL + "\t" +
+           LastUpdateTimeInPage;
 
     return Result;
     }
@@ -911,11 +917,6 @@ namespace DGOLibrary
       return false;
       }
 
-    ///////////
-    // Index = Int32.Parse( SplitS[4] );
-    // RelativeURLBase = Utility.GetCleanUnicodeString( SplitS[5], 1000, true );
-    //////////
-
     RelativeURLBase = Utility.GetCleanUnicodeString( SplitS[4], 1000, true );
     RelativeURLBase = RelativeURLBase.ToLower();
 
@@ -931,6 +932,12 @@ namespace DGOLibrary
 
     //   if( RelativeURLBase[RelativeURLBase.Length - 1] == '/' )
     //     RelativeURLBase = Utility.TruncateString( RelativeURLBase, RelativeURLBase.Length - 1 );
+
+    if( SplitS.Length >= 6 )
+      DuplicateURL = Utility.GetCleanUnicodeString( SplitS[5], 2000, true );
+
+    if( SplitS.Length >= 7 )
+      LastUpdateTimeInPage = Utility.GetCleanUnicodeString( SplitS[6], 100, true );
 
     return true;
     }
@@ -1005,6 +1012,221 @@ namespace DGOLibrary
     return SearchableContents;
     }
 
+
+
+  internal bool PageIsADuplicate( Page ToCheck )
+    {
+    try
+    {
+    MForm.ShowStatus( " " );
+    MForm.ShowStatus( "Title: " + Title );
+
+    // The pages contain different things even though
+    // it's really the same article.
+    string ThisPageS = ReadFromTextFile( FileName );
+    string ToCheckS =  ReadFromTextFile( ToCheck.GetFileName() );
+
+    float Ratio = (float)ThisPageS.Length / (float)ToCheckS.Length;
+    /*
+    if( Ratio < 0.9 )
+      return false;
+
+    if( Ratio > 1.2 )
+      return false;
+      */
+
+    // MForm.ShowStatus( "ThisPageS.Length: " + ThisPageS.Length.ToString());
+    // MForm.ShowStatus( "ToCheckS.Length: " + ToCheckS.Length.ToString());
+    // MForm.ShowStatus( "Ratio: " + Ratio.ToString( "N2" ));
+
+    // MForm.ShowStatus( "This file: " + FileName );
+    // MForm.ShowStatus( "To Check file: " + ToCheck.GetFileName() );
+
+    ThisPageS = Utility.RemovePatternFromStartToEnd( "<!--", "-->", ThisPageS );
+    ThisPageS = Utility.RemovePatternFromStartToEnd( "<script", "/script>", ThisPageS );
+
+    ToCheckS = Utility.RemovePatternFromStartToEnd( "<!--", "-->", ToCheckS );
+    ToCheckS = Utility.RemovePatternFromStartToEnd( "<script", "/script>", ToCheckS );
+
+    SortedDictionary<string, int> ThisPageDictionary = new SortedDictionary<string, int>();
+    SortedDictionary<string, int> ToCheckPageDictionary = new SortedDictionary<string, int>();
+
+    string[] SplitS = ThisPageS.Split( new Char[] { ' ' } );
+    // MForm.ShowStatus( "This Page SplitS.Length: " + SplitS.Length.ToString());
+    // float SplitLength1 = SplitS.Length;
+    for( int Count = 0; Count < SplitS.Length; Count++ )
+      {
+      string Word = SplitS[Count].Trim().ToLower();
+      if( Word == "" )
+        continue;
+
+      if( !MForm.MainWordsData.WordExists( Word ))
+        continue;
+
+      if( ThisPageDictionary.ContainsKey( Word ))
+        ThisPageDictionary[Word] = ThisPageDictionary[Word] + 1;
+      else
+        ThisPageDictionary[Word] = 1;
+
+      }
+
+
+    SplitS = ToCheckS.Split( new Char[] { ' ' } );
+    // MForm.ShowStatus( "ToCheck Page SplitS.Length: " + SplitS.Length.ToString());
+    // float SplitLength2 = SplitS.Length;
+
+    // Ratio = SplitLength1 / SplitLength2;
+    // MForm.ShowStatus( "Split ratio: " + Ratio.ToString( "N2" ));
+
+    for( int Count = 0; Count < SplitS.Length; Count++ )
+      {
+      string Word = SplitS[Count].Trim();
+      if( Word == "" )
+        continue;
+
+      if( !MForm.MainWordsData.WordExists( Word ))
+        continue;
+
+      if( ToCheckPageDictionary.ContainsKey( Word ))
+        ToCheckPageDictionary[Word] = ToCheckPageDictionary[Word] + 1;
+      else
+        ToCheckPageDictionary[Word] = 1;
+
+      }
+
+    int Words = 0;
+    int KeyCount = 0;
+    int ExactCount = 0;
+    foreach( KeyValuePair<string, int> Kvp in ThisPageDictionary )
+      {
+      Words++;
+      if( ToCheckPageDictionary.ContainsKey( Kvp.Key ))
+        {
+        // MForm.ShowStatus( "ContainsKey: " + Kvp.Key );
+        KeyCount++;
+        if( ToCheckPageDictionary[Kvp.Key] == ThisPageDictionary[Kvp.Key] )
+          ExactCount++;
+
+        }
+      else
+        {
+        // MForm.ShowStatus( "ToCheck does not contain: " + Kvp.Key );
+        }
+      }
+
+    float WordsRatio = (float)Words / (float)KeyCount;
+    /*
+    if( WordsRatio < 0.8 )
+      return false;
+
+    if( WordsRatio > 1.3 )
+      return false;
+      */
+
+    float ExactRatio = (float)ExactCount / (float)KeyCount;
+    /*
+    if( ExactRatio < 0.8 )
+      return false;
+
+    if( ExactRatio > 1.3 )
+      return false;
+      */
+
+    if( GetLastUpdateTimeInPage() != ToCheck.GetLastUpdateTimeInPage())
+      {
+      MForm.ShowStatus( "Original Last update: " + GetLastUpdateTimeInPage());
+      MForm.ShowStatus( "Duplicate Last update: " + ToCheck.GetLastUpdateTimeInPage());
+      }
+    else
+      {
+      // MForm.ShowStatus( "The original Last update is the same as the duplicate." );
+      MForm.ShowStatus( "Duplicate Last update: " + ToCheck.GetLastUpdateTimeInPage());
+      }
+
+    MForm.ShowStatus( "URL: " + URL );
+    MForm.ShowStatus( "ToCheck URL: " + ToCheck.GetURL() );
+    MForm.ShowStatus( "Words: " + Words.ToString( "N0" ));
+    MForm.ShowStatus( "KeyCount: " + KeyCount.ToString( "N0" ));
+    MForm.ShowStatus( "WordsRatio: " + WordsRatio.ToString( "N2" ));
+    MForm.ShowStatus( "ExactCount: " + ExactCount.ToString( "N0" ));
+    MForm.ShowStatus( "ExactRatio: " + ExactRatio.ToString( "N2" ));
+    return true;
+
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Exception in PageIsADuplicate()." );
+      MForm.ShowStatus( Except.Message );
+      return false;
+      }
+    }
+
+
+
+  internal void CopyDuplicateURL( Page ToCopy )
+    {
+    DuplicateURL = ToCopy.URL;
+    }
+
+
+  internal void ClearDuplicateURL()
+    {
+    DuplicateURL = "";
+    }
+
+
+  internal bool IsDuplicate()
+    {
+    if( DuplicateURL.Length > 2 )
+      return true;
+    else
+      return false;
+
+    }
+
+
+
+  internal string GetDuplicateURL()
+    {
+    return DuplicateURL;
+    }
+
+
+  internal string GetLastUpdateTimeInPage()
+    {
+    return LastUpdateTimeInPage;
+    }
+
+
+
+  private string GetLastUpdateTimeFromFileContents( string FileContents )
+    {
+    string[] SplitS = FileContents.Split(new Char[] { '>' });
+    for( int Count = 0; Count < SplitS.Length; Count++ )
+      {
+      string Line = SplitS[Count].Trim();
+      if( Line.Contains( "<!-- Published:  - Last modified:" ))
+        {
+        string[] SplitLine = Line.Split(new Char[] { ':' });
+        if( SplitLine.Length < 4 )
+          return Line;
+
+        // <!-- Published:
+        //  - Last modified:
+        // April 18. 2016 10:10PM -->
+        string Result = SplitLine[2].Trim() + ":" + SplitLine[3].Trim();
+        Result = Result.Replace( "--", "" ).Trim();
+        return Result;
+        }
+      }
+
+    string DownloadDate = "Downloaded on " +
+       ContentsUpdateTime.ToLocalDateString() +
+       " at " +
+       ContentsUpdateTime.ToLocalTimeString();
+
+    return DownloadDate;
+    }
 
 
 
