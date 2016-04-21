@@ -180,33 +180,6 @@ namespace DGOLibrary
 
       }
 
-
-    // There are duplicate links because they fall
-    // under multiple categories or because they are
-    // just messed up and duplicated all over the place.
-
-    // TitlesDictionary
-
-    // Durango track and field team strong in Farmington
-    // /20160320/SPORTS03/160329972/0/Sports/Durango-track-and-field-team-strong-in-Farmington
-    // /20160320/SPORTS03/160329972/0/Sports01/Durango-track-and-field-team-strong-in-Farmington
-    // /20160320/SPORTS03/160329972/0/Sports02/Durango-track-and-field-team-strong-in-Farmington
-    // /20160320/SPORTS03/160329972/0/Sports03/Durango-track-and-field-team-strong-in-Farmington
-    // /20160320/SPORTS03/160329972/0/Sports04/Durango-track-and-field-team-strong-in-Farmington
-    // /20160320/SPORTS03/160329972/0/Sports05/Durango-track-and-field-team-strong-in-Farmington
-    // /20160320/SPORTS03/160329972/-1/Sports
-    // /20160320/SPORTS03/160329972/-1/Sports03/Durango-track-and-field-team-strong-in-Farmington
-    // /20160320/SPORTS03/160329972/Durango-track-and-field-team-strong-in-Farmington
-
-    // http://www.durangoherald.com/article/
-
-    // 4-H garden is gateway to lessons about health
-    // /20160316/COLUMNISTS05/160319649/-1/Columnists
-    // /20160316/COLUMNISTS05/160319649/-1/Lifestyle
-    // /20160316/COLUMNISTS05/160319649/-1/Lifestyle01
-    // /20160316/COLUMNISTS05/160319649/-1/Lifestyle04
-    // /20160316/COLUMNISTS05/160319649/-1/News06
-
     return "";
     }
     catch( Exception Except )
@@ -902,10 +875,38 @@ namespace DGOLibrary
 
 
 
+  // Experts' don't always know what truth is	http://www.durangoherald.com/article/20160406/COLUMNISTS09/160409745/0/20120721	117
+  private void ShowTitleMatch()
+    {
+    for( int Index = 0; Index < URLsRecArrayLength; Index++ )
+      {
+      if( URLsRecArray[Index].URLIndexArray ==  null )
+        continue;
+
+      int Last = URLsRecArray[Index].URLIndexArrayLast;
+      for( int Count = 0; Count < Last; Count++ )
+        {
+        Page SendPage =  URLsRecArray[Index].URLIndexArray[Count].PageForURL;
+        if( SendPage == null )
+          continue;
+
+        string Title = SendPage.GetTitle();
+        if( Title.Contains( "Experts' don't always know what truth is" ))
+          {
+          MForm.ShowStatus( Title + "\t" + SendPage.GetFileName() + "\t" + SendPage.GetURL());
+          }
+        }
+      }
+    }
+
+
+
   internal byte[] Get24HoursPage()
     {
     try
     {
+    ShowTitleMatch();
+
     // http://127.0.0.1/get24hours.htm
 
     StringBuilder SBuilder = new StringBuilder();
@@ -1240,6 +1241,176 @@ namespace DGOLibrary
 
     MForm.ShowStatus( "Finished making compressed files." );
     }
+
+
+
+
+  internal void FixAllDuplicatePages()
+    {
+    try
+    {
+    ClearAllDuplicateURLs();
+
+    uint Loops = 0;
+    for( int Index1 = 0; Index1 < URLsRecArrayLength; Index1++ )
+      {
+      if( URLsRecArray[Index1].URLIndexArray ==  null )
+        continue;
+
+      for( int Index2 = Index1; Index2 < URLsRecArrayLength; Index2++ )
+        {
+        if( URLsRecArray[Index2].URLIndexArray ==  null )
+          continue;
+
+        int Last1 = URLsRecArray[Index1].URLIndexArrayLast;
+        int Last2 = URLsRecArray[Index2].URLIndexArrayLast;
+        for( int Count1 = 0; Count1 < Last1; Count1++ )
+          {
+          Loops++;
+          if( (Loops & 0xFFFFF) == 0 )
+            MForm.ShowStatus( "Checking at: " + Index1.ToString( "N0" ) + "  Loops: " + Loops.ToString( "N0" ));
+
+          if( (Loops & 0xFF) == 0 )
+            {
+            if( !MForm.CheckEvents())
+              return;
+
+            }
+
+          Page Page1 =  URLsRecArray[Index1].URLIndexArray[Count1].PageForURL;
+          if( Page1 == null )
+            continue;
+
+          if( Page1.IsDuplicate())
+            continue;
+
+          string Title1 = Page1.GetTitle().Trim(); // .ToLower();
+
+          if( !Title1.Contains( "'Experts' don't always know what truth is" ))
+            continue;
+
+          for( int Count2 = 0; Count2 < Last2; Count2++ )
+            {
+            if( Index1 == Index2 )
+              {
+              if( Count1 <= Count2 )
+                continue;
+
+              }
+
+            Page Page2 =  URLsRecArray[Index2].URLIndexArray[Count2].PageForURL;
+            if( Page2 == null )
+              continue;
+
+            if( Page2.IsDuplicate())
+              continue;
+
+            if( Page1.GetURL() == Page2.GetURL())
+              throw( new Exception( "Bug: All of these URLs have to be unique." ));
+
+            // /20160418/
+
+            string Title2 = Page2.GetTitle().Trim(); // .ToLower();
+            if( Title1 == Title2 )
+              {
+              // MForm.ShowStatus( "Title1: " + Title1 );
+              // MForm.ShowStatus( "Title2: " + Title2 );
+              if( Page1.PageIsADuplicate( Page2 ))
+                {
+                Page2.CopyDuplicateURL( Page1 );
+                }
+              }
+            }
+          }
+        }
+      }
+
+    CountDuplicates();
+
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Exception in URLIndex.FixAllDuplicatePages():" );
+      MForm.ShowStatus( Except.Message );
+      }
+    }
+
+
+
+  private void CountDuplicates()
+    {
+    try
+    {
+    SortedDictionary<string, int> CountDictionary = new SortedDictionary<string, int>();
+
+    for( int Index = 0; Index < URLsRecArrayLength; Index++ )
+      {
+      if( URLsRecArray[Index].URLIndexArray ==  null )
+        continue;
+
+      int Last = URLsRecArray[Index].URLIndexArrayLast;
+      for( int Count = 0; Count < Last; Count++ )
+        {
+        Page OnePage =  URLsRecArray[Index].URLIndexArray[Count].PageForURL;
+        if( OnePage == null )
+          continue;
+
+        string DupURL = OnePage.GetTitle() + "\t" + OnePage.GetDuplicateURL();
+        if( CountDictionary.ContainsKey( DupURL ))
+          CountDictionary[DupURL] = CountDictionary[DupURL] + 1;
+        else
+          CountDictionary[DupURL] = 1;
+
+        }
+      }
+
+    foreach( KeyValuePair<string, int> Kvp in CountDictionary )
+      {
+      if( Kvp.Value >= 20 )
+        MForm.ShowStatus( Kvp.Key + "\t" + Kvp.Value.ToString());
+
+      }
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Exception in URLIndex.CountDuplicates():" );
+      MForm.ShowStatus( Except.Message );
+      }
+    }
+
+
+
+  private void ClearAllDuplicateURLs()
+    {
+    try
+    {
+    MForm.ShowStatus( "Starting to Clear URLs." );
+
+    for( int Index = 0; Index < URLsRecArrayLength; Index++ )
+      {
+      if( URLsRecArray[Index].URLIndexArray ==  null )
+        continue;
+
+      int Last = URLsRecArray[Index].URLIndexArrayLast;
+      for( int Count = 0; Count < Last; Count++ )
+        {
+        Page OnePage =  URLsRecArray[Index].URLIndexArray[Count].PageForURL;
+        if( OnePage == null )
+          continue;
+
+        OnePage.ClearDuplicateURL();
+        }
+      }
+
+    MForm.ShowStatus( "Cleared URLs." );
+    }
+    catch( Exception Except )
+      {
+      MForm.ShowStatus( "Exception in URLIndex.ClearAllDuplicateURLs():" );
+      MForm.ShowStatus( Except.Message );
+      }
+    }
+
 
 
   }
