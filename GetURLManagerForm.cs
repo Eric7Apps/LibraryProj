@@ -205,12 +205,12 @@ namespace DGOLibrary
     TempFileNameCount++;
 
     // Since this is getting one new page once every
-    // three seconds (depending on your timer event
+    // X seconds (depending on your timer event
     // setting) it would not come even remotely close
-    // to using all 127 unique file names at one time.
+    // to using all unique file names at one time.
 
-    // Bring it back to zero after 127.
-    TempFileNameCount = TempFileNameCount & 0x7F;
+    // Bring it back to zero after 256.
+    TempFileNameCount = TempFileNameCount & 0xFF;
     return TempName;
     }
 
@@ -235,7 +235,7 @@ namespace DGOLibrary
     ECTime TimeAdded = new ECTime( TimeIndex );
     double Seconds = TimeAdded.GetSecondsToNow();
 
-    if( Seconds < (60 * 30) )
+    if( Seconds < (60 * 2) )
       {
       // MForm.ShowStatus( " " );
       // MForm.ShowStatus( "Article was added " + Seconds.ToString( "N0" ) + " seconds ago." );
@@ -281,9 +281,8 @@ namespace DGOLibrary
       }
     else
       {
-      // =========
-      // if( TitleWasRecentlyAdded( Title ))
-        // return;
+      if( TitleWasRecentlyAdded( Title ))
+        return;
 
       UpdateTitleDateTime( Title );
       }
