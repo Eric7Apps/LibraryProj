@@ -713,13 +713,11 @@ namespace DGOLibrary
     {
     try
     {
-    MForm.ShowStatus( "Started indexing..." );
     ECTime StartTime = new ECTime();
-    MForm.MainWordsData.ClearAllIntCollections();
-    // if( ReadFilesFirst )
-      // ReadAllFilesToContent2();
-
     StartTime.SetToNow();
+    MForm.ShowStatus( "Started indexing..." );
+
+    MForm.MainWordsData.ClearAllIntCollections();
 
     int Loops = 0;
     for( int Index = 0; Index < URLsRecArrayLength; Index++ )
@@ -741,6 +739,11 @@ namespace DGOLibrary
 
         Page Page1 =  URLsRecArray[Index].URLIndexArray[Count].PageForURL;
         if( Page1 == null )
+          continue;
+
+        // The WordsIndexData.txt file would be huge
+        // with a lot of duplicates.
+        if( Page1.IsDuplicate())
           continue;
 
         Page1.ReindexFromFile( ReadFromCompressed );
@@ -875,7 +878,8 @@ namespace DGOLibrary
 
 
 
-  // Experts' don't always know what truth is	http://www.durangoherald.com/article/20160406/COLUMNISTS09/160409745/0/20120721	117
+  /*
+  // 'Experts' don't always know what truth is	http://www.durangoherald.com/article/20160406/COLUMNISTS09/160409745/0/20120721	117
   private void ShowTitleMatch()
     {
     for( int Index = 0; Index < URLsRecArrayLength; Index++ )
@@ -898,6 +902,7 @@ namespace DGOLibrary
         }
       }
     }
+    */
 
 
 
@@ -905,7 +910,7 @@ namespace DGOLibrary
     {
     try
     {
-    ShowTitleMatch();
+    // ShowTitleMatch();
 
     // http://127.0.0.1/get24hours.htm
 
@@ -945,6 +950,9 @@ namespace DGOLibrary
           continue;
 
         if( SendPage.GetContentsUpdateTimeIndex() < OldDateIndex )
+          continue;
+
+        if( SendPage.IsDuplicate())
           continue;
 
         // This title is the original title from the original
@@ -1025,6 +1033,9 @@ namespace DGOLibrary
         {
         Page SendPage =  URLsRecArray[Index].URLIndexArray[Count].PageForURL;
         if( SendPage == null )
+          continue;
+
+        if( SendPage.IsDuplicate())
           continue;
 
         string Contents = SendPage.GetSearchableContents();
@@ -1245,11 +1256,11 @@ namespace DGOLibrary
 
 
 
-  internal void FixAllDuplicatePages()
+  internal void FindAllDuplicatePages()
     {
     try
     {
-    ClearAllDuplicateURLs();
+    // ClearAllDuplicateURLs();
 
     uint Loops = 0;
     for( int Index1 = 0; Index1 < URLsRecArrayLength; Index1++ )
@@ -1286,8 +1297,9 @@ namespace DGOLibrary
 
           string Title1 = Page1.GetTitle().Trim(); // .ToLower();
 
-          if( !Title1.Contains( "'Experts' don't always know what truth is" ))
-            continue;
+          // This one had 117 duplicates.
+          // if( !Title1.Contains( "'Experts' don't always know what truth is" ))
+            // continue;
 
           for( int Count2 = 0; Count2 < Last2; Count2++ )
             {
@@ -1307,8 +1319,6 @@ namespace DGOLibrary
 
             if( Page1.GetURL() == Page2.GetURL())
               throw( new Exception( "Bug: All of these URLs have to be unique." ));
-
-            // /20160418/
 
             string Title2 = Page2.GetTitle().Trim(); // .ToLower();
             if( Title1 == Title2 )
@@ -1379,12 +1389,12 @@ namespace DGOLibrary
     }
 
 
-
+  /*
   private void ClearAllDuplicateURLs()
     {
     try
     {
-    MForm.ShowStatus( "Starting to Clear URLs." );
+    MForm.ShowStatus( "Starting to clear duplicate URLs." );
 
     for( int Index = 0; Index < URLsRecArrayLength; Index++ )
       {
@@ -1402,7 +1412,7 @@ namespace DGOLibrary
         }
       }
 
-    MForm.ShowStatus( "Cleared URLs." );
+    MForm.ShowStatus( "Cleared duplicate URLs." );
     }
     catch( Exception Except )
       {
@@ -1410,7 +1420,7 @@ namespace DGOLibrary
       MForm.ShowStatus( Except.Message );
       }
     }
-
+    */
 
 
   }
