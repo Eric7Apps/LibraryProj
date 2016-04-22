@@ -1026,19 +1026,6 @@ namespace DGOLibrary
     string ThisPageS = ReadFromTextFile( FileName );
     string ToCheckS =  ReadFromTextFile( ToCheck.GetFileName() );
 
-    float Ratio = (float)ThisPageS.Length / (float)ToCheckS.Length;
-    /*
-    if( Ratio < 0.9 )
-      return false;
-
-    if( Ratio > 1.2 )
-      return false;
-      */
-
-    // MForm.ShowStatus( "ThisPageS.Length: " + ThisPageS.Length.ToString());
-    // MForm.ShowStatus( "ToCheckS.Length: " + ToCheckS.Length.ToString());
-    // MForm.ShowStatus( "Ratio: " + Ratio.ToString( "N2" ));
-
     // MForm.ShowStatus( "This file: " + FileName );
     // MForm.ShowStatus( "To Check file: " + ToCheck.GetFileName() );
 
@@ -1052,14 +1039,17 @@ namespace DGOLibrary
     SortedDictionary<string, int> ToCheckPageDictionary = new SortedDictionary<string, int>();
 
     string[] SplitS = ThisPageS.Split( new Char[] { ' ' } );
-    // MForm.ShowStatus( "This Page SplitS.Length: " + SplitS.Length.ToString());
-    // float SplitLength1 = SplitS.Length;
     for( int Count = 0; Count < SplitS.Length; Count++ )
       {
       string Word = SplitS[Count].Trim().ToLower();
       if( Word == "" )
         continue;
 
+      // A page contains things like the 10 most popular
+      // articles at the time of download.  So it changes
+      // depending on when you download it.  A word in a
+      // popular article might or might not exist next
+      // time it's downloaded.
       if( !MForm.MainWordsData.WordExists( Word ))
         continue;
 
@@ -1072,11 +1062,6 @@ namespace DGOLibrary
 
 
     SplitS = ToCheckS.Split( new Char[] { ' ' } );
-    // MForm.ShowStatus( "ToCheck Page SplitS.Length: " + SplitS.Length.ToString());
-    // float SplitLength2 = SplitS.Length;
-
-    // Ratio = SplitLength1 / SplitLength2;
-    // MForm.ShowStatus( "Split ratio: " + Ratio.ToString( "N2" ));
 
     for( int Count = 0; Count < SplitS.Length; Count++ )
       {
@@ -1102,7 +1087,6 @@ namespace DGOLibrary
       Words++;
       if( ToCheckPageDictionary.ContainsKey( Kvp.Key ))
         {
-        // MForm.ShowStatus( "ContainsKey: " + Kvp.Key );
         KeyCount++;
         if( ToCheckPageDictionary[Kvp.Key] == ThisPageDictionary[Kvp.Key] )
           ExactCount++;
@@ -1115,22 +1099,13 @@ namespace DGOLibrary
       }
 
     float WordsRatio = (float)Words / (float)KeyCount;
-    /*
-    if( WordsRatio < 0.8 )
-      return false;
-
-    if( WordsRatio > 1.3 )
-      return false;
-      */
 
     float ExactRatio = (float)ExactCount / (float)KeyCount;
-    /*
     if( ExactRatio < 0.8 )
       return false;
 
     if( ExactRatio > 1.3 )
       return false;
-      */
 
     if( GetLastUpdateTimeInPage() != ToCheck.GetLastUpdateTimeInPage())
       {
