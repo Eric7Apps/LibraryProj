@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-// using System.Threading.Tasks;
 using System.IO;
 
 
@@ -1018,9 +1017,6 @@ namespace DGOLibrary
     {
     try
     {
-    MForm.ShowStatus( " " );
-    MForm.ShowStatus( "Title: " + Title );
-
     // The pages contain different things even though
     // it's really the same article.
     string ThisPageS = ReadFromTextFile( FileName );
@@ -1107,6 +1103,7 @@ namespace DGOLibrary
     if( ExactRatio > 1.3 )
       return false;
 
+    /*
     if( GetLastUpdateTimeInPage() != ToCheck.GetLastUpdateTimeInPage())
       {
       MForm.ShowStatus( "Original Last update: " + GetLastUpdateTimeInPage());
@@ -1117,7 +1114,10 @@ namespace DGOLibrary
       // MForm.ShowStatus( "The original Last update is the same as the duplicate." );
       MForm.ShowStatus( "Duplicate Last update: " + ToCheck.GetLastUpdateTimeInPage());
       }
+      */
 
+    MForm.ShowStatus( " " );
+    MForm.ShowStatus( "Title: " + Title );
     MForm.ShowStatus( "URL: " + URL );
     MForm.ShowStatus( "ToCheck URL: " + ToCheck.GetURL() );
     MForm.ShowStatus( "Words: " + Words.ToString( "N0" ));
