@@ -435,6 +435,7 @@ namespace DGOLibrary
 
 
 
+  /*
   // Be careful about what you execute from the server.
   internal bool StartProgramOrFile( string FileName )
     {
@@ -450,6 +451,8 @@ namespace DGOLibrary
     ProgProcess.StartInfo.CreateNoWindow = false;
     ProgProcess.StartInfo.ErrorDialog = false;
     ProgProcess.Start();
+    You would have to Dispose() of this ProgProcess
+    when it's done.
     }
     catch( Exception Except )
       {
@@ -459,7 +462,7 @@ namespace DGOLibrary
 
     return true;
     }
-
+    */
 
 
   private void showGetURLManagerToolStripMenuItem_Click(object sender, EventArgs e)
@@ -719,6 +722,18 @@ namespace DGOLibrary
     //////////
 
     MainURLIndex.CompressAllFiles();
+    }
+
+
+
+  private void fixDuplicatesToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+    //////////
+    // For profiling and time testing.
+    CloseServers();
+    //////////
+
+    MainURLIndex.FindAllDuplicatePages();
     }
 
 
