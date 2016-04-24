@@ -120,6 +120,10 @@ namespace DGOLibrary
     MForm.MainURLIndex.AddEmptyPage( "View Multimedia", "http://www.durangoherald.com/section/video/", "http://www.durangoherald.com" );
 
 
+    // Telegraph:
+    MForm.MainURLIndex.AddEmptyPage( "Place a Classified Ad", "http://www.durangotelegraph.com/index.cfm/place-an-ad/", "http://www.durangotelegraph.com" );
+
+
    ////////////////////
     // It works with https.
     /*
@@ -235,7 +239,7 @@ namespace DGOLibrary
     ECTime TimeAdded = new ECTime( TimeIndex );
     double Seconds = TimeAdded.GetSecondsToNow();
 
-    if( Seconds < (60 * 2) )
+    if( Seconds < 10 )
       {
       // MForm.ShowStatus( " " );
       // MForm.ShowStatus( "Article was added " + Seconds.ToString( "N0" ) + " seconds ago." );
