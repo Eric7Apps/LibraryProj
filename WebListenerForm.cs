@@ -480,7 +480,7 @@ namespace DGOLibrary
         }
       }
 
-    MForm.StartProgramOrFile( FileName );
+    // MForm.StartProgramOrFile( FileName );
 
     }
     catch( Exception Except )
